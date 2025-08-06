@@ -5,7 +5,7 @@
 # Variables
 dir=~/dotfiles          # Dotfiles directory
 olddir=~/dotfiles_old   # Old dotfiles backup directory
-files="zshrc tmux.conf" # list of files/folders to symlink in homedir
+files="zshrc tmux.conf Brewfile" # list of files/folders to symlink in homedir
 config_files="nvim"     # list of files/folders to symlink in .config
 
 # Create dotfiles_old in homedir
