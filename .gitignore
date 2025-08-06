@@ -1,0 +1,16 @@
+# ~/dotfiles/.gitignore
+
+# Ignore all .env files
+.env
+*.env
+
+# Ignore shell history files
+.zsh_history
+.bash_history
+
+# Ignore local machine or OS-specific files
+.DS_Store
+
+# Ignore Neovim session/swap/undo files (if they end up here)
+*.swp
+.undodir/
