@@ -15,7 +15,7 @@ The core philosophy is to create a consistent, portable, and highly efficient en
 
 This guide provides a complete, step-by-step process for setting up a new macOS environment from scratch using this repository.
 
-## Phase 1: Manual Bootstrap
+## Phase 1: Manual Bootstrap 🥾
 
 These steps must be performed manually on a fresh macOS installation before the automation can take over.
 
@@ -45,7 +45,7 @@ These steps must be performed manually on a fresh macOS installation before the 
 
     Now, navigate to **GitHub > Settings > SSH and GPG keys > New SSH key**, and paste the key from your clipboard.
 
-## Phase 2: Dotfiles Deployment
+## Phase 2: Dotfiles Deployment 👷🏽‍♂️
 
 Now we deploy the configuration from this repository.
 
@@ -63,7 +63,7 @@ Now we deploy the configuration from this repository.
     ./install.sh
     ```
 
-## Phase 3: Automated Installation
+## Phase 3: Automated Installation 🧑🏽‍💻
 
 The `Brewfile` in this repository defines every application and tool to be installed.
 
@@ -77,7 +77,7 @@ The `Brewfile` in this repository defines every application and tool to be insta
 2. **Restart Your Terminal:**
     **This is a critical step.** Close your current terminal and open a new one. This will launch Zsh with your new `.zshrc` configuration, and all your aliases and plugins will be active.
 
-## Phase 4: First-Run Tool Configurations
+## Phase 4: First-Run Tool Configurations 🛠️
 
 The tools are installed, but they need to set up their own internal plugins.
 
@@ -126,7 +126,7 @@ This repository manages the configuration for the following core components of m
 * **Key Plugins:** `zsh-syntax-highlighting`, `zsh-autosuggestions`, `z`
 * **Configuration File:** `zshrc` (symlinked to `~/.zshrc`)
 
-### multiplexer: Tmux
+### 💻 multiplexer: Tmux
 
 * **Prefix Key:** `Ctrl+a`
 * **Key Features:** Vi-style navigation, mouse support, session persistence with `tmux-resurrect` & `tmux-continuum`.
