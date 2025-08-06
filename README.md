@@ -11,37 +11,107 @@ The core philosophy is to create a consistent, portable, and highly efficient en
 
 ---
 
-## 🚀 Quick Start on a New Machine
+## 🚀 Installation on a New Machine
 
-Setting up a new macOS machine is designed to be as automated as possible.
+This guide provides a complete, step-by-step process for setting up a new macOS environment from scratch using this repository.
 
-1.  **Clone the Repository:**
-    Clone this repository into your home directory.
+## Phase 1: Manual Bootstrap
+
+These steps must be performed manually on a fresh macOS installation before the automation can take over.
+
+1. **Install Homebrew:**
+    Homebrew is the package manager for macOS and the foundation of this setup. Open the default Terminal app and run the official installation script:
 
     ```bash
-    git clone https://github.com/your-username/dotfiles.git ~/dotfiles
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     ```
 
-2.  **Run the Installation Script:**
-    The `install.sh` script will back up any existing dotfiles and create the necessary symbolic links.
+2. **Generate & Add SSH Key to GitHub:**
+    You need to register your new machine's SSH key with GitHub to clone repositories via SSH.
+
+    ```bash
+    # 1. Generate a new SSH key
+    ssh-keygen -t ed25519 -C "your_email@example.com"
+
+    # 2. Start the ssh-agent
+    eval "$(ssh-agent -s)"
+
+    # 3. Add your key to the agent
+    ssh-add ~/.ssh/id_ed25519
+
+    # 4. Copy the public key to your clipboard
+    pbcopy < ~/.ssh/id_ed25519.pub
+    ```
+
+    Now, navigate to **GitHub > Settings > SSH and GPG keys > New SSH key**, and paste the key from your clipboard.
+
+## Phase 2: Dotfiles Deployment
+
+Now we deploy the configuration from this repository.
+
+1. **Clone Your Dotfiles:**
+
+    ```bash
+    git clone git@github.com:your-username/dotfiles.git ~/dotfiles
+    ```
+
+2. **Run the Installation Script:**
+    This script backs up any default configs and creates all the necessary symbolic links (`.zshrc`, `.tmux.conf`, `.config/nvim`, etc.).
 
     ```bash
     cd ~/dotfiles
     ./install.sh
     ```
 
-3.  **Install Essential Tools:**
-    The configurations rely on several tools managed by Homebrew. Run this command to install them.
-    
+## Phase 3: Automated Installation
+
+The `Brewfile` in this repository defines every application and tool to be installed.
+
+1. **Install All Software via Brew Bundle:**
+    This command reads the symlinked `~/.Brewfile` and installs everything. This will take some time.
+
     ```bash
-    # This is a placeholder. You should create a Brewfile to automate this.
-    # See the "Package Management" section below for instructions.
-    brew install neovim tmux pyenv zsh-syntax-highlighting zsh-autosuggestions ... 
+    brew bundle --global
     ```
 
-4.  **Install Neovim & Tmux Plugins:**
-    *   **Neovim:** Open `nvim` and the `lazy.nvim` plugin manager will automatically install all configured plugins.
-    *   **Tmux:** Start `tmux` and press **`Prefix` + `I`** (`Ctrl+a` then `I`) to have TPM install all plugins.
+2. **Restart Your Terminal:**
+    **This is a critical step.** Close your current terminal and open a new one. This will launch Zsh with your new `.zshrc` configuration, and all your aliases and plugins will be active.
+
+## Phase 4: First-Run Tool Configurations
+
+The tools are installed, but they need to set up their own internal plugins.
+
+1. **Install Tmux Plugins:**
+    * Start tmux: `ta`
+    * Press **`Prefix` + `I`** (`Ctrl+a` then `Shift+i`) to have TPM install all plugins.
+
+2. **Install Neovim Plugins:**
+    * Start Neovim: `nvim`
+    * `lazy.nvim` will automatically pop up and install all plugins.
+    * Restart Neovim once it's finished.
+
+3. **Install Language Versions:**
+    The version managers are installed, but you need to install the specific language versions.
+
+    ```bash
+    # Example for Python
+    pyenv install 3.12.7
+    pyenv global 3.12.7
+
+    # Example for Node
+    nvm install 20
+    nvm alias default 20
+    ```
+
+4. **Configure Git Identity:**
+    Tell Git who you are on this new machine.
+
+    ```bash
+    git config --global user.name "Your Name"
+    git config --global user.email "your_email@example.com"
+    ```
+
+    Your environment is now fully configured and ready to use.
 
 ---
 
@@ -51,51 +121,36 @@ This repository manages the configuration for the following core components of m
 
 ### 🐚 Shell: Zsh + Oh My Zsh
 
-*   **Framework:** [Oh My Zsh](https://ohmyz.sh/) for plugin and theme management.
-*   **Prompt:** `dpoggi` theme for a clean, informative Git-aware prompt.
-*   **Key Plugins:**
-    *   `zsh-syntax-highlighting`: Provides real-time syntax highlighting for commands.
-    *   `zsh-autosuggestions`: Suggests commands based on history.
-    *   `z`: Allows for rapid directory jumping based on frequency and recency.
-*   **Configuration File:** `zshrc` (symlinked to `~/.zshrc`)
+* **Framework:** [Oh My Zsh](https://ohmyz.sh/)
+* **Prompt:** `dpoggi` theme
+* **Key Plugins:** `zsh-syntax-highlighting`, `zsh-autosuggestions`, `z`
+* **Configuration File:** `zshrc` (symlinked to `~/.zshrc`)
 
-###  multiplexer: Tmux
+### multiplexer: Tmux
 
-*   **Prefix Key:** `Ctrl+a` (ergonomic alternative to `Ctrl+b`).
-*   **Key Features:**
-    *   Vim-style keybindings for pane navigation (`hjkl`) and copy mode.
-    *   Mouse support enabled for scrolling and selection.
-    *   Session persistence across reboots via `tmux-resurrect` and `tmux-continuum`.
-*   **Plugins:** Managed by [TPM (Tmux Plugin Manager)](https://github.com/tmux-plugins/tpm).
-*   **Configuration File:** `tmux.conf` (symlinked to `~/.tmux.conf`)
+* **Prefix Key:** `Ctrl+a`
+* **Key Features:** Vi-style navigation, mouse support, session persistence with `tmux-resurrect` & `tmux-continuum`.
+* **Plugins:** Managed by [TPM (Tmux Plugin Manager)](https://github.com/tmux-plugins/tpm).
+* **Configuration File:** `tmux.conf` (symlinked to `~/.tmux.conf`)
 
 ### 📝 Editor: Neovim
 
 A modern, Lua-based configuration designed for speed and extensibility.
 
-*   **Plugin Manager:** [lazy.nvim](https://github.com/folke/lazy.nvim) for fast, declarative plugin management.
-*   **Core Experience:**
-    *   **LSP:** `nvim-lspconfig` with `mason.nvim` for automatic installation of language servers (Python, Lua, JS/TS, etc.).
-    *   **Autocompletion:** `nvim-cmp` for a powerful completion engine.
-    *   **Fuzzy Finding:** `Telescope.nvim` for finding files, buffers, and grepping through the project.
-    *   **Syntax Highlighting:** `nvim-treesitter` for fast and accurate highlighting.
-*   **Theme:** Kanagawa with automatic light/dark mode switching based on the macOS theme.
-*   **Configuration Directory:** `nvim/` (symlinked to `~/.config/nvim/`)
+* **Plugin Manager:** [lazy.nvim](https://github.com/folke/lazy.nvim)
+* **Core Experience:** LSP (`mason.nvim`), Autocompletion (`nvim-cmp`), Fuzzy Finding (`Telescope.nvim`), Syntax Highlighting (`nvim-treesitter`).
+* **Theme:** Kanagawa with automatic light/dark mode switching.
+* **Configuration Directory:** `nvim/` (symlinked to `~/.config/nvim/`)
 
 ### 📄 Cheat Sheets
 
 This repository also contains my personal command reference sheets.
 
-*   [Neovim Cheat Sheet](./cheat-sheets/neovim.md)
-*   [Tmux & Zsh Cheat Sheet](./cheat-sheets/tmux-zsh.md)
+* [Neovim Cheat Sheet](./cheat-sheets/neovim.md)
+* [Tmux & Zsh Cheat Sheet](./cheat-sheets/tmux-zsh.md)
 
 ---
 
-## 📦 Package Management with Brewfile
+## 📜 License
 
-To fully automate the setup, this repository uses a `Brewfile` to manage Homebrew packages.
-
-**On a new machine, after cloning the dotfiles and installing Homebrew, run:**
-
-```bash
-brew bundle --global
+This project is licensed under the MIT License. Feel free to use and adapt any part of this configuration for your own setup.

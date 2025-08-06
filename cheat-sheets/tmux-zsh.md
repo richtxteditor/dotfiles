@@ -65,6 +65,8 @@
 | **`zshconfig`** | Opens your `.zshrc` file in your default editor (`nvim`). |
 | **`update`** | A full system update: macOS, Homebrew, and Oh My Zsh. |
 | **`cls`** | A simple alias to `clear` the screen. |
+| **`bbu`** | **B**rew **B**undle **U**pdate: Overwrites your `Brewfile` with your current installed packages. |
+| **`brew bundle --global`** | Installs all packages listed in your `Brewfile`. Run this on a new machine. |
 
 #### File & Directory Navigation
 
