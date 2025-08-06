@@ -1,12 +1,9 @@
-Here are two command sheets tailored specifically to the **`tmux.conf`** and **`.zshrc`** configurations.
-
----
-
-### Your Personalized `tmux` Command Sheet
+# Your Personalized `tmux` Command Sheet
 
 **Your Prefix Key: `Ctrl + a`** (referred to as `<Prefix>`)
 
-#### Session Management (via Zsh)
+## Session Management (via Zsh)
+
 *These are the aliases/functions you type in your Zsh terminal to manage tmux.*
 
 | Command | Action |
@@ -17,7 +14,8 @@ Here are two command sheets tailored specifically to the **`tmux.conf`** and **`
 | **`tka`** | **K**ill **a**ll other sessions except the one you are currently attached to. |
 | **`tk <id>`** | **K**ill a specific session by its ID number. |
 
-#### Windows & Panes
+## Windows & Panes
+
 *These commands are used inside tmux, after pressing `<Prefix>`.*
 
 | Keystroke | Action |
@@ -27,7 +25,7 @@ Here are two command sheets tailored specifically to the **`tmux.conf`** and **`
 | **`<Prefix> + p`** | Go to the **p**revious window. |
 | **`<Prefix> + X`** | Kill the current **W**indow (with confirmation). |
 | **`<Prefix> + ,`** | Rename the current window. |
-| **`<Prefix> + |`** | Split the current pane vertically (`|`). |
+| **`<Prefix> + \|`** | Split the current pane vertically (`\|`). |
 | **`<Prefix> + -`** | Split the current pane horizontally (`-`). |
 | **`<Prefix> + h/j/k/l`** | Move to the pane to the Left/Down/Up/Right. |
 | **`<Prefix> + H/J/K/L`** | **R**esize the current pane Left/Down/Up/Right. (Repeatable) |
@@ -35,7 +33,8 @@ Here are two command sheets tailored specifically to the **`tmux.conf`** and **`
 | **`<Prefix> + x`** | Kill the current pane (with confirmation). |
 | **`<Prefix> + b`** | **B**reak the current pane out into its own new window. |
 
-#### Copy Mode (Vi Style)
+## Copy Mode (Vi Style)
+
 *For copying text from the terminal scrollback.*
 
 | Keystroke | Action |
@@ -44,7 +43,7 @@ Here are two command sheets tailored specifically to the **`tmux.conf`** and **`
 | **`v`** | (In Copy Mode) Begin selection. |
 | **`y`** | (In Copy Mode) **Y**ank (copy) the selected text to the system clipboard. |
 
-#### Plugin Commands
+## Plugin Commands
 
 | Keystroke | Action & Plugin |
 | :--- | :--- |
@@ -81,6 +80,7 @@ Here are two command sheets tailored specifically to the **`tmux.conf`** and **`
 | **`cd -`** | Go back to the previous directory you were in. |
 
 #### Git Workflow
+
 *These are your most common shortcuts. The `git` plugin provides many more.*
 
 | Alias | Action |
