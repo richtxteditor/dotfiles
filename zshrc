@@ -1,49 +1,53 @@
-# ==================================================================== #
-#                 ~/.zshrc - Enhanced Configuration                    #
-# ==================================================================== #
-# This file is structured for clarity, performance, and correct load order.
-# -------------------------------------------------------------------- #
-
-# -------------------------------------------------------------------- #
-# SECTION 1: PATH Configuration
-# -------------------------------------------------------------------- #
-
+# --- Path Configuration ---
 export PATH="/opt/homebrew/bin:$PATH"
 export PATH="$PATH:$HOME/.local/bin"
 export PATH="$HOME/.composer/vendor/bin:$PATH"
+export PATH="$HOME/.opencode/bin:$PATH"
+export PATH="$HOME/.antigravity/antigravity/bin:$PATH"
+# Julia
+path=('$HOME/.juliaup/bin' $path)
+export PATH
 
-# -------------------------------------------------------------------- #
-# SECTION 2: Oh My Zsh - Core Configuration
-# -------------------------------------------------------------------- #
+# --- Environment ---
+export EDITOR='nvim'
+export VISUAL='nvim'
+export LANG=en_US.UTF-8
+export HISTSIZE=10000
+export SAVEHIST=10000
 
+# --- Oh My Zsh ---
 export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="dpoggi"
-plugins=(
-    git zsh-syntax-highlighting zsh-autosuggestions z brew docker node python history macos
-)
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+# REMOVED 'z' plugin to avoid conflict with zoxide
+plugins=(git zsh-syntax-highlighting zsh-autosuggestions brew docker node python history macos)
 zstyle ':omz:update' mode reminder
-zstyle ':omz:update' frequency 13
-
-# -------------------------------------------------------------------- #
-# SECTION 3: Source Oh My Zsh
-# -------------------------------------------------------------------- #
 source $ZSH/oh-my-zsh.sh
 
-# -------------------------------------------------------------------- #
-# SECTION 4: User-Defined Aliases & Functions
-# -------------------------------------------------------------------- #
+# --- Options ---
+setopt EXTENDED_HISTORY HIST_IGNORE_ALL_DUPS HIST_IGNORE_SPACE SHARE_HISTORY
+setopt AUTO_CD PUSHD_IGNORE_DUPS
+unsetopt BEEP
+zstyle ':completion:*' menu select
+zstyle ':completion:*' group-names ''
 
 # --- Aliases ---
+
+# System
+alias reload='source ~/.zshrc && echo "Config reloaded!"'
 alias zshconfig='${EDITOR:-vim} ~/.zshrc'
-alias reload='source ~/.zshrc && echo "Zsh config reloaded!"'
 alias cls='clear'
-alias update='sudo softwareupdate -i -a; brew update; brew upgrade; brew cleanup; omz update; echo "System update checks complete."'
+alias update='sudo softwareupdate -i -a; brew update; brew upgrade; brew cleanup; omz update; echo "Updates complete."'
 alias bbu='brew bundle dump --file=~/dotfiles/Brewfile --force && echo "Brewfile updated!"'
-alias ls='ls -G'
-alias l='ls -CF'
-alias la='ls -A'
-alias ll='ls -alFh'
-alias lsd='ls -l | grep "^d"'
+
+# Modern Unix Replacements (Eza/Bat/Lazygit)
+alias cat='bat'
+alias ls='eza --icons --git'
+alias ll='eza --icons --git -l'
+alias la='eza --icons --git -la'
+alias tree='eza --icons --tree --level=2'
+alias lg='lazygit'
+
+# Git (Standard)
 alias gs='git status -sb'
 alias gl='git log --oneline --graph --decorate --all'
 alias gp='git push'
@@ -51,105 +55,110 @@ alias gpf='git push --force-with-lease'
 alias gpl='git pull --rebase --autosthat'
 alias gaa='git add .'
 alias gc='git commit -m'
-alias venv='python3 -m venv .venv && echo "Created .venv directory."'
+
+# Python / AI
+alias venv='python3 -m venv .venv && echo "Created .venv"'
 alias venvact='source .venv/bin/activate'
+alias explain="gemini 'Explain this error message and suggest a fix:'"
+
+# Tmux
 alias tls='tmux ls'
-alias tns='tmux new-session -s'
 alias tk='tmux kill-session -t'
 alias tka="tmux list-sessions | grep -v '(attached)' | cut -d: -f1 | xargs -I {} tmux kill-session -t {}"
 
 # --- Functions ---
+
+# Mkdir + CD
 mkcd() { mkdir -p "$1" && cd "$1"; }
+
+# iCloud Shortcut
 ic() { cd ~/Library/Mobile\ Documents/com~apple~CloudDocs; }
+
+# Smart Tmux Attach/Create
 ta() {
-  if ! tmux ls > /dev/null 2>&1; then
-    echo "No tmux server found. Starting server and restoring sessions..."
-    tmux start-server
-    for i in {1..10}; do
-      if tmux has-session > /dev/null 2>&1; then break; fi
-      sleep 0.2
-    done
-  fi
-  if tmux has-session > /dev/null 2>&1; then
+  if tmux has-session 2>/dev/null; then
     tmux attach-session -t "$(tmux list-sessions -F '#S' | head -n 1)"
   else
-    tmux
+    tmux new-session
   fi
 }
 
-# -------------------------------------------------------------------- #
-# SECTION 5: Shell Options, History, and Completions
-# -------------------------------------------------------------------- #
+# Nom Wrapper (Theme Auto-Switch)
+nom() {
+    local CONFIG="$HOME/Library/Application Support/nom/config.yml"
+    if defaults read -g AppleInterfaceStyle 2>/dev/null | grep -q "Dark"; then
+        sed -i '' 's/glamour: light/glamour: dark/' "$CONFIG"
+    else
+        sed -i '' 's/glamour: dark/glamour: light/' "$CONFIG"
+    fi
+    command nom "$@"
+}
 
-# --- History ---
-export HISTSIZE=10000
-export SAVEHIST=10000
-setopt EXTENDED_HISTORY HIST_IGNORE_ALL_DUPS HIST_IGNORE_SPACE HIST_FIND_NO_DUPS SHARE_HISTORY
+# Gemini Wrapper (Theme Auto-Switch)
+gemini() {
+    local CONFIG="$HOME/.gemini/settings.json"
+    if [[ -f "$CONFIG" ]]; then
+        if defaults read -g AppleInterfaceStyle 2>/dev/null | grep -q "Dark"; then
+            sed -i '' 's/"theme": "[^"]*"/"theme": "Atom One"/' "$CONFIG"
+        else
+            sed -i '' 's/"theme": "[^"]*"/"theme": "Google Code"/' "$CONFIG"
+        fi
+    fi
+    command gemini "$@"
+}
 
-# --- General Behavior ---
-setopt AUTO_CD PUSHD_IGNORE_DUPS
-unsetopt BEEP
-
-# --- Completion System ---
-# These styles must be set for the menu to work correctly.
-zstyle ':completion:*' menu select
-zstyle ':completion:*' group-names ''
-
-# -------------------------------------------------------------------- #
-# SECTION 6: Custom Keybindings & Widgets
-# This section must come AFTER the completion system is configured.
-# -------------------------------------------------------------------- #
-
-# --- Smart Tab Widget ---
-# This widget provides context-aware Tab completion.
+# --- Smart Tab Completion ---
 smart-tab-completion() {
   if [[ -n "${ZSH_AUTOSUGGEST_SUGGESTION-}" ]]; then
-    # If a zsh-autosuggestion is available, accept it.
     zle autosuggest-accept
   else
-    # Otherwise, trigger the interactive completion menu.
-    zle menu-select
+    zle expand-or-complete
   fi
 }
-
-# Register our new function as a ZLE widget.
 zle -N smart-tab-completion
-
-# Bind Tab ('^i') to our new smart widget.
 bindkey '^i' smart-tab-completion
-
-# --- In-Menu Cycling Keybindings ---
-# These bindings ONLY apply when the completion menu is active.
-# Bind Tab to cycle forward through the completion menu.
 bindkey -M menuselect '^i' menu-complete
-# Bind Shift-Tab to cycle backward through the completion menu.
 bindkey -M menuselect 'ZA' reverse-menu-complete
 
-# -------------------------------------------------------------------- #
-# SECTION 7: Environment Variables
-# -------------------------------------------------------------------- #
+# --- Custom Prompt ---
+function set_prompt() {
+    # Path Shortening
+    local TRUNC_LENGTH=2
+    local PWD_PRETTY=${PWD/#$HOME/\~}
+    local -a path_parts=("${(@s:/:)PWD_PRETTY}")
+    if (( ${#path_parts[@]} > TRUNC_LENGTH + 1 )); then
+        PROMPT_PWD="${path_parts[1]}/…/${(j:/:)path_parts[-TRUNC_LENGTH,-1]}"
+    else
+        PROMPT_PWD=$PWD_PRETTY
+    fi
 
-export EDITOR='nvim'
-export VISUAL='nvim'
-export LANG=en_US.UTF-8
+    # Git Status
+    if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        if [[ -n "$(git status --porcelain)" ]]; then
+            local GIT_STATE='%F{yellow}⚡️%f'
+        else
+            local GIT_STATE='%F{green}✓%f'
+        fi
+        local GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+        PROMPT_GIT_INFO="(%F{yellow}${GIT_BRANCH}%f ${GIT_STATE})"
+    else
+        PROMPT_GIT_INFO=""
+    fi
+}
+autoload -U add-zsh-hook
+add-zsh-hook precmd set_prompt
+PROMPT='%F{green}%n%f@%F{cyan}%m%f:%F{141}${PROMPT_PWD}%f${PROMPT_GIT_INFO} %F{red}»%f '
 
-# -------------------------------------------------------------------- #
-# SECTION 8: Version & Tool Initializations
-# -------------------------------------------------------------------- #
+# --- Tool Initializations ---
 
-# --- NVM (Node Version Manager) ---
+# Zoxide (Smart CD - replaces 'z')
+eval "$(zoxide init zsh)"
+
+# NVM
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
-# --- Pyenv (Python Version Manager) ---
-export PYENV_ROOT="$HOME/.pyenv"
+# Language Managers
 eval "$(pyenv init -)"
-
-# --- rbenv (Ruby Version Manager) ---
 eval "$(rbenv init - zsh)"
-
-# --- Auto-generated Initializers ---
-export PATH="$HOME/.opencode/bin:$PATH"
-path=('$HOME/.juliaup/bin' $path)
-export PATH
