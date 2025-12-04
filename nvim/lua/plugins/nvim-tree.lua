@@ -1,14 +1,29 @@
 -- lua/plugins/nvim-tree.lua
 
 return {
-  "nvim-tree/nvim-tree.lua",
-  dependencies = { "nvim-tree/nvim-web-devicons" },
-  config = function()
-    vim.g.loaded_netrw = 1
-    vim.g.loaded_netrwPlugin = 1
-    require("nvim-tree").setup()
-
-    -- Keymap to toggle NvimTree
-    vim.keymap.set("n", "<leader>fe", "<cmd>NvimTreeToggle<cr>", { desc = "[F]ile [E]xplorer" })
-  end,
+    {
+        "nvim-tree/nvim-tree.lua",
+        dependencies = { "nvim-tree/nvim-web-devicons" },
+        -- Keymaps are defined here so Lazy can manage them
+        keys = {
+            {
+                "<leader>e",
+                "<cmd>NvimTreeToggle<cr>",
+                desc = "Toggle File Explorer (NvimTree)",
+            },
+        },
+        opts = {
+            -- You can add your nvim-tree options here
+            sort_by = "case_sensitive",
+            view = {
+                width = 30,
+            },
+            renderer = {
+                group_empty = true,
+            },
+            filters = {
+                dotfiles = true,
+            },
+        },
+    },
 }
