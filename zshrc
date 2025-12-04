@@ -4,7 +4,6 @@ export PATH="$PATH:$HOME/.local/bin"
 export PATH="$HOME/.composer/vendor/bin:$PATH"
 export PATH="$HOME/.opencode/bin:$PATH"
 export PATH="$HOME/.antigravity/antigravity/bin:$PATH"
-# Julia
 path=('$HOME/.juliaup/bin' $path)
 export PATH
 
@@ -18,8 +17,7 @@ export SAVEHIST=10000
 # --- Oh My Zsh ---
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-# REMOVED 'z' plugin to avoid conflict with zoxide
-plugins=(git zsh-syntax-highlighting zsh-autosuggestions brew docker node python history macos)
+plugins=(git zsh-syntax-highlighting zsh-autosuggestions fzf-tab brew docker node python history macos)
 zstyle ':omz:update' mode reminder
 source $ZSH/oh-my-zsh.sh
 
@@ -107,16 +105,7 @@ gemini() {
     command gemini "$@"
 }
 
-# --- Smart Tab Completion ---
-smart-tab-completion() {
-  if [[ -n "${ZSH_AUTOSUGGEST_SUGGESTION-}" ]]; then
-    zle autosuggest-accept
-  else
-    zle expand-or-complete
-  fi
-}
-zle -N smart-tab-completion
-bindkey '^i' smart-tab-completion
+bindkey '^@' autosuggest-accept
 bindkey -M menuselect '^i' menu-complete
 bindkey -M menuselect 'ZA' reverse-menu-complete
 

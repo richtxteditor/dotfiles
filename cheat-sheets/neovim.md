@@ -1,80 +1,105 @@
-# My Personalized Neovim Command Sheet
+# Neovim Cheat Sheet
 
-**Your Leader Key:** `<Space>` (This is referred to as `<leader>` in the keymaps below)
+**Leader Key:** `<Space>`
 
-## Essential Vim Motions & Edits (The Foundation)
+## 1. Core Mappings (Your Custom Shortcuts)
 
-*These commands are used in Normal Mode.*
-
-| Keystroke(s) | Action |
+| Action | Keybinding |
 | :--- | :--- |
-| **`h j k l`** | Move cursor Left, Down, Up, Right. |
-| **`w`** / **`b`** | Move forward/backward one **w**ord. |
-| **`0`** / **`^`** | Jump to the start of the line / first non-whitespace character. |
-| **`$`** | Jump to the end of the line. |
-| **`gg`** / **`G`** | Go to the first / last line of the file. |
-| **`%`** | Jump to the matching `()`, `[]`, or `{}`. |
-| **`d`** | The **d**elete operator (e.g., `dw` to delete a word). |
-| **`dd`** | Delete the current line. |
-| **`c`** | The **c**hange operator (deletes and enters Insert mode). |
-| **`cc`** | Change the current line. |
-| **`y`** | The **y**ank (copy) operator (e.g., `yiw` to yank inner word). |
-| **`yy`** | Yank (copy) the current line. |
-| **`p`** | **P**aste after the cursor. |
-| **`u`** / **`Ctrl+r`** | **U**ndo / **R**edo. |
-| **`.`** | **Repeat the last change.** (Incredibly powerful!) |
+| **Save File** | `<leader>w` |
+| **Quit Window** | `<leader>q` |
+| **Force Quit All** | `<leader>Q` |
+| **Clear Highlight** | `<leader><space>` |
+| **Open Lazygit** | `<leader>gg` |
+| **Format Code** | `<leader>cf` |
 
-## Window & File Management
+## 2. Navigation (Getting Around)
 
-*Your custom keymaps for managing the editor itself.*
-
-| Keystroke | Action |
+| Action | Keybinding |
 | :--- | :--- |
-| **`<leader>w`** | **W**rite (save) the current file. |
-| **`<leader>q`** | **Q**uit the current window. |
-| **`<leader>Q`** | Force **Q**uit **A**ll windows, discarding all changes. |
-| **`<Ctrl>+h/j/k/l`** | Navigate to the window Left/Down/Up/Right. |
-| **`:sp`** / **`:vs`** | Create a horizontal / vertical **sp**lit. |
+| **Basic Movement** | `h`, `j`, `k`, `l` |
+| **Jump by Lines** | `5j` |
+| **Word Movement** | `w`, `b`, `e` |
+| **File Start/End** | `gg` / `G` |
+| **Go Back / Forward** | `Ctrl` + `o` / `Ctrl` + `i` |
 
-## File & Project Navigation (Your Plugins)
+## 3. Editing (Changing Text)
 
-| Keystroke | Action & Plugin |
+| Action | Keybinding | Description |
+| :--- | :--- | :--- |
+| **Change Inner Word** | `ciw` | Delete word under cursor and enter Insert mode. |
+| **Delete Till Char** | `dt"` | Delete everything on the line until the next quote. |
+| **Undo / Redo** | `u` / `Ctrl` + `r`| Persists across sessions. |
+| **Repeat Last Action**| `.` (dot) | Repeats your last change (e.g., a `ciw` or `dd`). |
+
+## 4. Windows, Tabs & Layout
+
+| Action | Command / Keys |
 | :--- | :--- |
-| **`<leader>fe`** | Toggle the **F**ile **E**xplorer (`nvim-tree`). |
-| **`<leader>ff`** | **F**ind **F**iles in the project (`Telescope`). |
-| **`<leader>fg`** | **F**ind by **G**rep (search for text content) in the project (`Telescope`). |
-| **`<leader>fb`** | **F**ind **B**uffers (list of open files) (`Telescope`). |
-| **`<leader>fo`** | **F**ind **O**ld Files (recently opened files) (`Telescope`). |
+| **Vertical Split** | `:vsp` / `Ctrl+w, v` |
+| **Horizontal Split**| `:sp` / `Ctrl+w, s` |
+| **Close ALL Others** | `:only` |
+| **Focus Pane** | `Ctrl` + `h/j/k/l`|
 
-## Code Intelligence (LSP)
+## 5. Plugin Integrations (The Complete List)
 
-*These commands work when a Language Server is attached to the file.*
+### Telescope (Fuzzy Finder)
 
-| Keystroke | Action |
+| Action | Keybinding | Description |
+| :--- | :--- | :--- |
+| **Find Files** | `<leader>ff` | Find Files |
+| **Live Grep (Text)**| `<leader>fg` | Find Text |
+| **Find Buffers**| `<leader>fb` | Find Buffers |
+| **Find Help Tags** | `<leader>fh` | Find Help Tags |
+| **Find Old Files** | `<leader>fo` | Find Old Files |
+| **Find Diagnostics**| `<leader>fd` | Find Diagnostics |
+| **In Telescope Menu**| `Ctrl+v` / `Ctrl+x` | Open selection in a vertical/horizontal split. |
+
+### Nvim-Tree (File Explorer)
+
+| Action | Keybinding |
 | :--- | :--- |
-| **`K`** | (Hover over a symbol) Show documentation and type information. |
-| **`gd`** | **G**o to **D**efinition of the symbol under the cursor. |
-| **`gr`** | **G**o to **R**eferences of the symbol under the cursor. |
-| **`<leader>rn`** | **R**e**n**ame the symbol under the cursor across the project. |
-| **`<leader>ca`** | Show available **C**ode **A**ctions (e.g., auto-import, fix error). |
-| **`[d`** / **`]d`** | Go to the previous / next diagnostic (error, warning). |
+| **Toggle Tree** | `<leader>e` |
+| **Open File** | `Enter` or `o` |
+| **Open in V-Split** | `v` |
+| **Open in H-Split** | `s` |
+| **Create File/Dir** | `a` |
+| **Rename File** | `r` |
+| **Delete File** | `d` |
+| **Copy / Paste** | `c` / `p` |
 
-## Formatting & Utility
+### Autocomplete & Snippets (nvim-cmp)
 
-| Keystroke | Action |
+| Action | Keybinding | Description |
+| :--- | :--- | :--- |
+| **Navigate Menu** | `Ctrl+n` / `Ctrl+p` | Select next/previous item in the popup menu. |
+| **Confirm Completion**| `Enter` or `Tab` | Accept the selected suggestion. |
+| **Expand Snippet** | `Tab` or `Enter` | If a snippet is selected, this will expand it. |
+| **Close Menu** | `Ctrl+e` | Close the completion menu without accepting. |
+
+### Git Integration (Gitsigns)
+
+*Gitsigns* adds indicators in the left gutter for added (`+`), modified (`~`), and removed (`-`) lines.
+
+| Action | Keybinding | Description |
+| :--- | :--- | :--- |
+| **Stage Hunk** | `<leader>hs` | Stage the current block of changes (`hunk`). |
+| **Preview Hunk** | `<leader>hp` | Show a floating window with the diff of the current hunk. |
+| **Undo Hunk** | `<leader>hu` | Revert the changes in the current hunk. |
+| **Next / Prev Hunk**| `]c` / `[c` | Jump between changed hunks in the file. |
+
+### LSP (Language Intelligence)
+
+| Action | Keybinding |
 | :--- | :--- |
-| **`<leader>cf`** | **C**ode **F**ormat the current file (`conform.nvim`). |
-| **`<leader><space>`** | Clear the search highlight from the last search. |
-| **`<leader>mp`** | Toggle **M**arkdown **P**review. |
+| **Hover Docs** | `K` |
+| **Go to Definition** | `gd` |
+| **Rename Symbol** | `gr` |
+| **Code Actions** | `<leader>ca` |
 
-## Plugin Management (`lazy.nvim`)
+## Markdown Preview
 
-*These are `:commands` you type in Normal Mode.*
-
-| Command | Action |
+| Action | Keybinding |
 | :--- | :--- |
-| **`:Lazy`** | Open the `lazy.nvim` dashboard to see all plugins. |
-| **`:Lazy sync`** | **Sync** plugins: updates existing, installs new, removes old. **Your main update command.** |
-| **`:Lazy update`** | Just **update** existing plugins. |
-| **`:Lazy clean`** | Remove any disabled or uninstalled plugins. |
-| **`:checkhealth`** | Run Neovim's diagnostic tool to check for issues. |
+| **Toggle Preview** | `<leader>mp` |
+| **Stop Preview** | `<leader>ms` |
