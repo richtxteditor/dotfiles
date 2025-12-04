@@ -3,10 +3,10 @@
 # This script creates symlinks from the home directory to any desired dotfiles in ~/dotfiles
 
 # Variables
-dir=~/dotfiles          # Dotfiles directory
-olddir=~/dotfiles_old   # Old dotfiles backup directory
+dir=~/dotfiles                   # Dotfiles directory
+olddir=~/dotfiles_old            # Old dotfiles backup directory
 files="zshrc tmux.conf Brewfile" # list of files/folders to symlink in homedir
-config_files="nvim"     # list of files/folders to symlink in .config
+config_files="nvim"              # list of files/folders to symlink in .config
 
 # Create dotfiles_old in homedir
 echo "Creating backup directory for existing dotfiles at $olddir"

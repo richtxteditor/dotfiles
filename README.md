@@ -1,156 +1,148 @@
-# My Personal Dotfiles
+# Dotfiles
 
 ![Shell](https://img.shields.io/badge/shell-Zsh-blue.svg)
 ![Editor](https://img.shields.io/badge/editor-Neovim-green.svg)
 ![Terminal](https://img.shields.io/badge/terminal-tmux-orange.svg)
 ![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)
 
-This repository contains my personal configuration files for my development environment on macOS. The setup is managed by Git, with configurations symlinked into their proper locations.
-
-The core philosophy is to create a consistent, portable, and highly efficient environment that can be quickly deployed on any new machine.
+This repository contains configuration files for a high-performance, terminal-centric development environment on macOS. The setup integrates Zsh, Tmux, and Neovim into a unified workspace, prioritizing keyboard-driven navigation, fast startup times, and session persistence.
 
 ---
 
-## 🚀 Installation on a New Machine
+## Installation
 
-This guide provides a complete, step-by-step process for setting up a new macOS environment from scratch using this repository.
+Follow these steps to deploy the environment on a fresh macOS installation.
 
-## Phase 1: Manual Bootstrap 🥾
+### Phase 1: Manual Bootstrap
 
-These steps must be performed manually on a fresh macOS installation before the automation can take over.
+Perform these steps manually to prepare the system.
 
 1. **Install Homebrew:**
-    Homebrew is the package manager for macOS and the foundation of this setup. Open the default Terminal app and run the official installation script:
-
     ```bash
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     ```
 
-2. **Generate & Add SSH Key to GitHub:**
-    You need to register your new machine's SSH key with GitHub to clone repositories via SSH.
-
+2. **Configure SSH for GitHub:**
+    Generate an SSH key and add it to your GitHub account settings to enable repository cloning.
     ```bash
-    # 1. Generate a new SSH key
     ssh-keygen -t ed25519 -C "your_email@example.com"
-
-    # 2. Start the ssh-agent
     eval "$(ssh-agent -s)"
-
-    # 3. Add your key to the agent
     ssh-add ~/.ssh/id_ed25519
-
-    # 4. Copy the public key to your clipboard
     pbcopy < ~/.ssh/id_ed25519.pub
     ```
 
-    Now, navigate to **GitHub > Settings > SSH and GPG keys > New SSH key**, and paste the key from your clipboard.
+### Phase 2: Deployment
 
-## Phase 2: Dotfiles Deployment 👷🏽‍♂️
-
-Now we deploy the configuration from this repository.
-
-1. **Clone Your Dotfiles:**
-
+1. **Clone Repository:**
     ```bash
     git clone git@github.com:your-username/dotfiles.git ~/dotfiles
     ```
 
-2. **Run the Installation Script:**
-    This script backs up any default configs and creates all the necessary symbolic links (`.zshrc`, `.tmux.conf`, `.config/nvim`, etc.).
-
+2. **Run Installation Script:**
+    This script backs up existing configurations and creates symbolic links for `.zshrc`, `.tmux.conf`, and `.config/nvim`.
     ```bash
     cd ~/dotfiles
     ./install.sh
     ```
 
-## Phase 3: Automated Installation 🧑🏽‍💻
+### Phase 3: Package Installation
 
-The `Brewfile` in this repository defines every application and tool to be installed.
-
-1. **Install All Software via Brew Bundle:**
-    This command reads the symlinked `~/.Brewfile` and installs everything. This will take some time.
-
+1. **Install Software:**
+    Uses Homebrew Bundle to install core utilities (Neovim, Tmux, Lazygit, Eza, Bat, Zoxide, FZF) and fonts.
     ```bash
     brew bundle --global
     ```
 
-2. **Restart Your Terminal:**
-    **This is a critical step.** Close your current terminal and open a new one. This will launch Zsh with your new `.zshrc` configuration, and all your aliases and plugins will be active.
+2. **Reload Shell:**
+    Close and reopen the terminal to initialize Zsh with the new configuration.
 
-## Phase 4: First-Run Tool Configurations 🛠️
+### Phase 4: Configuration
 
-The tools are installed, but they need to set up their own internal plugins.
+1. **Initialize Tmux Plugins:**
+    * Start a session: `ta`
+    * Install plugins: Press **Ctrl+a** then **I** (Shift+i).
 
-1. **Install Tmux Plugins:**
-    * Start tmux: `ta`
-    * Press **`Prefix` + `I`** (`Ctrl+a` then `Shift+i`) to have TPM install all plugins.
+2. **Initialize Neovim Plugins:**
+    * Open Neovim: `nvim`
+    * Wait for `lazy.nvim` to complete plugin installation.
+    * Restart Neovim.
 
-2. **Install Neovim Plugins:**
-    * Start Neovim: `nvim`
-    * `lazy.nvim` will automatically pop up and install all plugins.
-    * Restart Neovim once it's finished.
-
-3. **Install Language Versions:**
-    The version managers are installed, but you need to install the specific language versions.
-
+3. **Install Language Runtimes:**
     ```bash
-    # Example for Python
+    # Python
     pyenv install 3.12.7
     pyenv global 3.12.7
 
-    # Example for Node
+    # Node.js
     nvm install 20
     nvm alias default 20
     ```
 
-4. **Configure Git Identity:**
-    Tell Git who you are on this new machine.
+---
 
+## Core Utilities & Workflow
+
+This environment utilizes modern CLI replacements to enhance standard Unix commands.
+
+### Navigation
+Neovim and Tmux are configured to share navigation contexts. Focus moves seamlessly between editor splits and terminal panes using the same keybindings.
+
+*   **Left:** `Ctrl + h`
+*   **Down:** `Ctrl + j`
+*   **Up:** `Ctrl + k`
+*   **Right:** `Ctrl + l`
+
+### CLI Tools
+
+| Tool | Description | Usage |
+| :--- | :--- | :--- |
+| **Zoxide** | Directory navigation replacement for `cd`. | `z <name>` jumps to the best match. |
+| **Eza** | Modern replacement for `ls`. | `ls` (standard), `ll` (detailed with git status). |
+| **Bat** | `cat` clone with syntax highlighting. | `cat <file>` displays file contents. |
+| **Lazygit** | Terminal UI for Git operations. | `lg` (CLI) or `<leader>gg` (Neovim). |
+| **FZF-Tab** | Fuzzy completion for Zsh. | Press `Tab` on commands to trigger interactive selection. |
+
+### Research & AI
+*   **Nom:** Command line RSS reader with markdown rendering.
+*   **Gemini CLI:** AI assistance via command line.
+*   **Error Debugging:** Pipe stderr to Gemini for analysis:
     ```bash
-    git config --global user.name "Your Name"
-    git config --global user.email "your_email@example.com"
+    python script.py 2>&1 | explain
     ```
 
-    Your environment is now fully configured and ready to use.
+### Session Management
+*   **Attach/Create:** Run `ta` to attach to an existing session or create a new one.
+*   **Persistence:** `tmux-resurrect` and `tmux-continuum` automatically save and restore session layouts, including running processes, across system restarts.
 
 ---
 
-## ✨ What's Inside?
+## Configuration Overview
 
-This repository manages the configuration for the following core components of my workflow.
+### Zsh (Shell)
+*   **Prompt:** Minimal, git-aware prompt indicating branch and status.
+*   **Completion:** Integrated `fzf` for fuzzy file and history search.
+*   **History:** `Ctrl+Space` accepts auto-suggestions.
 
-### 🐚 Shell: Zsh + Oh My Zsh
+### Tmux (Multiplexer)
+*   **Prefix:** `Ctrl+a`
+*   **Appearance:** Kanagawa Dragon theme with high-contrast active borders.
+*   **Features:** True Color support, mouse mode enabled, system clipboard synchronization (`pbcopy`).
 
-* **Framework:** [Oh My Zsh](https://ohmyz.sh/)
-* **Prompt:** `dpoggi` theme
-* **Key Plugins:** `zsh-syntax-highlighting`, `zsh-autosuggestions`, `z`
-* **Configuration File:** `zshrc` (symlinked to `~/.zshrc`)
+### Neovim (Editor)
+*   **Performance:** Optimized for sub-100ms startup via `lazy.nvim`.
+*   **LSP:** Full support for Go to Definition (`gd`), Hover (`K`), and Rename (`gr`).
+*   **Search:** Telescope (`Space f f`) for fuzzy finding files and text.
+*   **Formatting:** Auto-formatting on save configured via `conform.nvim`.
 
-### 💻 multiplexer: Tmux
+---
 
-* **Prefix Key:** `Ctrl+a`
-* **Key Features:** Vi-style navigation, mouse support, session persistence with `tmux-resurrect` & `tmux-continuum`.
-* **Plugins:** Managed by [TPM (Tmux Plugin Manager)](https://github.com/tmux-plugins/tpm).
-* **Configuration File:** `tmux.conf` (symlinked to `~/.tmux.conf`)
-
-### 📝 Editor: Neovim
-
-A modern, Lua-based configuration designed for speed and extensibility.
-
-* **Plugin Manager:** [lazy.nvim](https://github.com/folke/lazy.nvim)
-* **Core Experience:** LSP (`mason.nvim`), Autocompletion (`nvim-cmp`), Fuzzy Finding (`Telescope.nvim`), Syntax Highlighting (`nvim-treesitter`).
-* **Theme:** Kanagawa with automatic light/dark mode switching.
-* **Configuration Directory:** `nvim/` (symlinked to `~/.config/nvim/`)
-
-### 📄 Cheat Sheets
-
-This repository also contains my personal command reference sheets.
+## Documentation
 
 * [Neovim Cheat Sheet](./cheat-sheets/neovim.md)
 * [Tmux & Zsh Cheat Sheet](./cheat-sheets/tmux-zsh.md)
 
 ---
 
-## 📜 License
+## License
 
-This project is licensed under the MIT License. Feel free to use and adapt any part of this configuration for your own setup.
+This project is licensed under the MIT License.
