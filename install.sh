@@ -2,8 +2,30 @@
 # install.sh
 # This script creates symlinks from the home directory to any desired dotfiles in ~/dotfiles
 
+# --- Helper Functions ---
+check_and_install_lldb() {
+    if [[ "$(uname)" == "Darwin" ]]; then
+        if ! command -v lldb &> /dev/null; then
+            echo "---------------------------------------------------------------------"
+            echo "WARNING: 'lldb' command not found."
+            echo "CodeLLDB requires LLDB to be installed on your system."
+            echo "Please install the Xcode Command Line Tools by running:"
+            echo ""
+            echo "    xcode-select --install"
+            echo ""
+            echo "After installation, re-run this script."
+            echo "---------------------------------------------------------------------"
+            # Optionally, you could exit the script here if lldb is a hard requirement
+            # exit 1
+        else
+            echo "LLDB is already installed."
+        fi
+    fi
+}
+
+
 # Variables
-dir=~/dotfiles                   # Dotfiles directory
+dir=$(cd "$(dirname "$0")" && pwd) # Dotfiles directory
 olddir=~/dotfiles_old            # Old dotfiles backup directory
 files="zshrc tmux.conf Brewfile" # list of files/folders to symlink in homedir
 config_files="nvim"              # list of files/folders to symlink in .config
@@ -14,9 +36,11 @@ mkdir -p $olddir
 echo "Ensuring .config directory exists"
 mkdir -p ~/.config
 
-# Change to the dotfiles directory
-echo "Changing to the $dir directory"
-cd $dir
+# --- Dependency Checks ---
+echo "Checking for required dependencies..."
+check_and_install_lldb
+
+
 
 # --- Symlink files in home directory ---
 for file in $files; do
