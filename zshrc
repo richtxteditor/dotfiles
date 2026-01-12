@@ -11,8 +11,8 @@ export PATH
 export EDITOR='nvim'
 export VISUAL='nvim'
 export LANG=en_US.UTF-8
-export HISTSIZE=10000
-export SAVEHIST=10000
+export HISTSIZE=50000
+export SAVEHIST=50000
 
 # --- Oh My Zsh ---
 export ZSH="$HOME/.oh-my-zsh"
@@ -37,6 +37,12 @@ alias cls='clear'
 alias update='sudo softwareupdate -i -a; brew update; brew upgrade; brew cleanup; omz update; echo "Updates complete."'
 alias bbu='brew bundle dump --file=~/dotfiles/Brewfile --force && echo "Brewfile updated!"'
 
+# Safety & Navigation
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+alias cd='z' # Use zoxide for cd
+
 # Modern Unix Replacements (Eza/Bat/Lazygit)
 alias cat='bat'
 alias ls='eza --icons --git'
@@ -50,7 +56,7 @@ alias gs='git status -sb'
 alias gl='git log --oneline --graph --decorate --all'
 alias gp='git push'
 alias gpf='git push --force-with-lease'
-alias gpl='git pull --rebase --autosthat'
+alias gpl='git pull --rebase --autostash'
 alias gaa='git add .'
 alias gc='git commit -m'
 
@@ -111,14 +117,28 @@ bindkey -M menuselect 'ZA' reverse-menu-complete
 
 # --- Custom Prompt ---
 function set_prompt() {
-    # Path Shortening
-    local TRUNC_LENGTH=2
+    # Path Shortening Logic
+    local TRUNC_LENGTH=1
+    local MAX_NAME_LEN=20
     local PWD_PRETTY=${PWD/#$HOME/\~}
     local -a path_parts=("${(@s:/:)PWD_PRETTY}")
-    if (( ${#path_parts[@]} > TRUNC_LENGTH + 1 )); then
-        PROMPT_PWD="${path_parts[1]}/…/${(j:/:)path_parts[-TRUNC_LENGTH,-1]}"
+    
+    # Truncate individual directory names if they are too long
+    local -a processed_parts
+    for part in "${path_parts[@]}"; do
+        if (( ${#part} > MAX_NAME_LEN )); then
+            # Truncate middle: 8 chars ... 6 chars
+            processed_parts+=("${part:0:8}...${part: -6}")
+        else
+            processed_parts+=("$part")
+        fi
+    done
+
+    # Truncate the overall path depth
+    if (( ${#processed_parts[@]} > TRUNC_LENGTH + 1 )); then
+        PROMPT_PWD="${processed_parts[1]}/…/${(j:/:)processed_parts[-TRUNC_LENGTH,-1]}"
     else
-        PROMPT_PWD=$PWD_PRETTY
+        PROMPT_PWD="${(j:/:)processed_parts}"
     fi
 
     # Git Status
@@ -143,11 +163,24 @@ PROMPT='%F{green}%n%f@%F{cyan}%m%f:%F{141}${PROMPT_PWD}%f${PROMPT_GIT_INFO} %F{r
 # Zoxide (Smart CD - replaces 'z')
 eval "$(zoxide init zsh)"
 
-# NVM
+# NVM (Lazy Load for Speed)
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+function load_nvm() {
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+}
+# Create placeholder functions that load NVM then run the command
+for cmd in nvm node npm npx yarn pnpm; do
+    eval "$cmd() { unset -f $cmd; load_nvm; $cmd \"\$@\"; }"
+done
 
 # Language Managers
 eval "$(pyenv init -)"
 eval "$(rbenv init - zsh)"
+
+# bun completions
+[ -s "$HOME/.oh-my-zsh/completions/_bun" ] && source "$HOME/.oh-my-zsh/completions/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"

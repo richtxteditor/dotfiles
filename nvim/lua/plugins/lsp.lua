@@ -53,7 +53,18 @@ return {
         "hrsh7th/nvim-cmp",
         event = "InsertEnter",
         dependencies = {
-            "L3MON4D3/LuaSnip", "saadparwaiz1/cmp_luasnip", "hrsh7th/cmp-buffer",
+            {
+                "L3MON4D3/LuaSnip",
+                build = (function()
+                    -- Build Step is needed for regex support in snippets
+                    -- This step is not supported in Windows so we don't want it to fail on Windows
+                    if vim.fn.has "win32" == 1 or vim.fn.executable "make" == 0 then
+                        return
+                    end
+                    return "make install_jsregexp"
+                end)(),
+            },
+            "saadparwaiz1/cmp_luasnip", "hrsh7th/cmp-buffer",
             "hrsh7th/cmp-path", "windwp/nvim-autopairs",
         },
         config = function()
@@ -78,15 +89,8 @@ return {
                     ['<C-Space>'] = cmp.mapping.complete(),
 
                     ["<Tab>"] = cmp.mapping(function(fallback)
-                        -- This is the new, robust check
-                        local col = vim.fn.col('.') - 1
                         if cmp.visible() then
                             cmp.select_next_item()
-                            -- Check if the cursor is inside a pair and the next character is the closing pair
-                        elseif col > 0 and vim.fn.getline('.'):sub(col + 1, col + 1):match('[)}\\]\'"]') then
-                            -- If so, just jump out of the pair
-                            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Right>', true, false, true), 'n',
-                                false)
                         elseif luasnip.expand_or_jumpable() then
                             luasnip.expand_or_jump()
                         else

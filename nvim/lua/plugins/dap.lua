@@ -95,11 +95,12 @@ return {
 
             -- Auto-open UI listeners
             dap.listeners.after.event_initialized["dapui_config"] = function() dapui.open() end
-            dap.listeners.before.event_terminated["dapui_config"] = function() dapui.close() end
-            dap.listeners.before.event_exited["dapui_config"] = function() dapui.close() end
+            -- dap.listeners.before.event_terminated["dapui_config"] = function() dapui.close() end
+            -- dap.listeners.before.event_exited["dapui_config"] = function() dapui.close() end
 
             -- 4. KEYBINDINGS
             vim.keymap.set("n", "<F5>", dap.continue, { desc = "DAP: Continue" })
+            vim.keymap.set("n", "<F6>", function() require("dap").terminate(); require("dapui").close() end, { desc = "DAP: Stop" })
             vim.keymap.set("n", "<F8>", dap.step_out, { desc = "DAP: Step Out" })
             vim.keymap.set("n", "<F9>", dap.toggle_breakpoint, { desc = "DAP: Toggle Breakpoint" })
             vim.keymap.set("n", "<F10>", dap.step_over, { desc = "DAP: Step Over" })

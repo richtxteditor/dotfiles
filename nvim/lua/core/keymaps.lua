@@ -25,3 +25,6 @@ map("n", "<leader>fd", "<cmd>Telescope diagnostics<cr>", { desc = "[F]ind [D]iag
 
 -- Formatting
 map("n", "<leader>cf", "<cmd>ConformFormat<cr>", { desc = "[C]ode [F]ormat" })
+
+-- Convenience Commands (Allow lowercase :lazy)
+vim.cmd("cnoreabbrev <expr> lazy getcmdtype() == ':' && getcmdline() == 'lazy' ? 'Lazy' : 'lazy'")
