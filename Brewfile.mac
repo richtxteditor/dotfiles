@@ -1,0 +1,8 @@
+cask "alt-tab"
+cask "atv-remote"
+cask "ngrok"
+cask "unnaturalscrollwheels"
+cask "visual-studio-code"
+cask "warp"
+cask "zed"
+brew "cormacrelf/tap/dark-notify"

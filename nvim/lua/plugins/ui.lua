@@ -7,34 +7,32 @@ return {
         "goolord/alpha-nvim",
         event = "VimEnter",
         opts = function()
-            -- THIS IS THE FIX: We configure the dashboard and then RETURN it.
             local dashboard = require("alpha.themes.dashboard")
 
-            -- Set up the dashboard buttons with icons
+            -- sleek, slant style header
+            dashboard.section.header.val = {
+                [[    _   __                _         ]],
+                [[   / | / /__  ____ _   __(_)___ ___ ]],
+                [[  /  |/ / _ \/ __ \ | / / / __ `__ \]],
+                [[ / /|  /  __/ /_/ / |/ / / / / / / /]],
+                [[/_/ |_/\___/\____/|___/_/_/ /_/ /_/ ]],
+            }
+
+            -- Minimal, clean buttons
             dashboard.section.buttons.val = {
-                dashboard.button("f", "  Find file", ":Telescope find_files <CR>"),
-                dashboard.button("n", "  New file", ":enew <CR>"),
-                dashboard.button("r", "  Recent files", ":Telescope oldfiles <CR>"),
-                dashboard.button("g", "  Find text", ":Telescope live_grep <CR>"),
-                dashboard.button("c", "  Configuration", ":e $MYVIMRC <CR>"),
+                dashboard.button("f", "  Find File", ":Telescope find_files <CR>"),
+                dashboard.button("n", "  New File", ":enew <CR>"),
+                dashboard.button("r", "  Recent", ":Telescope oldfiles <CR>"),
+                dashboard.button("g", "  Grep", ":Telescope live_grep <CR>"),
+                dashboard.button("l", "󰒲  Lazy", ":Lazy <CR>"),
+                dashboard.button("u", "󰚰  Update", ":Lazy sync <CR>"),
+                dashboard.button("c", "  Config", ":e $MYVIMRC <CR>"),
                 dashboard.button("q", "  Quit", ":qa <CR>"),
             }
 
-            -- A simpler, cleaner header
-            dashboard.section.header.val = {
-                "  _   _                 _      ",
-                " | \\ | |               | |     ",
-                " |  \\| | ___  _ __ ___ | |__   ",
-                " | . ` |/ _ \\| '_ ` _ \\| '_ \\  ",
-                " | |\\  | (_) | | | | | | |_) | ",
-                " |_| \\_|\\___/|_| |_| |_|_.__/  ",
-                "                               ",
-            }
+            -- Remove footer for a cleaner look
+            dashboard.section.footer.val = ""
 
-            -- Add a footer with a useful tip
-            dashboard.section.footer.val = "Tip: Press `Space f f` to find any file in your project."
-
-            -- Return the configured dashboard options
             return dashboard.opts
         end,
     },
