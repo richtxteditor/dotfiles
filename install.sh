@@ -29,7 +29,7 @@ dir=$(cd "$(dirname "$0")" && pwd)           # Dotfiles directory
 timestamp=$(date +%Y%m%d_%H%M%S)             # Current timestamp
 olddir=~/dotfiles_backup_$timestamp          # Backup directory with timestamp
 files="zshrc tmux.conf Brewfile"             # Files to symlink in homedir
-config_files="nvim"                          # Folders to symlink in .config
+config_files="nvim starship.toml"            # Folders/files to symlink in .config
 
 # --- User Confirmation ---
 echo "--------------------------------------------------"
