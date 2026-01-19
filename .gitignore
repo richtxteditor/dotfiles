@@ -33,6 +33,21 @@ Temporary Items
 # iCloud generated files
 *.icloud
 
+### Linux ###
+*~
+
+# temporary files which can be created if a process still has a handle open of a deleted file
+.fuse_hidden*
+
+# KDE directory preferences
+.directory
+
+# Linux trash directory which may appear on any partition or disk
+.Trash-*
+
+# .nfs files are created when an open file is removed but is still being accessed
+.nfs*
+
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
