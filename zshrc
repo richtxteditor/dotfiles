@@ -14,6 +14,9 @@ export LANG=en_US.UTF-8
 export HISTSIZE=50000
 export SAVEHIST=50000
 
+# --- Docker Completions (Must be before compinit/OMZ) ---
+fpath=($HOME/.docker/completions $fpath)
+
 # --- Oh My Zsh ---
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
@@ -115,59 +118,24 @@ bindkey '^@' autosuggest-accept
 bindkey -M menuselect '^i' menu-complete
 bindkey -M menuselect 'ZA' reverse-menu-complete
 
-# --- Custom Prompt ---
-function set_prompt() {
-    # Path Shortening Logic
-    local TRUNC_LENGTH=1
-    local MAX_NAME_LEN=20
-    local PWD_PRETTY=${PWD/#$HOME/\~}
-    local -a path_parts=("${(@s:/:)PWD_PRETTY}")
-    
-    # Truncate individual directory names if they are too long
-    local -a processed_parts
-    for part in "${path_parts[@]}"; do
-        if (( ${#part} > MAX_NAME_LEN )); then
-            # Truncate middle: 8 chars ... 6 chars
-            processed_parts+=("${part:0:8}...${part: -6}")
-        else
-            processed_parts+=("$part")
-        fi
-    done
+# --- Modern Prompts & Integrations ---
 
-    # Truncate the overall path depth
-    if (( ${#processed_parts[@]} > TRUNC_LENGTH + 1 )); then
-        PROMPT_PWD="${processed_parts[1]}/…/${(j:/:)processed_parts[-TRUNC_LENGTH,-1]}"
-    else
-        PROMPT_PWD="${(j:/:)processed_parts}"
-    fi
+# Starship (Prompt)
+eval "$(starship init zsh)"
 
-    # Git Status
-    if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-        if [[ -n "$(git status --porcelain)" ]]; then
-            local GIT_STATE='%F{yellow}⚡️%f'
-        else
-            local GIT_STATE='%F{green}✓%f'
-        fi
-        local GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-        PROMPT_GIT_INFO="(%F{yellow}${GIT_BRANCH}%f ${GIT_STATE})"
-    else
-        PROMPT_GIT_INFO=""
-    fi
-}
-autoload -U add-zsh-hook
-add-zsh-hook precmd set_prompt
-PROMPT='%F{green}%n%f@%F{cyan}%m%f:%F{141}${PROMPT_PWD}%f${PROMPT_GIT_INFO} %F{red}»%f '
-
-# --- Tool Initializations ---
+# FZF (Fuzzy Finder Keybindings & Completion)
+source <(fzf --zsh)
 
 # Zoxide (Smart CD - replaces 'z')
 eval "$(zoxide init zsh)"
 
+# --- Tool Initializations ---
+
 # NVM (Lazy Load for Speed)
 export NVM_DIR="$HOME/.nvm"
 function load_nvm() {
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
 }
 # Create placeholder functions that load NVM then run the command
 for cmd in nvm node npm npx yarn pnpm; do
