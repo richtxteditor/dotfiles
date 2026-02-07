@@ -28,11 +28,17 @@ Follow these steps to deploy the environment on a fresh macOS or Linux installat
     ```
     *Note: The script is safe to run. It will ask for confirmation and backup your old dotfiles to `~/dotfiles_backup_<timestamp>`.*
 
+    **Dry run (no changes):**
+    ```bash
+    ./install.sh --dry-run
+    ```
+
 ### Phase 2: Configuration
 
 1. **Initialize Tmux Plugins:**
     * Start a session: `tmux` or `ta`
-    * The configuration is auto-installed on first launch. If not, press **Ctrl+a** then **I** (Shift+i).
+    * Install TPM once: `git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm`
+    * Then press **Ctrl+a** then **I** (Shift+i) to install plugins.
 
 2. **Initialize Neovim Plugins:**
     * Open Neovim: `nvim`
@@ -40,12 +46,8 @@ Follow these steps to deploy the environment on a fresh macOS or Linux installat
     * Restart Neovim.
 
 3. **Install Language Runtimes (Optional):**
-    The environment includes `pyenv`, `nvm`, and `rbenv` but does not force specific versions.
+    `nvm` is lazy-loaded for Node.js. `pyenv` and `rbenv` are installed but not auto-initialized.
     ```bash
-    # Python
-    pyenv install 3.12.7
-    pyenv global 3.12.7
-
     # Node.js
     nvm install 20
     nvm alias default 20
@@ -158,12 +160,12 @@ Below is a comprehensive guide to the tools and keybindings available in this en
 
 #### 1. Session Management (The "Workspaces")
 
-Your `tmux-resurrect` and `continuum` plugins make sessions persistent across reboots.
+Your `tmux-resurrect` plugin helps save and restore session layouts.
 
 | Action | Keybinding / Command | Description |
 | :--- | :--- | :--- |
 | **Start / Attach** | `ta` (alias) | **Your entry point.** Smartly attaches to the last session or creates a new one. |
-| **Fuzzy Switcher** | `Ctrl` + `j` | **New!** Opens a fuzzy search popup to switch sessions instantly (requires `fzf`). |
+| **Fuzzy Switcher** | `Ctrl` + `j` | Opens a fuzzy search popup to switch sessions instantly (requires `fzf`). |
 | **Detach Session** | `Prefix` + `d` | Detach from the current session (it keeps running). |
 | **List Sessions** | `Prefix` + `s` | Show an interactive list of all sessions to switch between. |
 | **Rename Session** | `Prefix` + `$` | Rename the current session. |
@@ -212,7 +214,7 @@ Each window can be divided into multiple panes.
 
 #### 5. Copy & Paste (Text Manipulation)
 
-Your `tmux-yank` plugin syncs this with the system clipboard.
+On macOS, copy mode uses `pbcopy` to sync with the system clipboard.
 
 | Action | Keybinding | Description |
 | :--- | :--- | :--- |
@@ -229,9 +231,6 @@ Your `tmux-yank` plugin syncs this with the system clipboard.
 | | `Prefix` + `U` | **U**pdate all installed plugins. |
 | **Resurrect** | `Prefix` + `Ctrl`+`s`| **S**ave the current session layout manually. |
 | | `Prefix` + `Ctrl`+`r`| **R**estore the last saved session manually. |
-| **Continuum** | (Automatic) | Saves your session every 15 minutes and on Tmux start. |
-| **Open** | `Prefix` + `o` | **O**pen a file path or URL under your cursor in its default app. |
-| **Sessionist** | `Prefix` + `T` | Show an easy session management menu. |
 
 #### 7. Mouse Controls
 
@@ -303,6 +302,7 @@ This is a curated list of the most important aliases you've configured.
 | `zshconfig` | `nvim ~/.zshrc` |
 | `update` | Updates macOS, Homebrew, and Oh My Zsh. |
 | `bbu` | `brew bundle dump --file=~/dotfiles/Brewfile --force` |
+| `icloud` | Opens your iCloud Drive folder. |
 
 **Safety:**
 
@@ -364,8 +364,14 @@ These lines in your `.zshrc` are what enable the version managers.
 | Command | What it does |
 | :--- | :--- |
 | `nvm` | **Lazy Loaded.** NVM loads only when you run `node`, `npm`, etc., speeding up shell start. |
-| `pyenv global <ver>` | Set the default Python version for your user. |
-| `rbenv global <ver>` | Set the default Ruby version for your user. |
+
+---
+
+## Notes
+
+- `fzf` keybindings are loaded from `fzf.zsh` when present (tracked in this repo), otherwise `fzf --zsh` is used.
+- Homebrew dependencies are managed in a single `Brewfile` (casks included).
+- `.bash_profile` includes Juliaup and a lazy-loaded Conda hook.
 
 ---
 
