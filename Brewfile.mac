@@ -1,5 +1,0 @@
-cask "alt-tab"
-cask "ngrok"
-cask "unnaturalscrollwheels"
-cask "visual-studio-code"
-brew "cormacrelf/tap/dark-notify"
