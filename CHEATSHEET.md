@@ -88,6 +88,13 @@
 | **`<F11>`** | Step Into. |
 | **`<Space> du`** | Toggle Debug UI. |
 
+### Tasks & Running
+| Key | Action |
+| :--- | :--- |
+| **`<Space> r`** | **Run Task** (Auto-detected). |
+| **`<Space> to`** | Toggle Task Output. |
+| **`<Space> tc`** | Run Custom Command. |
+
 ### Navigation (Flash)
 | Key | Action |
 | :--- | :--- |

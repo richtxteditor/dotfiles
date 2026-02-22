@@ -133,6 +133,13 @@ Below is a comprehensive guide to the tools and keybindings available in this en
 | `<Leader>du` | Toggle Debug UI |
 | `<Leader>de` | Evaluate Expression |
 
+#### Running Tasks (Overseer)
+| Key | Action |
+| :--- | :--- |
+| `<Leader>r` | **Run Task.** Lists auto-detected tasks for the current file. |
+| `<Leader>to` | Toggle the Task Output window. |
+| `<Leader>tc` | Run a custom shell command. |
+
 #### Markdown
 | Key | Action |
 | :--- | :--- |
