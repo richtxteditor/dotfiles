@@ -9,6 +9,7 @@ tap "opencode-ai/tap"
 
 # Formulae
 brew "bat"
+brew "grc"
 brew "btop"
 brew "cask"
 brew "cmake"
