@@ -238,6 +238,14 @@ done
 
 # Language Managers
 
+# Pyenv (Python)
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+
+# Rbenv (Ruby)
+eval "$(rbenv init - zsh)"
+
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
