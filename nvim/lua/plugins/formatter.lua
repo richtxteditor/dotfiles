@@ -19,7 +19,14 @@ return {
                 css = { "prettier" },
                 html = { "prettier" },
                 markdown = { "prettier" },
-
+                sh = { "shfmt" },
+                bash = { "shfmt" },
+                c = { "clang-format" },
+                cpp = { "clang-format" },
+                java = { "google-java-format" },
+                ruby = { "rubocop" },
+                sql = { "sql_formatter" },
+                htmldjango = { "djlint" },
             },
             -- Optional: Run formatter automatically on save
             format_on_save = {

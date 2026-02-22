@@ -73,6 +73,11 @@ A quick reference guide for the tools, aliases, and keybindings in your high-per
 | **Node.js** | Managed by `nvm` (Lazy-loaded). Run `nvm install 20` to use. |
 | **Python** | Managed by `pyenv`. Run `pyenv install 3.12` to use. |
 | **Ruby** | Managed by `rbenv`. Run `rbenv install 3.3.0` to use. |
-| **Java** | `openjdk` installed. Neovim uses `jdtls`. |
-| **C/C++** | `clang` / `llvm` installed. Neovim uses `clangd`. |
-| **TypeScript/React** | Uses `ts_ls`. Ensure project has `tsconfig.json`. |
+| **Java** | `openjdk` installed. Neovim uses `jdtls` & `google-java-format`. |
+| **C/C++** | `clang` / `llvm` installed. Neovim uses `clangd` & `clang-format`. |
+| **TypeScript/React** | Uses `ts_ls`, `prettier`, `eslint`. Ensure `tsconfig.json` exists. |
+| **Ruby** | Uses `solargraph` & `rubocop`. |
+| **SQL** | Uses `sqlls` & `sqlfluff`. |
+| **Bash** | Uses `bashls` & `shfmt` / `shellcheck`. |
+| **Django** | Uses `pyright` & `djlint` (for templates). |
+| **PHP** | Uses `intelephense` & `php-cs-fixer`. |

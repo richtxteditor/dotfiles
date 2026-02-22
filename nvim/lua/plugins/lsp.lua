@@ -25,7 +25,7 @@ return {
             end
 
             require("mason-lspconfig").setup({
-                ensure_installed = { "pyright", "eslint", "html", "cssls", "tailwindcss", "jsonls", "yamlls", "lua_ls", "bashls", "intelephense", "jdtls", "clangd", "ts_ls" },
+                ensure_installed = { "pyright", "eslint", "html", "cssls", "tailwindcss", "jsonls", "yamlls", "lua_ls", "bashls", "intelephense", "jdtls", "clangd", "ts_ls", "solargraph", "sqlls" },
                 handlers = {
                     function(server_name)
                         require("lspconfig")[server_name].setup({ on_attach = on_attach, capabilities = capabilities })
