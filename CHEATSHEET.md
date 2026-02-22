@@ -1,7 +1,5 @@
 # Dotfiles Cheat Sheet
 
-A quick reference guide for the tools, aliases, and keybindings in your high-performance terminal environment.
-
 ## 🚀 Shell & Navigation (Zsh)
 
 | Command | Tool | Description |
@@ -23,7 +21,6 @@ A quick reference guide for the tools, aliases, and keybindings in your high-per
 | **`zshconfig`** | Opens `.zshrc` in Neovim. |
 | **`reload`** | Reloads `.zshrc` without restarting the terminal. |
 | **`mkcd <dir>`**| Creates a directory and immediately `cd`s into it. |
-| **`nom`** | Starts `nom` with auto-switching theme (Light/Dark). |
 
 ## 🌳 Git Workflow
 
@@ -55,29 +52,50 @@ A quick reference guide for the tools, aliases, and keybindings in your high-per
 ## 📝 Neovim (Editor)
 **Leader Key:** `Space`
 
+### General & Files
 | Key | Action |
 | :--- | :--- |
 | **`<Space> e`** | Toggle File Explorer (NvimTree). |
-| **`<Space> ff`** | **Find Files** (Telescope). Fuzzy find files by name. |
-| **`<Space> fg`** | **Live Grep**. Search for text across the entire project. |
-| **`<Space> gg`** | Open Lazygit inside Neovim. |
-| **`<Space> cf`** | Format Code. |
+| **`<Space> ff`** | **Find Files** (Telescope). |
+| **`<Space> fg`** | **Live Grep** (Search text in project). |
+| **`<Space> fo`** | Find Recent/Old Files. |
+| **`<Space> gg`** | Open Lazygit. |
+| **`<Space> mp`** | Toggle Markdown Preview. |
+
+### Code & LSP
+| Key | Action |
+| :--- | :--- |
 | **`gd`** | Go to Definition. |
+| **`gr`** | Find References. |
 | **`K`** | Hover Documentation. |
-| **`<Space> xx`** | Toggle Diagnostics Panel (Trouble). |
+| **`<Space> cf`** | Format Code. |
+| **`<Space> rn`** | Rename Symbol. |
+| **`<Space> ca`** | Code Action. |
+| **`<Space> xx`** | Toggle Diagnostics (Trouble). |
+
+### Debugging (DAP)
+| Key | Action |
+| :--- | :--- |
+| **`<F5>`** | Start / Continue. |
+| **`<F9>`** | Toggle Breakpoint. |
+| **`<F10>`** | Step Over. |
+| **`<F11>`** | Step Into. |
+| **`<Space> du`** | Toggle Debug UI. |
+
+### Navigation (Flash)
+| Key | Action |
+| :--- | :--- |
+| **`s`** | **Flash Jump**. Jump to any character on screen. |
+| **`S`** | **Flash Treesitter**. Select logical blocks of code. |
 
 ## 📦 Runtimes & Languages
 
 | Tool | Usage |
 | :--- | :--- |
-| **Node.js** | Managed by `nvm` (Lazy-loaded). Run `nvm install 20` to use. |
-| **Python** | Managed by `pyenv`. Run `pyenv install 3.12` to use. |
-| **Ruby** | Managed by `rbenv`. Run `rbenv install 3.3.0` to use. |
+| **Node.js** | Managed by `nvm`. Run `nvm install 20`. |
+| **Python** | Managed by `pyenv`. Run `pyenv install 3.12`. |
+| **Ruby** | Managed by `rbenv`. Run `rbenv install 3.3.0`. |
 | **Java** | `openjdk` installed. Neovim uses `jdtls` & `google-java-format`. |
 | **C/C++** | `clang` / `llvm` installed. Neovim uses `clangd` & `clang-format`. |
-| **TypeScript/React** | Uses `ts_ls`, `prettier`, `eslint`. Ensure `tsconfig.json` exists. |
-| **Ruby** | Uses `solargraph` & `rubocop`. |
-| **SQL** | Uses `sqlls` & `sqlfluff`. |
-| **Bash** | Uses `bashls` & `shfmt` / `shellcheck`. |
-| **Django** | Uses `pyright` & `djlint` (for templates). |
+| **TypeScript** | Uses `ts_ls`, `prettier`, `eslint`. Ensure `tsconfig.json` exists. |
 | **PHP** | Uses `intelephense` & `php-cs-fixer`. |
