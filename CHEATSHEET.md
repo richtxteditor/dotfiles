@@ -74,6 +74,10 @@
 | **`<Space> d`** | Show Error/Warning (Float). |
 | **`[d`** / **`]d`** | Previous / Next Diagnostic. |
 | **`<Space> xx`** | Toggle Diagnostics (Trouble). |
+| *Inside Trouble:* | |
+| **`gr`** | Switch to References view. |
+| **`gd`** | Switch to Definitions view. |
+| **`<Space> ca`** | Apply Code Action (Quick Fix). |
 
 ### Debugging (DAP)
 | Key | Action |

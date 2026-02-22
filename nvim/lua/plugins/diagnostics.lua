@@ -12,6 +12,11 @@ return {
         },
         opts = {
             focus = true,
+            keys = {
+                ["gr"] = "lsp_references",
+                ["gd"] = "lsp_definitions",
+                ["<leader>ca"] = "code_action", -- Default mapping might be different, explicitly setting it helps.
+            },
         },
     },
 }
