@@ -71,6 +71,8 @@
 | **`<Space> cf`** | Format Code. |
 | **`<Space> rn`** | Rename Symbol. |
 | **`<Space> ca`** | Code Action. |
+| **`<Space> d`** | Show Error/Warning (Float). |
+| **`[d`** / **`]d`** | Previous / Next Diagnostic. |
 | **`<Space> xx`** | Toggle Diagnostics (Trouble). |
 
 ### Debugging (DAP)

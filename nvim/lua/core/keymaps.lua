@@ -26,5 +26,10 @@ map("n", "<leader>fd", "<cmd>Telescope diagnostics<cr>", { desc = "[F]ind [D]iag
 -- Formatting
 map("n", "<leader>cf", "<cmd>ConformFormat<cr>", { desc = "[C]ode [F]ormat" })
 
+-- Diagnostic Keymaps
+map('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous diagnostic message' })
+map('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next diagnostic message' })
+map('n', '<leader>d', vim.diagnostic.open_float, { desc = 'Open floating diagnostic message' })
+
 -- Convenience Commands (Allow lowercase :lazy)
 vim.cmd("cnoreabbrev <expr> lazy getcmdtype() == ':' && getcmdline() == 'lazy' ? 'Lazy' : 'lazy'")
