@@ -109,12 +109,6 @@ return {
             vim.keymap.set("n", "<leader>dr", dap.repl.open, { desc = "DAP: Open REPL" })
             vim.keymap.set("n", "<leader>du", dapui.toggle, { desc = "DAP: Toggle UI" })
             vim.keymap.set('n', '<leader>de', require('dapui').eval, { desc = "DAP: Evaluate" })
-
-            -- 5. LOAD LAUNCH.JSON
-            require("dap.ext.vscode").load_launchjs(nil, {
-                ["codelldb"] = { "c", "cpp", "rust" },
-                ["coreclr"] = { "cs" },
-            })
         end,
     },
 }
