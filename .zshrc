@@ -4,7 +4,7 @@ export PATH="$PATH:$HOME/.local/bin"
 export PATH="$HOME/.composer/vendor/bin:$PATH"
 export PATH="$HOME/.opencode/bin:$PATH"
 export PATH="$HOME/.antigravity/antigravity/bin:$PATH"
-path=('$HOME/.juliaup/bin' $path)
+path=("$HOME/.juliaup/bin" $path)
 export PATH
 
 # Resolve this config directory for relative sources
@@ -55,7 +55,7 @@ alias reload='source ~/.zshrc && echo "Config reloaded!"'
 alias zshconfig='${EDITOR:-nvim} ~/.zshrc'
 alias cls='clear'
 alias update='sudo softwareupdate -i -a; brew update; brew upgrade; brew cleanup; omz update; echo "Updates complete."'
-alias bbu='brew bundle dump --file=~/dotfiles/Brewfile --force && echo "Brewfile updated!"'
+alias bbu='brew bundle dump --file="$ZSHRC_DIR/Brewfile" --force && echo "Brewfile updated!"'
 alias icloud='~/Library/Mobile\ Documents/com~apple~CloudDocs'
 
 # Safety & Navigation

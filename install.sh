@@ -48,7 +48,7 @@ done
 dir=$(cd "$(dirname "$0")" && pwd)           # Dotfiles directory
 timestamp=$(date +%Y%m%d_%H%M%S)             # Current timestamp
 olddir=~/dotfiles_backup_$timestamp          # Backup directory with timestamp
-files="zshrc tmux.conf Brewfile"             # Files to symlink in homedir
+files=".zshrc .tmux.conf .bash_profile fzf.zsh"             # Files to symlink in homedir
 config_files="nvim starship.toml"            # Folders/files to symlink in .config
 
 # --- User Confirmation ---
@@ -57,7 +57,8 @@ echo "This script will:"
 echo "1. Install Homebrew (if missing)."
 echo "2. Install dependencies via 'brew bundle'."
 echo "3. Backup existing dotfiles to $olddir."
-echo "4. Create symlinks for zsh, tmux, and nvim."
+echo "4. Create symlinks for zsh, tmux, nvim, etc."
+echo "5. Install Tmux Plugin Manager (TPM)."
 echo "--------------------------------------------------"
 if [[ -n "$DRY_RUN" ]]; then
     echo "Running in dry-run mode (no changes will be made)."
@@ -131,10 +132,18 @@ run_cmd brew bundle --file="$dir/Brewfile"
 echo "Checking for required dependencies..."
 check_and_install_lldb
 
+# --- TPM Setup ---
+if [ ! -d ~/.tmux/plugins/tpm ]; then
+    echo "Installing Tmux Plugin Manager (TPM)..."
+    run_cmd git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+else
+    echo "TPM is already installed."
+fi
+
 # --- Symlink files in home directory ---
 for file in $files; do
     source_file="$dir/$file"
-    target_link=~/.$file
+    target_link=~/$file
 
     # If the target exists AND is not a symlink, back it up.
     if [ -e "$target_link" ] && [ ! -L "$target_link" ]; then

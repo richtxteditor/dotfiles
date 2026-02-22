@@ -17,11 +17,11 @@ Follow these steps to deploy the environment on a fresh macOS or Linux installat
 
 1. **Clone Repository:**
     ```bash
-    git clone git@github.com:your-username/dotfiles.git ~/dotfiles
+    git clone https://github.com/your-username/dotfiles.git ~/dotfiles
     ```
 
 2. **Run Installation Script:**
-    This script backs up existing configurations, creates symbolic links, and installs all dependencies (Homebrew, Zsh, Neovim, etc.).
+    This script backs up existing configurations, creates symbolic links, installs all dependencies (Homebrew, Zsh, Neovim, etc.), and sets up the Tmux Plugin Manager (TPM).
     ```bash
     cd ~/dotfiles
     ./install.sh
@@ -37,8 +37,7 @@ Follow these steps to deploy the environment on a fresh macOS or Linux installat
 
 1. **Initialize Tmux Plugins:**
     * Start a session: `tmux` or `ta`
-    * Install TPM once: `git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm`
-    * Then press **Ctrl+a** then **I** (Shift+i) to install plugins.
+    * Press **Ctrl+a** then **I** (Shift+i) to install plugins.
 
 2. **Initialize Neovim Plugins:**
     * Open Neovim: `nvim`
@@ -46,7 +45,7 @@ Follow these steps to deploy the environment on a fresh macOS or Linux installat
     * Restart Neovim.
 
 3. **Install Language Runtimes (Optional):**
-    `nvm` is lazy-loaded for Node.js. `pyenv` and `rbenv` are installed but not auto-initialized.
+    `nvm` is lazy-loaded for Node.js. `pyenv` and `rbenv` are installed via Homebrew but not auto-initialized.
     ```bash
     # Node.js
     nvm install 20
@@ -214,14 +213,14 @@ Each window can be divided into multiple panes.
 
 #### 5. Copy & Paste (Text Manipulation)
 
-On macOS, copy mode uses `pbcopy` to sync with the system clipboard.
+On macOS, copy mode uses `pbcopy` to sync with the system clipboard. On Linux, it uses `xclip` (must be installed).
 
 | Action | Keybinding | Description |
 | :--- | :--- | :--- |
 | **1. Enter Copy Mode**| `Prefix` + `[` | Allows scrolling and text selection. |
 | **2. Begin Selection**| `v` | While in copy mode, press `v` to start selecting (Vim-style). |
-| **3. Yank (Copy)** | `y` | Yanks the selection to **both** Tmux buffer and system clipboard. |
-| **Paste** | `Prefix` + `]` | Pastes from the Tmux buffer. (Standard `Cmd+V` also works). |
+| **3. Yank (Copy)** | `y` | Yanks the selection to **both** Tmux buffer and system clipboard (`pbcopy`/`xclip`). |
+| **Paste** | `Prefix` + `]` | Pastes from the Tmux buffer. (Standard `Cmd+V` / `Ctrl+Shift+V` also works). |
 
 #### 6. Plugin Features (Your Superpowers)
 
@@ -301,7 +300,7 @@ This is a curated list of the most important aliases you've configured.
 | `reload` | `source ~/.zshrc` |
 | `zshconfig` | `nvim ~/.zshrc` |
 | `update` | Updates macOS, Homebrew, and Oh My Zsh. |
-| `bbu` | `brew bundle dump --file=~/dotfiles/Brewfile --force` |
+| `bbu` | `brew bundle dump --file=~/dotfiles/Brewfile --force` (Updates repo Brewfile) |
 | `icloud` | Opens your iCloud Drive folder. |
 
 **Safety:**
