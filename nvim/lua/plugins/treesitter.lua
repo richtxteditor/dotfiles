@@ -7,7 +7,7 @@ return {
             ensure_installed = {
                 "lua", "vim", "vimdoc", "python", "javascript", "typescript", "tsx",
                 "html", "css", "json", "yaml", "bash", "markdown", "markdown_inline",
-                "php",
+                "php", "java", "c", "cpp", "rust",
             },
             auto_install = true,
             highlight = { enable = true },

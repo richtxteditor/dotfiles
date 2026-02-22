@@ -73,3 +73,6 @@ A quick reference guide for the tools, aliases, and keybindings in your high-per
 | **Node.js** | Managed by `nvm` (Lazy-loaded). Run `nvm install 20` to use. |
 | **Python** | Managed by `pyenv`. Run `pyenv install 3.12` to use. |
 | **Ruby** | Managed by `rbenv`. Run `rbenv install 3.3.0` to use. |
+| **Java** | `openjdk` installed. Neovim uses `jdtls`. |
+| **C/C++** | `clang` / `llvm` installed. Neovim uses `clangd`. |
+| **TypeScript/React** | Uses `ts_ls`. Ensure project has `tsconfig.json`. |
