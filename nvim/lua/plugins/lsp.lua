@@ -36,13 +36,8 @@ return {
                             capabilities = capabilities,
                             settings = {
                                 Lua = {
-                                    diagnostics = { globals = { 'vim' } },
-                                    workspace = {
-                                        checkThirdParty = false,
-                                        library = {
-                                            [vim.fn.expand("$VIMRUNTIME/lua")] = true,
-                                            [vim.fn.expand("$VIMRUNTIME/lua/vim/lsp")] = true,
-                                        },
+                                    completion = {
+                                        callSnippet = "Replace"
                                     },
                                     telemetry = { enable = false },
                                 },
