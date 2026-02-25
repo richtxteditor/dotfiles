@@ -111,10 +111,13 @@ ta() {
 # Nom Wrapper (Theme Auto-Switch)
 nom() {
     local CONFIG="$HOME/Library/Application Support/nom/config.yml"
-    if [[ "$APPLE_INTERFACE_STYLE" == "Dark" ]]; then
-        sed -i '' 's/glamour: light/glamour: dark/' "$CONFIG"
-    else
-        sed -i '' 's/glamour: dark/glamour: light/' "$CONFIG"
+    [[ "$(uname)" == "Linux" ]] && CONFIG="$HOME/.config/nom/config.yml"
+    if [[ -f "$CONFIG" ]]; then
+        if [[ "$APPLE_INTERFACE_STYLE" == "Dark" ]]; then
+            perl -pi -e 's/glamour: light/glamour: dark/' "$CONFIG"
+        else
+            perl -pi -e 's/glamour: dark/glamour: light/' "$CONFIG"
+        fi
     fi
     command nom "$@"
 }
@@ -124,9 +127,9 @@ gemini() {
     local CONFIG="$HOME/.gemini/settings.json"
     if [[ -f "$CONFIG" ]]; then
         if [[ "$APPLE_INTERFACE_STYLE" == "Dark" ]]; then
-            sed -i '' 's/"theme": "[^"]*"/"theme": "Atom One"/' "$CONFIG"
+            perl -pi -e 's/"theme": "[^"]*"/"theme": "Atom One"/' "$CONFIG"
         else
-            sed -i '' 's/"theme": "[^"]*"/"theme": "Google Code"/' "$CONFIG"
+            perl -pi -e 's/"theme": "[^"]*"/"theme": "Google Code"/' "$CONFIG"
         fi
     fi
     command gemini "$@"
@@ -201,6 +204,12 @@ if command -v grc >/dev/null 2>&1; then
   if [[ ! -r "$GRC_ZSH" ]]; then
     GRC_ZSH="/usr/local/etc/grc.zsh"
   fi
+  if [[ ! -r "$GRC_ZSH" ]]; then
+    GRC_ZSH="/home/linuxbrew/.linuxbrew/etc/grc.zsh"
+  fi
+  if [[ ! -r "$GRC_ZSH" ]]; then
+    GRC_ZSH="$HOME/.linuxbrew/etc/grc.zsh"
+  fi
   [[ -r "$GRC_ZSH" ]] && source "$GRC_ZSH"
 fi
 
@@ -211,29 +220,34 @@ bindkey -M menuselect 'ZA' reverse-menu-complete
 # --- Modern Prompts & Integrations ---
 
 # Starship (Prompt)
-eval "$(starship init zsh)"
+if command -v starship >/dev/null 2>&1; then
+    eval "$(starship init zsh)"
+fi
 
 # FZF (Fuzzy Finder Keybindings & Completion)
 if [[ -f "$ZSHRC_DIR/fzf.zsh" ]]; then
   source "$ZSHRC_DIR/fzf.zsh"
-else
+elif command -v fzf >/dev/null 2>&1; then
   source <(fzf --zsh)
 fi
 
 # Zoxide (Smart CD - replaces 'z')
-eval "$(zoxide init zsh)"
+if command -v zoxide >/dev/null 2>&1; then
+    eval "$(zoxide init zsh)"
+fi
 
 # --- Tool Initializations ---
 
 # NVM (Lazy Load for Speed)
 export NVM_DIR="$HOME/.nvm"
 function load_nvm() {
+    for cmd in nvm node npm npx yarn pnpm; do unset -f $cmd 2>/dev/null; done
     [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
     [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
 }
 # Create placeholder functions that load NVM then run the command
 for cmd in nvm node npm npx yarn pnpm; do
-    eval "$cmd() { unset -f $cmd; load_nvm; $cmd \"\$@\"; }"
+    eval "$cmd() { load_nvm; $cmd \"\$@\"; }"
 done
 
 # Language Managers
@@ -241,10 +255,14 @@ done
 # Pyenv (Python)
 export PYENV_ROOT="$HOME/.pyenv"
 [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
+if command -v pyenv >/dev/null 2>&1; then
+    eval "$(pyenv init -)"
+fi
 
 # Rbenv (Ruby)
-eval "$(rbenv init - zsh)"
+if command -v rbenv >/dev/null 2>&1; then
+    eval "$(rbenv init - zsh)"
+fi
 
 # bun
 export BUN_INSTALL="$HOME/.bun"

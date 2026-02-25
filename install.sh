@@ -159,7 +159,7 @@ for file in $files; do
     fi
     if [ "$current_link" != "$source_file" ]; then
         echo "Creating symlink for $file in home directory."
-        run_cmd ln -sf "$source_file" "$target_link"
+        run_cmd ln -snf "$source_file" "$target_link"
     else
         echo "Symlink for $file is already correctly set up."
     fi
@@ -184,7 +184,7 @@ for file in $config_files; do
     fi
     if [ "$current_link" != "$source_file" ]; then
         echo "Creating symlink for $file in ~/.config directory."
-        run_cmd ln -sf "$source_file" "$target_link"
+        run_cmd ln -snf "$source_file" "$target_link"
     else
         echo "Symlink for $file is already correctly set up."
     fi
