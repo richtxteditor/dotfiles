@@ -75,8 +75,8 @@ Below is a comprehensive guide to the tools and keybindings available in this en
 | Key | Action |
 | :--- | :--- |
 | `<C-h>` | Navigate Left (Tmux/Split) |
-| `<C-j>` | Navigate Down (Tmux/Split) |
-| `<C-k>` | Navigate Up (Tmux/Split) |
+| `<C-j>` | Navigate Down (Tmux/Split/Trouble Panel) |
+| `<C-k>` | Navigate Up (Tmux/Split/Trouble Panel) |
 | `<C-l>` | Navigate Right (Tmux/Split) |
 | `<Leader>e` | Toggle File Explorer (NvimTree) |
 
