@@ -159,3 +159,7 @@ vscode "yzane.markdown-pdf"
 vscode "zneuray.erb-vscode-snippets"
 vscode "zobo.php-intellisense"
 cargo "tealdeer"
+
+# Test Framework and Linters
+brew "bats-core"
+brew "shellcheck"

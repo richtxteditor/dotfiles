@@ -375,7 +375,7 @@ These lines in your `.zshrc` are what enable the version managers.
 
 ## Notes
 
-- `fzf` keybindings are loaded from `fzf.zsh` when present (tracked in this repo), otherwise `fzf --zsh` is used.
+- `fzf` keybindings are loaded from `.fzf.zsh` when present (tracked in this repo), otherwise `fzf --zsh` is used.
 - Homebrew dependencies are managed in a single `Brewfile` (casks included).
 - `.bash_profile` includes Juliaup and a lazy-loaded Conda hook.
 

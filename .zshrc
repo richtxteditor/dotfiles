@@ -225,8 +225,8 @@ if command -v starship >/dev/null 2>&1; then
 fi
 
 # FZF (Fuzzy Finder Keybindings & Completion)
-if [[ -f "$ZSHRC_DIR/fzf.zsh" ]]; then
-  source "$ZSHRC_DIR/fzf.zsh"
+if [[ -f "$ZSHRC_DIR/.fzf.zsh" ]]; then
+  source "$ZSHRC_DIR/.fzf.zsh"
 elif command -v fzf >/dev/null 2>&1; then
   source <(fzf --zsh)
 fi
@@ -267,3 +267,8 @@ fi
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+# The following lines have been added by Docker Desktop to enable Docker CLI completions.
+fpath=(/Users/what/.docker/completions $fpath)
+autoload -Uz compinit
+compinit
+# End of Docker CLI completions
