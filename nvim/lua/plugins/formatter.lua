@@ -10,8 +10,8 @@ return {
             formatters_by_ft = {
                 lua = { "stylua" },
                 python = { "isort", "black" },
-                javascript = { { "prettierd", "prettier" } },
-                typescript = { { "prettierd", "prettier" } },
+                javascript = { "prettierd", "prettier", stop_after_first = true },
+                typescript = { "prettierd", "prettier", stop_after_first = true },
                 php = { "php-cs-fixer" },
                 typescriptreact = { "prettier" },
                 javascriptreact = { "prettier" },
