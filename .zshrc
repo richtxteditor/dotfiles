@@ -56,7 +56,7 @@ alias zshconfig='${EDITOR:-nvim} ~/.zshrc'
 alias cls='clear'
 alias update='sudo softwareupdate -i -a; brew update; brew upgrade; brew cleanup; omz update; echo "Updates complete."'
 alias bbu='brew bundle dump --file="$ZSHRC_DIR/Brewfile" --force && echo "Brewfile updated!"'
-alias icloud='~/Library/Mobile\ Documents/com~apple~CloudDocs'
+alias icloud='cd ~/Library/Mobile\ Documents/com~apple~CloudDocs'
 
 # Safety & Navigation
 alias rm='rm -i'
@@ -215,7 +215,7 @@ fi
 
 bindkey '^@' autosuggest-accept
 bindkey -M menuselect '^i' menu-complete
-bindkey -M menuselect 'ZA' reverse-menu-complete
+bindkey -M menuselect '^[[Z' reverse-menu-complete
 
 # --- Modern Prompts & Integrations ---
 
@@ -267,8 +267,3 @@ fi
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
-# The following lines have been added by Docker Desktop to enable Docker CLI completions.
-fpath=(/Users/what/.docker/completions $fpath)
-autoload -Uz compinit
-compinit
-# End of Docker CLI completions
