@@ -24,7 +24,7 @@ map("n", "<leader>fo", "<cmd>Telescope oldfiles<cr>", { desc = "[F]ind [O]ld Fil
 map("n", "<leader>fd", "<cmd>Telescope diagnostics<cr>", { desc = "[F]ind [D]iagnostics" })
 
 -- Formatting
-map("n", "<leader>cf", "<cmd>ConformFormat<cr>", { desc = "[C]ode [F]ormat" })
+map("n", "<leader>cf", function() require("conform").format({ async = true, lsp_format = "fallback" }) end, { desc = "[C]ode [F]ormat" })
 
 -- Diagnostic Keymaps
 map('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous diagnostic message' })

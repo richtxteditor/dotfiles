@@ -23,7 +23,7 @@ opt.incsearch = true  -- Show search results incrementally
 
 -- Performance & Behavior
 opt.updatetime = 250  -- Faster completion
-opt.timeoutlen = 2000 -- A comfortable 2-second timeout for your <leader> mappings
+opt.timeoutlen = 500  -- 500ms timeout for leader key mappings
 opt.ttimeoutlen = 10  -- An instant 10ms timeout for the Escape key
 opt.undofile = true   -- Enable persistent undo
 

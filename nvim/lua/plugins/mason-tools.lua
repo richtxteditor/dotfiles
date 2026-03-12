@@ -14,9 +14,9 @@ return {
                 "shfmt", -- Bash
                 "sql-formatter", -- SQL
                 "djlint", -- Django/Jinja
+                "php-cs-fixer", -- PHP
 
                 -- Linters
-                "eslint_d", -- JS/TS
                 "flake8", -- Python
                 "rubocop", -- Ruby
                 "shellcheck", -- Bash
