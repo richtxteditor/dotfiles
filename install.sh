@@ -48,7 +48,7 @@ done
 dir=$(cd "$(dirname "$0")" && pwd)           # Dotfiles directory
 timestamp=$(date +%Y%m%d_%H%M%S)             # Current timestamp
 olddir=~/dotfiles_backup_$timestamp          # Backup directory with timestamp
-files=".zshrc .tmux.conf .bash_profile .fzf.zsh"             # Files to symlink in homedir
+files=".zshrc .tmux.conf .bash_profile .fzf.zsh .gitconfig .gitignore_global" # Files to symlink in homedir
 config_files="nvim starship.toml"            # Folders/files to symlink in .config
 
 # --- User Confirmation ---
@@ -189,6 +189,22 @@ for file in $config_files; do
         echo "Symlink for $file is already correctly set up."
     fi
 done
+
+# --- Neovim Python Provider ---
+# Mason's debugpy venv is used as python3_host_prog (set in nvim/init.lua).
+# pynvim must be installed there for :checkhealth to pass.
+debugpy_venv="$HOME/.local/share/nvim/mason/packages/debugpy/venv/bin/pip"
+if [ -x "$debugpy_venv" ]; then
+    if ! "$debugpy_venv" show pynvim &> /dev/null; then
+        echo "Installing pynvim in debugpy venv for Neovim Python provider..."
+        run_cmd "$debugpy_venv" install pynvim
+    else
+        echo "pynvim is already installed in debugpy venv."
+    fi
+else
+    echo "Note: debugpy venv not found yet. Open Neovim and let Mason install debugpy,"
+    echo "then re-run this script to set up the Python provider."
+fi
 
 echo "Dotfiles installation complete!"
 echo "If you saw any errors, your original files are safe in $olddir"

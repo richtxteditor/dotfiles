@@ -163,8 +163,7 @@ _noarg_hl() {
     fi
     if [[ ( $# -eq 0 || $wants_help -eq 1 || $wants_verbose -eq 1 ) && -t 1 && $_HAS_BAT -eq 1 ]]; then
         command "$cmd" "$@" 2>&1 | bat -l help -p
-        local -a ps
-        ps=(${pipestatus[@]})
+        local -a ps=(${pipestatus[@]})
         return $ps[1]
     else
         command "$cmd" "$@"

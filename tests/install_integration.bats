@@ -55,6 +55,8 @@ EOF
   [ -L "$HOME/.fzf.zsh" ]
   [ -L "$HOME/.config/nvim" ]
   [ -L "$HOME/.config/starship.toml" ]
+  [ -L "$HOME/.gitconfig" ]
+  [ -L "$HOME/.gitignore_global" ]
 }
 
 @test "install.sh backups existing files correctly" {
