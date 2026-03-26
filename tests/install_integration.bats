@@ -48,15 +48,25 @@ EOF
   
   [ "$status" -eq 0 ]
   
-  # Assert symlinks were created
+  # Assert symlinks were created and point to correct targets
+  local dir="$(pwd)"
+
   [ -L "$HOME/.zshrc" ]
+  [[ "$(readlink "$HOME/.zshrc")" == "$dir/.zshrc" ]]
   [ -L "$HOME/.tmux.conf" ]
+  [[ "$(readlink "$HOME/.tmux.conf")" == "$dir/.tmux.conf" ]]
   [ -L "$HOME/.bash_profile" ]
+  [[ "$(readlink "$HOME/.bash_profile")" == "$dir/.bash_profile" ]]
   [ -L "$HOME/.fzf.zsh" ]
+  [[ "$(readlink "$HOME/.fzf.zsh")" == "$dir/.fzf.zsh" ]]
   [ -L "$HOME/.config/nvim" ]
+  [[ "$(readlink "$HOME/.config/nvim")" == "$dir/nvim" ]]
   [ -L "$HOME/.config/starship.toml" ]
+  [[ "$(readlink "$HOME/.config/starship.toml")" == "$dir/starship.toml" ]]
   [ -L "$HOME/.gitconfig" ]
+  [[ "$(readlink "$HOME/.gitconfig")" == "$dir/.gitconfig" ]]
   [ -L "$HOME/.gitignore_global" ]
+  [[ "$(readlink "$HOME/.gitignore_global")" == "$dir/.gitignore_global" ]]
 }
 
 @test "install.sh backups existing files correctly" {
@@ -100,4 +110,37 @@ EOF
 @test "install.sh runs brew bundle" {
   run bash -c 'echo "y" | ./install.sh'
   [[ "$output" == *"Mock brew bundle --file="* ]]
+}
+
+@test "install.sh backs up existing .config files correctly" {
+  # Create a real file at ~/.config/starship.toml before running
+  echo "dummy starship config" > "$HOME/.config/starship.toml"
+
+  run bash -c 'echo "y" | ./install.sh'
+  [ "$status" -eq 0 ]
+
+  # It should now be a symlink
+  [ -L "$HOME/.config/starship.toml" ]
+
+  # Backup directory should contain the original file with original content
+  backup_dir=$(ls -d "$HOME"/dotfiles_backup_* | head -n 1)
+  [ -n "$backup_dir" ]
+  [ -f "$backup_dir/starship.toml" ]
+
+  run cat "$backup_dir/starship.toml"
+  [ "$output" = "dummy starship config" ]
+}
+
+@test "no backup files created when nothing to back up" {
+  # Clean HOME — no pre-existing files to back up
+  run bash -c 'echo "y" | ./install.sh'
+  [ "$status" -eq 0 ]
+
+  # Backup dir may be created (mkdir -p) but should contain no files
+  backup_dir=$(ls -d "$HOME"/dotfiles_backup_* 2>/dev/null | head -n 1 || true)
+  if [ -n "$backup_dir" ]; then
+    local file_count
+    file_count=$(find "$backup_dir" -type f | wc -l | tr -d ' ')
+    [ "$file_count" -eq 0 ]
+  fi
 }
