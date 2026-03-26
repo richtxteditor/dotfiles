@@ -1,7 +1,7 @@
 add_newline = false
 
 # Main format string
-format = "$username@$hostname:$directory$git_branch$git_status$character"
+format = "$username@$hostname:$directory$git_branch$git_status$cmd_duration$character"
 
 [username]
 format = "[$user]($style)"
@@ -40,6 +40,11 @@ ahead = "⇡"
 behind = "⇣"
 diverged = "⇕"
 up_to_date = ""
+
+[cmd_duration]
+min_time = 2_000
+format = " [$duration]($style)"
+style = "yellow"
 
 [character]
 success_symbol = " [»](bold green)"

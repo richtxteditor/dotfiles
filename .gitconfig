@@ -18,6 +18,9 @@
 [rerere]
 	enabled = true
 
+[fetch]
+	prune = true
+
 [diff]
 	colorMoved = default
 

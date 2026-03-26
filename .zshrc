@@ -113,7 +113,8 @@ nom() {
     local CONFIG="$HOME/Library/Application Support/nom/config.yml"
     [[ "$(uname)" == "Linux" ]] && CONFIG="$HOME/.config/nom/config.yml"
     if [[ -f "$CONFIG" ]]; then
-        if [[ "$APPLE_INTERFACE_STYLE" == "Dark" ]]; then
+        local style=$(defaults read -g AppleInterfaceStyle 2>/dev/null || echo "Light")
+        if [[ "$style" == "Dark" ]]; then
             perl -pi -e 's/glamour: light/glamour: dark/' "$CONFIG"
         else
             perl -pi -e 's/glamour: dark/glamour: light/' "$CONFIG"
@@ -126,7 +127,8 @@ nom() {
 gemini() {
     local CONFIG="$HOME/.gemini/settings.json"
     if [[ -f "$CONFIG" ]]; then
-        if [[ "$APPLE_INTERFACE_STYLE" == "Dark" ]]; then
+        local style=$(defaults read -g AppleInterfaceStyle 2>/dev/null || echo "Light")
+        if [[ "$style" == "Dark" ]]; then
             perl -pi -e 's/"theme": "[^"]*"/"theme": "Atom One"/' "$CONFIG"
         else
             perl -pi -e 's/"theme": "[^"]*"/"theme": "Google Code"/' "$CONFIG"
@@ -162,7 +164,7 @@ _noarg_hl() {
         fi
     fi
     if [[ ( $# -eq 0 || $wants_help -eq 1 || $wants_verbose -eq 1 ) && -t 1 && $_HAS_BAT -eq 1 ]]; then
-        command "$cmd" "$@" 2>&1 | bat -l help -p
+        command "$cmd" "$@" | bat -l help -p
         local -a ps=(${pipestatus[@]})
         return $ps[1]
     else
@@ -246,7 +248,9 @@ function load_nvm() {
 }
 # Create placeholder functions that load NVM then run the command
 for cmd in nvm node npm npx yarn pnpm; do
-    eval "$cmd() { load_nvm; $cmd \"\$@\"; }"
+    if ! alias $cmd >/dev/null 2>&1 && ! (( $+functions[$cmd] )); then
+        eval "$cmd() { load_nvm; $cmd \"\$@\"; }"
+    fi
 done
 
 # Language Managers

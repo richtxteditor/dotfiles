@@ -93,10 +93,10 @@ return {
                 },
             })
 
-            -- Auto-open UI listeners
+            -- Auto-open/close UI listeners
             dap.listeners.after.event_initialized["dapui_config"] = function() dapui.open() end
-            -- dap.listeners.before.event_terminated["dapui_config"] = function() dapui.close() end
-            -- dap.listeners.before.event_exited["dapui_config"] = function() dapui.close() end
+            dap.listeners.before.event_terminated["dapui_config"] = function() dapui.close() end
+            dap.listeners.before.event_exited["dapui_config"] = function() dapui.close() end
 
             -- 4. KEYBINDINGS
             vim.keymap.set("n", "<F5>", dap.continue, { desc = "DAP: Continue" })
