@@ -232,11 +232,6 @@ elif command -v fzf >/dev/null 2>&1; then
   source <(fzf --zsh)
 fi
 
-# Zoxide (Smart CD - replaces 'z')
-if command -v zoxide >/dev/null 2>&1; then
-    eval "$(zoxide init zsh)"
-fi
-
 # --- Tool Initializations ---
 
 # NVM (Lazy Load for Speed)
@@ -270,3 +265,8 @@ fi
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+# Zoxide (Smart CD - must be last)
+if command -v zoxide >/dev/null 2>&1; then
+    eval "$(zoxide init zsh)"
+fi
