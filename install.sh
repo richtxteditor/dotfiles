@@ -190,6 +190,27 @@ for file in $config_files; do
     fi
 done
 
+# --- Ghostty Config ---
+ghostty_source="$dir/ghostty/config"
+ghostty_dir="$HOME/Library/Application Support/com.mitchellh.ghostty"
+ghostty_target="$ghostty_dir/config"
+run_cmd mkdir -p "$ghostty_dir"
+if [ -e "$ghostty_target" ] && [ ! -L "$ghostty_target" ]; then
+    echo "Backing up existing Ghostty config to $olddir"
+    run_cmd mv "$ghostty_target" "$olddir/"
+fi
+if [ -L "$ghostty_target" ]; then
+    current_link="$(readlink "$ghostty_target")"
+else
+    current_link=""
+fi
+if [ "$current_link" != "$ghostty_source" ]; then
+    echo "Creating symlink for Ghostty config."
+    run_cmd ln -snf "$ghostty_source" "$ghostty_target"
+else
+    echo "Symlink for Ghostty config is already correctly set up."
+fi
+
 # --- Neovim Python Provider ---
 # Mason's debugpy venv is used as python3_host_prog (set in nvim/init.lua).
 # pynvim must be installed there for :checkhealth to pass.
