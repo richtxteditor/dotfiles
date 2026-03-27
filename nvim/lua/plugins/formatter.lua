@@ -25,6 +25,7 @@ return {
                 cpp = { "clang-format" },
                 java = { "google-java-format" },
                 ruby = { "rubocop" },
+                go = { "goimports", "gofumpt" },
                 sql = { "sql_formatter" },
                 htmldjango = { "djlint" },
             },

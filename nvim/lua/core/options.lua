@@ -26,6 +26,7 @@ opt.updatetime = 250  -- Faster completion
 opt.timeoutlen = 500  -- 500ms timeout for leader key mappings
 opt.ttimeoutlen = 10  -- An instant 10ms timeout for the Escape key
 opt.undofile = true   -- Enable persistent undo
+opt.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
 
 -- Indentation
 opt.tabstop = 4        -- Number of spaces a tab is equal to
@@ -41,3 +42,21 @@ opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
 -- Keeps cursor 8 lines away from screen edges (better context)
 opt.scrolloff = 8
 opt.sidescrolloff = 8
+
+-- Per-filetype keyword lookup (K key fallback when no LSP hover)
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = "python",
+    callback = function() vim.bo.keywordprg = "pydoc" end,
+})
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = "ruby",
+    callback = function() vim.bo.keywordprg = "ri" end,
+})
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = { "sh", "bash", "zsh" },
+    callback = function() vim.bo.keywordprg = ":Man" end,
+})
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = { "c", "cpp" },
+    callback = function() vim.bo.keywordprg = ":Man 3" end,
+})

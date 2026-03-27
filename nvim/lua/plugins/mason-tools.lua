@@ -22,6 +22,10 @@ return {
                 "shellcheck", -- Bash
                 "sqlfluff", -- SQL
                 "cpplint", -- C/C++
+
+                -- Go
+                "goimports", -- Go imports
+                "gofumpt", -- Go (stricter gofmt)
             },
             auto_update = true,
             run_on_start = true,

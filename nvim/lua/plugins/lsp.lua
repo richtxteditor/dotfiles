@@ -22,11 +22,12 @@ return {
                 map("n", "gr", vim.lsp.buf.references, "[G]oto [R]eferences")
                 map("n", "K", vim.lsp.buf.hover, "Hover Documentation")
                 map("n", "<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction")
-                map("n", "<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame")
+                map("n", "<leader>ci", vim.lsp.buf.incoming_calls, "[C]all Hierarchy [I]ncoming")
+                map("n", "<leader>co", vim.lsp.buf.outgoing_calls, "[C]all Hierarchy [O]utgoing")
             end
 
             require("mason-lspconfig").setup({
-                ensure_installed = { "pyright", "eslint", "html", "cssls", "tailwindcss", "jsonls", "yamlls", "lua_ls", "bashls", "intelephense", "jdtls", "clangd", "ts_ls", "solargraph", "sqlls" },
+                ensure_installed = { "pyright", "eslint", "html", "cssls", "tailwindcss", "jsonls", "yamlls", "lua_ls", "bashls", "intelephense", "jdtls", "clangd", "ts_ls", "solargraph", "sqlls", "gopls", "rust_analyzer" },
                 handlers = {
                     function(server_name)
                         require("lspconfig")[server_name].setup({ on_attach = on_attach, capabilities = capabilities })
