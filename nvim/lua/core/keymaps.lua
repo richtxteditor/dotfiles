@@ -31,5 +31,11 @@ map('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous diagnostic mes
 map('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next diagnostic message' })
 map('n', '<leader>dd', vim.diagnostic.open_float, { desc = 'Open floating diagnostic message' })
 
+-- Quickfix Navigation
+map("n", "]q", "<cmd>cnext<cr>", { desc = "Next Quickfix Item" })
+map("n", "[q", "<cmd>cprev<cr>", { desc = "Previous Quickfix Item" })
+map("n", "]Q", "<cmd>clast<cr>", { desc = "Last Quickfix Item" })
+map("n", "[Q", "<cmd>cfirst<cr>", { desc = "First Quickfix Item" })
+
 -- Convenience Commands (Allow lowercase :lazy)
 vim.cmd("cnoreabbrev <expr> lazy getcmdtype() == ':' && getcmdline() == 'lazy' ? 'Lazy' : 'lazy'")

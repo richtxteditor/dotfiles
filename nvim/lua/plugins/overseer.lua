@@ -10,7 +10,7 @@ return {
             },
         },
         keys = {
-            { "<leader>r", "<cmd>OverseerRun<cr>",       desc = "Run Task" },
+            { "<leader>tr", "<cmd>OverseerRun<cr>",       desc = "Run Task" },
             { "<leader>to", "<cmd>OverseerToggle<cr>",    desc = "Toggle Task Output" },
             { "<leader>tc", "<cmd>OverseerRunCmd<cr>",    desc = "Run Command" },
         },
