@@ -43,6 +43,7 @@ Follow these steps to deploy the environment on a fresh macOS or Linux installat
     * Open Neovim: `nvim`
     * Wait for `lazy.nvim` to complete plugin installation.
     * Restart Neovim.
+    * Run `:DevdocsFetch` then `:DevdocsInstall python javascript go rust c` for offline docs.
 
 3. **Install Language Runtimes (Optional):**
     `nvm` is lazy-loaded for Node.js. `pyenv` and `rbenv` are installed via Homebrew but not auto-initialized.
@@ -69,7 +70,9 @@ Below is a comprehensive guide to the tools and keybindings available in this en
 | `<Leader>q` | Quit Window |
 | `<Leader>Q` | Force Quit All |
 | `<Leader><Space>` | Clear Search Highlight |
-| `<Leader>c` | Configuration (Dashboard) |
+| `<C-\>` | Toggle Floating Terminal (ToggleTerm) |
+| `<Leader>u` | Toggle Undo Tree |
+| `<Leader>o` | Toggle Symbol Outline (Aerial) |
 
 #### Navigation & Windows
 | Key | Action |
@@ -98,9 +101,12 @@ Below is a comprehensive guide to the tools and keybindings available in this en
 | :--- | :--- |
 | `gd` | Goto Definition |
 | `gr` | Goto References |
-| `K` | Hover Documentation |
+| `K` | Hover Documentation (LSP or per-language fallback) |
+| `<Leader>K` | Search DevDocs (offline docs, 300+ languages) |
 | `<Leader>ca` | Code Action |
-| `<Leader>rn` | Rename Symbol |
+| `<Leader>ci` | Incoming Calls (Call Hierarchy) |
+| `<Leader>co` | Outgoing Calls (Call Hierarchy) |
+| `<Leader>rn` | Rename Symbol (live preview) |
 | `<Leader>cf` | Code Format |
 | `<Tab>` | Select Next Completion Item / Jump (Tabout) |
 | `<S-Tab>` | Select Previous Completion Item |
@@ -113,11 +119,26 @@ Below is a comprehensive guide to the tools and keybindings available in this en
 | `<Leader>xd` | Toggle Document Diagnostics |
 | `<Leader>xL` | Toggle Location List |
 | `<Leader>xQ` | Toggle Quickfix List |
+| `[d` / `]d` | Previous / Next Diagnostic |
+| `[q` / `]q` | Previous / Next Quickfix Item |
+| `[Q` / `]Q` | First / Last Quickfix Item |
+
+#### Testing (Neotest)
+| Key | Action |
+| :--- | :--- |
+| `<Leader>nt` | Run Nearest Test |
+| `<Leader>nf` | Run All Tests in File |
+| `<Leader>ns` | Toggle Test Summary |
+| `<Leader>no` | Show Test Output |
+
+*Adapters: Python (pytest), JavaScript (jest), Go, Rust*
 
 #### Git
 | Key | Action |
 | :--- | :--- |
 | `<Leader>gg` | Open LazyGit |
+| `<Leader>gd` | Git Diff View (Diffview) |
+| `<Leader>gh` | Git File History (Diffview) |
 
 #### Debugging (DAP)
 | Key | Action |
@@ -133,10 +154,12 @@ Below is a comprehensive guide to the tools and keybindings available in this en
 | `<Leader>du` | Toggle Debug UI |
 | `<Leader>de` | Evaluate Expression |
 
+*Adapters: Python (debugpy), Go (delve), C/C++/Rust (codelldb)*
+
 #### Running Tasks (Overseer)
 | Key | Action |
 | :--- | :--- |
-| `<Leader>r` | **Run Task.** Lists auto-detected tasks for the current file. |
+| `<Leader>tr` | **Run Task.** Lists auto-detected tasks (make, npm, cargo, go, etc.). |
 | `<Leader>to` | Toggle the Task Output window. |
 | `<Leader>tc` | Run a custom shell command. |
 
@@ -156,6 +179,17 @@ Below is a comprehensive guide to the tools and keybindings available in this en
 | `<C-s>` | Toggle Flash Search |
 | `]t` | Next TODO Comment |
 | `[t` | Previous TODO Comment |
+
+#### Which-Key Groups
+Press `<Leader>` and wait to see all available key groups:
+| Prefix | Group |
+| :--- | :--- |
+| `<Leader>f` | Find |
+| `<Leader>c` | Code |
+| `<Leader>d` | Debug |
+| `<Leader>g` | Git |
+| `<Leader>n` | Neotest |
+| `<Leader>t` | Tasks |
 
 ---
 
@@ -184,7 +218,7 @@ Each window is a full-screen workspace within a session.
 | Action | Keybinding |
 | :--- | :--- |
 | **New Window** | `Prefix` + `c` |
-| **Quick Toggle** | `Prefix` + `Space` | **New!** Jump to the last active window. |
+| **Quick Toggle** | `Prefix` + `Space` | Jump to the last active window. |
 | **Next Window** | `Prefix` + `n` |
 | **Previous Window**| `Prefix` + `p` |
 | **Rename Window** | `Prefix` + `,` |
@@ -198,7 +232,7 @@ Each window can be divided into multiple panes.
 | :--- | :--- |
 | **Split Vertically** | `Prefix` + `\|` |
 | **Split Horizontally**| `Prefix` + `-` |
-| **Zoom/Maximize** | `Prefix` + `z` OR `m` | **New!** Both standard `z` and easier `m` toggle full-screen. |
+| **Zoom/Maximize** | `Prefix` + `z` OR `m` | Both standard `z` and easier `m` toggle full-screen. |
 | **Kill Pane** | `Prefix` + `x` |
 | **Break to Window** | `Prefix` + `b` |
 
@@ -264,10 +298,10 @@ Your config has `set -g mouse on`.
 
 #### 1. Core Concepts (How it "Thinks")
 
-* **Prompt:** It shows `user@host`, a shortened path, the current Git branch, and a status symbol (`✓` for clean, `⚡️` for dirty).
+* **Prompt:** Powered by Starship. Shows `user@host`, shortened path, Git branch/status, and command duration (for commands >2s).
 * **Plugins:** Oh My Zsh manages plugins that add new commands, aliases, and behaviors.
-* **Aliases:** These are custom shortcuts for longer commands (e.g., `gs` for `git status -sb`).
-* **Functions:** More powerful than aliases, these are small shell scripts (e.g., `mkcd`).
+* **Aliases:** Custom shortcuts for longer commands (e.g., `gs` for `git status -sb`).
+* **Functions:** More powerful than aliases, small shell scripts (e.g., `mkcd`).
 
 #### 2. Navigation & File System (The "Modern Unix" Suite)
 
@@ -351,6 +385,7 @@ This is a curated list of the most important aliases you've configured.
 | `ta` | Smart attach/create function. |
 | `tls` | `tmux ls` |
 | `tk <name>`| `tmux kill-session -t <name>` |
+| `tka` | Kill all unattached tmux sessions. |
 
 #### 5. Functions (Mini-Scripts)
 
@@ -360,8 +395,8 @@ These perform actions that aliases cannot.
 | :--- | :--- |
 | `mkcd <dir>` | Creates a directory and immediately `cd`s into it. |
 | `ic` | Jumps directly to your iCloud Drive folder. |
-| `nom` | Wrapper to auto-switch themes based on macOS settings. |
-| `gemini` | Wrapper to auto-switch themes based on macOS settings. |
+| `nom` | Wrapper to auto-switch themes based on macOS dark/light mode. |
+| `gemini` | Wrapper to auto-switch themes based on macOS dark/light mode. |
 
 #### 6. Tool Initializations (The "Magic")
 
@@ -373,11 +408,33 @@ These lines in your `.zshrc` are what enable the version managers.
 
 ---
 
+## Neovim Session Management
+
+Sessions are automatically saved and restored per project directory via `auto-session`. When you open `nvim` in a directory where you previously had buffers open, your layout is restored.
+
+To disable for a directory, add it to `suppressed_dirs` in `nvim/lua/plugins/session.lua`.
+
+---
+
 ## Notes
 
 - `fzf` keybindings are loaded from `.fzf.zsh` when present (tracked in this repo), otherwise `fzf --zsh` is used.
 - Homebrew dependencies are managed in a single `Brewfile` (casks included).
 - `.bash_profile` includes Juliaup and a lazy-loaded Conda hook.
+- Git is configured with `pull.rebase`, `push.autoSetupRemote`, `rerere`, `fetch.prune`, and `zdiff3` merge conflict style.
+- Starship prompt shows command duration for commands taking longer than 2 seconds.
+- LSP progress is shown inline via Fidget (no notification popups).
+
+---
+
+## Testing
+
+Run the test suite to verify the configuration:
+```bash
+./test.sh
+```
+
+The suite includes 36 tests covering syntax validation, installation logic, symlink correctness, zshrc behavior, and cross-file consistency.
 
 ---
 

@@ -1,6 +1,6 @@
 # Dotfiles Cheat Sheet
 
-## 🚀 Shell & Navigation (Zsh)
+## Shell & Navigation (Zsh)
 
 | Command | Tool | Description |
 | :--- | :--- | :--- |
@@ -12,7 +12,7 @@
 | **`Ctrl + t`** | **fzf** | Fuzzy find a file and paste its path into the command line. |
 | **`Ctrl + Space`**| **autosuggest**| Accept the grey "ghost text" suggestion. |
 
-## 🛠 System & Config Management
+## System & Config Management
 
 | Command | Description |
 | :--- | :--- |
@@ -22,11 +22,11 @@
 | **`reload`** | Reloads `.zshrc` without restarting the terminal. |
 | **`mkcd <dir>`**| Creates a directory and immediately `cd`s into it. |
 
-## 🌳 Git Workflow
+## Git Workflow
 
 | Command | Description |
 | :--- | :--- |
-| **`lg`** | **Lazygit**. Opens a powerful terminal UI for Git. (Highly recommended). |
+| **`lg`** | **Lazygit**. Opens a powerful terminal UI for Git. |
 | **`gs`** | `git status -sb` (Short status). |
 | **`gaa`** | `git add .` (Add all). |
 | **`gc "msg"`** | `git commit -m "msg"`. |
@@ -34,7 +34,7 @@
 | **`gpf`** | `git push --force-with-lease` (Safer force push). |
 | **`gpl`** | `git pull --rebase --autostash`. |
 
-## 🖥 Tmux (Multiplexer)
+## Tmux (Multiplexer)
 **Prefix:** `Ctrl + a` (Replaces standard `Ctrl + b`)
 
 | Key | Action |
@@ -45,11 +45,12 @@
 | **`Prefix + -`** | Split horizontally. |
 | **`Prefix + c`** | New window. |
 | **`Prefix + z`** / **`m`** | Toggle fullscreen (zoom) for current pane. |
+| **`Prefix + Space`** | Jump to last active window. |
 | **`Prefix + I`** | **Install Plugins** (Press this if plugins look missing). |
 | **`Prefix + [`** | Enter copy mode (Use `v` to select, `y` to copy). |
 | **`Prefix + d`** | Detach from session (leave it running in background). |
 
-## 📝 Neovim (Editor)
+## Neovim (Editor)
 **Leader Key:** `Space`
 
 ### General & Files
@@ -59,40 +60,65 @@
 | **`<Space> ff`** | **Find Files** (Telescope). |
 | **`<Space> fg`** | **Live Grep** (Search text in project). |
 | **`<Space> fo`** | Find Recent/Old Files. |
+| **`<Space> fb`** | Find Buffers. |
+| **`<Space> fh`** | Find Help Tags. |
+| **`<Space> fd`** | Find Diagnostics. |
+| **`<Space> ft`** | Find TODOs. |
 | **`<Space> gg`** | Open Lazygit. |
 | **`<Space> mp`** | Toggle Markdown Preview. |
+| **`<C-\>`** | Toggle floating terminal (ToggleTerm). |
+| **`<Space> u`** | Toggle Undo Tree. |
+| **`<Space> o`** | Toggle Symbol Outline (Aerial). |
 
 ### Code & LSP
 | Key | Action |
 | :--- | :--- |
 | **`gd`** | Go to Definition. |
 | **`gr`** | Find References. |
-| **`K`** | Hover Documentation. |
+| **`K`** | Hover Documentation (LSP or per-language fallback). |
+| **`<Space> K`** | Search DevDocs (offline docs for 300+ languages). |
 | **`<Space> cf`** | Format Code. |
-| **`<Space> rn`** | Rename Symbol. |
+| **`<Space> rn`** | Rename Symbol (live preview). |
 | **`<Space> ca`** | Code Action. |
-| **`<Space> d`** | Show Error/Warning (Float). |
+| **`<Space> ci`** | Incoming Calls (call hierarchy). |
+| **`<Space> co`** | Outgoing Calls (call hierarchy). |
+| **`<Space> dd`** | Show Error/Warning (Float). |
 | **`[d`** / **`]d`** | Previous / Next Diagnostic. |
+| **`[q`** / **`]q`** | Previous / Next Quickfix Item. |
 | **`<Space> xx`** | Toggle Diagnostics (Trouble). |
-| *Inside Trouble:* | |
-| **`Enter`** | Jump to error location. |
-| (Then use `gr`, `gd`, or `<Space> ca` normally in the file) |
+
+### Testing (Neotest)
+| Key | Action |
+| :--- | :--- |
+| **`<Space> nt`** | Run Nearest Test. |
+| **`<Space> nf`** | Run All Tests in File. |
+| **`<Space> ns`** | Toggle Test Summary. |
+| **`<Space> no`** | Show Test Output. |
 
 ### Debugging (DAP)
 | Key | Action |
 | :--- | :--- |
 | **`<F5>`** | Start / Continue. |
+| **`<F6>`** | Stop / Terminate. |
 | **`<F9>`** | Toggle Breakpoint. |
 | **`<F10>`** | Step Over. |
 | **`<F11>`** | Step Into. |
+| **`<F8>`** | Step Out. |
 | **`<Space> du`** | Toggle Debug UI. |
 
-### Tasks & Running
+### Tasks & Running (Overseer)
 | Key | Action |
 | :--- | :--- |
-| **`<Space> r`** | **Run Task** (Auto-detected). |
+| **`<Space> tr`** | **Run Task** (Auto-detected: make, npm, cargo, go, etc.). |
 | **`<Space> to`** | Toggle Task Output. |
 | **`<Space> tc`** | Run Custom Command. |
+
+### Git (in Neovim)
+| Key | Action |
+| :--- | :--- |
+| **`<Space> gg`** | Open LazyGit. |
+| **`<Space> gd`** | Git Diff View (Diffview). |
+| **`<Space> gh`** | Git File History (Diffview). |
 
 ### Navigation (Flash)
 | Key | Action |
@@ -100,14 +126,24 @@
 | **`s`** | **Flash Jump**. Jump to any character on screen. |
 | **`S`** | **Flash Treesitter**. Select logical blocks of code. |
 
-## 📦 Runtimes & Languages
+## Runtimes & Languages
 
 | Tool | Usage |
 | :--- | :--- |
 | **Node.js** | Managed by `nvm`. Run `nvm install 20`. |
 | **Python** | Managed by `pyenv`. Run `pyenv install 3.12`. |
 | **Ruby** | Managed by `rbenv`. Run `rbenv install 3.3.0`. |
+| **Go** | Installed via Homebrew. LSP: `gopls`. Formatters: `goimports`, `gofumpt`. |
+| **Rust** | Installed via Homebrew. LSP: `rust-analyzer`. DAP: `codelldb`. |
 | **Java** | `openjdk` installed. Neovim uses `jdtls` & `google-java-format`. |
-| **C/C++** | `clang` / `llvm` installed. Neovim uses `clangd` & `clang-format`. |
+| **C/C++** | `clang` / `llvm` installed. Neovim uses `clangd` & `clang-format`. DAP: `codelldb`. |
 | **TypeScript** | Uses `ts_ls`, `prettier`, `eslint`. Ensure `tsconfig.json` exists. |
 | **PHP** | Uses `intelephense` & `php-cs-fixer`. |
+
+## DevDocs Setup (First Time)
+
+After installing plugins, run these commands in Neovim to download offline docs:
+```
+:DevdocsFetch
+:DevdocsInstall python javascript go rust c
+```
