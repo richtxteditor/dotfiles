@@ -2,29 +2,57 @@
 font-family = FiraCode Nerd Font
 font-size = 16
 font-thicken = true
+bold-color = bright
 
 # Theme (auto dark/light)
-theme = dark:Catppuccin Mocha,light:Catppuccin Latte
+theme = dark:Ayu Mirage,light:Violet Light
+# minimum-contrast = 4.5
 
 # Window
-macos-titlebar-style = hidden
-macos-option-as-alt = true
-background-opacity = 0.9
+background-opacity = 0.85
 background-blur = 40
 window-padding-x = 8
 window-padding-y = 4
-window-width = 100
-window-height = 25
+window-padding-balance = true
+window-padding-color = extend
+window-width = 130
+window-height = 33
 window-save-state = always
+window-inherit-font-size = true
+window-inherit-working-directory = true
+tab-inherit-working-directory = true
+split-inherit-working-directory = true
+
+# macOS
+macos-option-as-alt = true
+macos-titlebar-style = transparent
+macos-icon-frame = plastic
+window-step-resize = true
+window-colorspace = display-p3
 
 # Splits
-unfocused-split-opacity = 0.8
+unfocused-split-opacity = 0.5
 
 # Cursor
 cursor-style = block_hollow
-cursor-style-blink = false
+cursor-style-blink = true
+cursor-click-to-move = true
+mouse-hide-while-typing = true
+
+# Quick Terminal
+quick-terminal-position = top
+quick-terminal-animation-duration = 0.1
+quick-terminal-autohide = true
+
+# Text
+faint-opacity = 0.9
 
 # Behavior
 copy-on-select = clipboard
+confirm-close-surface = true
 notify-on-command-finish = unfocused
+notify-on-command-finish-after = 10s
+scroll-to-bottom = keystroke,output
 shell-integration-features = no-cursor,ssh-terminfo,ssh-env
+env = EDITOR=nvim
+
