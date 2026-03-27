@@ -32,6 +32,17 @@ return {
                     function(server_name)
                         require("lspconfig")[server_name].setup({ on_attach = on_attach, capabilities = capabilities })
                     end,
+                    ["djlsp"] = function()
+                        -- Only activate in Django projects (requires manage.py)
+                        local root = require("lspconfig.util").root_pattern("manage.py")(vim.fn.getcwd())
+                        if root then
+                            require("lspconfig").djlsp.setup({
+                                on_attach = on_attach,
+                                capabilities = capabilities,
+                                root_dir = require("lspconfig.util").root_pattern("manage.py"),
+                            })
+                        end
+                    end,
                     ["lua_ls"] = function()
                         require("lspconfig").lua_ls.setup({
                             on_attach = on_attach,
