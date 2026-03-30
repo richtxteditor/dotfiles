@@ -211,6 +211,27 @@ else
     echo "Symlink for Ghostty config is already correctly set up."
 fi
 
+# --- Claude Code Config ---
+claude_source="$dir/claude/CLAUDE.md"
+claude_dir="$HOME/.claude"
+claude_target="$claude_dir/CLAUDE.md"
+run_cmd mkdir -p "$claude_dir"
+if [ -e "$claude_target" ] && [ ! -L "$claude_target" ]; then
+    echo "Backing up existing Claude Code config to $olddir"
+    run_cmd mv "$claude_target" "$olddir/"
+fi
+if [ -L "$claude_target" ]; then
+    current_link="$(readlink "$claude_target")"
+else
+    current_link=""
+fi
+if [ "$current_link" != "$claude_source" ]; then
+    echo "Creating symlink for Claude Code config."
+    run_cmd ln -snf "$claude_source" "$claude_target"
+else
+    echo "Symlink for Claude Code config is already correctly set up."
+fi
+
 # --- Neovim Python Provider ---
 # Mason's debugpy venv is used as python3_host_prog (set in nvim/init.lua).
 # pynvim must be installed there for :checkhealth to pass.
