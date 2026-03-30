@@ -8,7 +8,7 @@ return {
         { "<leader>o", "<cmd>AerialToggle!<cr>", desc = "Toggle Symbol Outline" },
     },
     opts = {
-        backends = { "treesitter", "lsp", "markdown", "man" },
+        backends = { "markdown", "lsp", "treesitter", "man" },
         layout = {
             min_width = 30,
             default_direction = "prefer_right",
