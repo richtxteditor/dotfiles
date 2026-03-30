@@ -12,6 +12,9 @@ return {
         },
         config = function()
             local capabilities = require("cmp_nvim_lsp").default_capabilities()
+            capabilities.workspace = capabilities.workspace or {}
+            capabilities.workspace.didChangeWatchedFiles = capabilities.workspace.didChangeWatchedFiles or {}
+            capabilities.workspace.didChangeWatchedFiles.dynamicRegistration = true
             require("mason").setup({ ui = { border = "rounded" } })
 
             local on_attach = function(client, bufnr)
@@ -32,16 +35,14 @@ return {
                     function(server_name)
                         require("lspconfig")[server_name].setup({ on_attach = on_attach, capabilities = capabilities })
                     end,
+                    ["rubocop"] = function() end, -- linting handled by solargraph, formatting by conform
                     ["djlsp"] = function()
-                        -- Only activate in Django projects (requires manage.py)
-                        local root = require("lspconfig.util").root_pattern("manage.py")(vim.fn.getcwd())
-                        if root then
-                            require("lspconfig").djlsp.setup({
-                                on_attach = on_attach,
-                                capabilities = capabilities,
-                                root_dir = require("lspconfig.util").root_pattern("manage.py"),
-                            })
-                        end
+                        require("lspconfig").djlsp.setup({
+                            on_attach = on_attach,
+                            capabilities = capabilities,
+                            filetypes = { "htmldjango" },
+                            root_dir = require("lspconfig.util").root_pattern("manage.py"),
+                        })
                     end,
                     ["lua_ls"] = function()
                         require("lspconfig").lua_ls.setup({
