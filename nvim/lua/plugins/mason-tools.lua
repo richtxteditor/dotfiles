@@ -18,7 +18,7 @@ return {
 
                 -- Linters
                 "flake8", -- Python
-                "rubocop", -- Ruby
+                "rubocop", -- Ruby formatter (linting handled by solargraph LSP)
                 "shellcheck", -- Bash
                 "sqlfluff", -- SQL
                 "cpplint", -- C/C++

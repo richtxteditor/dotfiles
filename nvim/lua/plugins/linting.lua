@@ -6,7 +6,6 @@ return {
 
         lint.linters_by_ft = {
             python = { "flake8" },
-            ruby = { "rubocop" },
             sql = { "sqlfluff" },
             sh = { "shellcheck" },
             bash = { "shellcheck" },
