@@ -163,6 +163,14 @@ Below is a comprehensive guide to the tools and keybindings available in this en
 | **Copy** | Copy-on-select to clipboard |
 | **Shell Integration** | SSH terminfo + env forwarding |
 
+#### Split Navigation
+| Key | Action |
+| :--- | :--- |
+| `Cmd+Alt+H` | Focus split left |
+| `Cmd+Alt+J` | Focus split down |
+| `Cmd+Alt+K` | Focus split up |
+| `Cmd+Alt+L` | Focus split right |
+
 ### Neovim
 *Your modal text editor.*
 
@@ -416,6 +424,7 @@ You have replaced standard commands with faster, more informative versions.
 | **Smart CD** | `cd` or `z` | **Zoxide.** Both commands now use `zoxide` to jump to directories instantly. |
 | **List Files** | `ls` | **Eza.** Shows files with icons and Git status. |
 | **List Detailed** | `ll` | **Eza.** Shows a detailed list with permissions, size, and date. |
+| **List All** | `la` | **Eza.** Shows all files including hidden, with icons and git status. |
 | **Show Tree** | `tree` | **Eza.** Shows a hierarchical tree view of the current directory (2 levels deep). |
 | **View File** | `cat <file>` | **Bat.** Displays file content with syntax highlighting and line numbers. |
 
@@ -433,6 +442,8 @@ These features are designed to minimize typing.
 | | | *A full-screen menu of your command history appears. Start typing to filter it.* |
 | **fzf** | Fuzzy File Path Insert | Press **`Ctrl+t`**. |
 | | | *Inserts the selected file path directly into your current command line.* |
+| **fzf** | Fuzzy Directory Change | Press **`Alt+c`**. |
+| | | *Fuzzy find a directory and `cd` into it.* |
 
 #### 4. Aliases (Your Personal Shortcuts)
 
@@ -444,6 +455,7 @@ This is a curated list of the most important aliases you've configured.
 | :--- | :--- |
 | `reload` | `source ~/.zshrc` |
 | `zshconfig` | `nvim ~/.zshrc` |
+| `cls` | `clear` |
 | `update` | Updates macOS, Homebrew, and Oh My Zsh. |
 | `bbu` | `brew bundle dump --file=~/dotfiles/Brewfile --force` (Updates repo Brewfile) |
 | `icloud` | Opens your iCloud Drive folder. |
