@@ -2,10 +2,11 @@
 
 ![Shell](https://img.shields.io/badge/shell-Zsh-blue.svg)
 ![Editor](https://img.shields.io/badge/editor-Neovim-green.svg)
-![Terminal](https://img.shields.io/badge/terminal-tmux-orange.svg)
+![Terminal](https://img.shields.io/badge/terminal-Ghostty-purple.svg)
+![Multiplexer](https://img.shields.io/badge/multiplexer-tmux-orange.svg)
 ![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)
 
-This repository contains configuration files for a high-performance, terminal-centric development environment on macOS and Linux. The setup integrates Zsh, Tmux, and Neovim into a unified workspace, prioritizing keyboard-driven navigation, fast startup times, and session persistence.
+This repository contains configuration files for a high-performance, terminal-centric development environment on macOS and Linux. The setup integrates Ghostty, Zsh, Tmux, and Neovim into a unified workspace, prioritizing keyboard-driven navigation, fast startup times, and automatic dark/light mode switching.
 
 ---
 
@@ -33,6 +34,14 @@ Follow these steps to deploy the environment on a fresh macOS or Linux installat
     ./install.sh --dry-run
     ```
 
+### What Gets Installed
+
+The script handles the following:
+- **Homebrew** packages, casks, and VS Code extensions (from `Brewfile`)
+- **Symlinks** for Zsh, Tmux, Neovim, Starship, Ghostty, and Claude Code configs
+- **TPM** (Tmux Plugin Manager)
+- **pynvim** in the Mason debugpy venv (for Neovim's Python provider)
+
 ### Phase 2: Configuration
 
 1. **Initialize Tmux Plugins:**
@@ -55,9 +64,104 @@ Follow these steps to deploy the environment on a fresh macOS or Linux installat
 
 ---
 
+## Features
+
+### Dark/Light Mode Auto-Switching
+
+The entire environment responds to macOS appearance changes:
+
+| Component | Dark Theme | Light Theme |
+| :--- | :--- | :--- |
+| **Neovim** | Kanagawa Wave | Kanagawa Lotus |
+| **Ghostty** | Ayu Mirage | Violet Light |
+| **Bat** | OneHalfDark | OneHalfLight |
+| **Nom** | glamour: dark | glamour: light |
+| **Gemini CLI** | Atom One | Google Code |
+
+Neovim switches automatically via [dark-notify](https://github.com/cormacrelf/dark-notify). Ghostty uses its built-in `theme = dark:...,light:...` syntax. Shell tools (bat, nom, gemini) switch at invocation time.
+
+### Format-on-Save
+
+All files are automatically formatted on save via [conform.nvim](https://github.com/stevearc/conform.nvim) with a 500ms timeout and LSP fallback. Configured formatters:
+
+| Language | Formatter |
+| :--- | :--- |
+| Lua | stylua |
+| Python | isort + black |
+| JS/TS/CSS/HTML/JSON/Markdown | prettier |
+| PHP | php-cs-fixer |
+| C/C++ | clang-format |
+| Java | google-java-format |
+| Ruby | rubocop |
+| Go | goimports + gofumpt |
+| SQL | sql-formatter |
+| Django Templates | djlint |
+| Shell | shfmt |
+
+### Linting
+
+Linters run on `BufEnter`, `BufWritePost`, and `InsertLeave` via [nvim-lint](https://github.com/mfussenegger/nvim-lint):
+
+| Language | Linter |
+| :--- | :--- |
+| Python | flake8 |
+| SQL | sqlfluff |
+| Shell/Bash | shellcheck |
+| Django Templates | djlint |
+| C/C++ | cpplint |
+
+Ruby linting is handled by the Solargraph LSP.
+
+### LSP Coverage
+
+Mason auto-installs and configures these language servers:
+
+`pyright` `eslint` `html` `cssls` `tailwindcss` `jsonls` `yamlls` `lua_ls` `bashls` `intelephense` `jdtls` `clangd` `ts_ls` `solargraph` `sqlls` `gopls` `rust_analyzer`
+
+Additional: `djlsp` (Django, restricted to `htmldjango` filetype with `manage.py` root detection).
+
+File watching (`workspace/didChangeWatchedFiles`) is enabled with dynamic registration for all clients.
+
+### Treesitter
+
+Syntax highlighting, indentation, and code folding via tree-sitter parsers for 25+ languages. Includes [treesitter-context](https://github.com/nvim-treesitter/nvim-treesitter-context) for sticky function/class headers at the top of the buffer.
+
+### Session Management
+
+Sessions are managed by [auto-session](https://github.com/rmagatti/auto-session):
+- **Auto-save:** On exit (when a session exists)
+- **Auto-restore:** Disabled (opens to a blank buffer)
+- **Auto-create:** Disabled (use `:SessionSave` to explicitly create a session)
+- **Suppressed directories:** `~/`, `~/Downloads`, `/`
+
+Use `:SessionRestore` to manually restore, `:SessionSearch` to browse saved sessions.
+
+### Bat-Highlighted Help Output
+
+Several commands have wrappers that pipe no-argument or `--help` output through `bat` for syntax-highlighted readability: `ssh`, `tldr`, `git`, `rg`, `curl`, `jq`, `docker`, `kubectl`.
+
+### GRC Colorizer
+
+[GRC](https://github.com/garabik/grc) adds color to common commands like `ping`, `traceroute`, `dig`, `mount`, `ps`, etc.
+
+---
+
 ## Cheat Sheet & Keybindings
 
 Below is a comprehensive guide to the tools and keybindings available in this environment.
+
+### Ghostty
+*Your GPU-accelerated terminal emulator.*
+
+| Setting | Value |
+| :--- | :--- |
+| **Font** | FiraCode Nerd Font, size 16 |
+| **Opacity** | 90% with background blur |
+| **Quick Terminal** | `Cmd+`` `` ` (top drop-down, auto-hides) |
+| **Color Space** | Display P3 |
+| **Splits/Tabs** | Inherit working directory |
+| **Copy** | Copy-on-select to clipboard |
+| **Shell Integration** | SSH terminfo + env forwarding |
 
 ### Neovim
 *Your modal text editor.*
@@ -298,7 +402,7 @@ Your config has `set -g mouse on`.
 
 #### 1. Core Concepts (How it "Thinks")
 
-* **Prompt:** Powered by Starship. Shows `user@host`, shortened path, Git branch/status, and command duration (for commands >2s).
+* **Prompt:** Powered by Starship. Shows `user@host`, shortened path, Git branch/status, and command duration with millisecond precision.
 * **Plugins:** Oh My Zsh manages plugins that add new commands, aliases, and behaviors.
 * **Aliases:** Custom shortcuts for longer commands (e.g., `gs` for `git status -sb`).
 * **Functions:** More powerful than aliases, small shell scripts (e.g., `mkcd`).
@@ -408,22 +512,16 @@ These lines in your `.zshrc` are what enable the version managers.
 
 ---
 
-## Neovim Session Management
-
-Sessions are automatically saved and restored per project directory via `auto-session`. When you open `nvim` in a directory where you previously had buffers open, your layout is restored.
-
-To disable for a directory, add it to `suppressed_dirs` in `nvim/lua/plugins/session.lua`.
-
----
-
 ## Notes
 
 - `fzf` keybindings are loaded from `.fzf.zsh` when present (tracked in this repo), otherwise `fzf --zsh` is used.
-- Homebrew dependencies are managed in a single `Brewfile` (casks included).
+- Homebrew dependencies are managed in a single `Brewfile` (casks, VS Code extensions, and cargo packages included).
 - `.bash_profile` includes Juliaup and a lazy-loaded Conda hook.
 - Git is configured with `pull.rebase`, `push.autoSetupRemote`, `rerere`, `fetch.prune`, and `zdiff3` merge conflict style.
-- Starship prompt shows command duration for commands taking longer than 2 seconds.
+- Starship prompt shows command duration with millisecond precision for all commands.
 - LSP progress is shown inline via Fidget (no notification popups).
+- Claude Code is configured via `claude/CLAUDE.md`, symlinked to `~/.claude/CLAUDE.md` by the install script.
+- Indent guides are rendered by [indent-blankline.nvim](https://github.com/lukas-reineke/indent-blankline.nvim).
 
 ---
 
