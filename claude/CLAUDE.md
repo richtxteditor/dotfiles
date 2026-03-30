@@ -6,7 +6,7 @@
 
 ## Tools
 
-- Use fff for file search and grep within git-indexed directories
+- For any file search or grep in the current git indexed directory use fff tools
 
 ## Workflow
 

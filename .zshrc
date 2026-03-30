@@ -64,13 +64,14 @@ alias cp='cp -i'
 alias mv='mv -i'
 alias cd='z' # Use zoxide for cd
 
-# Modern Unix Replacements (Eza/Bat/Lazygit)
+# Modern Unix Replacements (Eza/Bat/Lazygit/FFF)
 alias cat='bat'
 alias ls='eza --icons --git'
 alias ll='eza --icons --git -l'
 alias la='eza --icons --git -la'
 alias tree='eza --icons --tree --level=2'
 alias lg='lazygit'
+alias fff='fff-mcp'
 
 # Git (Standard)
 alias gs='git status -sb'

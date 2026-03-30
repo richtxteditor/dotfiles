@@ -14,6 +14,7 @@ map("n", "<leader>Q", "<cmd>qa!<cr>", { desc = "Force Quit All" })
 
 -- Clear search highlight
 map("n", "<leader><space>", "<cmd>nohlsearch<cr>", { desc = "Clear Search Highlight" })
+map("n", "<leader>uw", "<cmd>set wrap!<cr>", { desc = "Toggle [U]I [W]rap" })
 
 -- Telescope Mappings
 map("n", "<leader>ff", "<cmd>Telescope find_files<cr>", { desc = "[F]ind [F]iles" })

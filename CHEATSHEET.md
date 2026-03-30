@@ -57,8 +57,11 @@
 | Key | Action |
 | :--- | :--- |
 | **`<Space> e`** | Toggle File Explorer (NvimTree). |
-| **`<Space> ff`** | **Find Files** (Telescope). |
-| **`<Space> fg`** | **Live Grep** (Search text in project). |
+| **`ff`** | **FFFind Files** (FFF - High Performance). |
+| **`fg`** | **LiFFFe Grep** (FFF - High Performance). |
+| **`fz`** | **Fuzzy Grep** (FFF). |
+| **`<Space> ff`** | Find Files (Telescope). |
+| **`<Space> fg`** | Live Grep (Telescope). |
 | **`<Space> fo`** | Find Recent/Old Files. |
 | **`<Space> fb`** | Find Buffers. |
 | **`<Space> fh`** | Find Help Tags. |
