@@ -60,3 +60,12 @@ vim.api.nvim_create_autocmd("FileType", {
     pattern = { "c", "cpp" },
     callback = function() vim.bo.keywordprg = ":Man 3" end,
 })
+
+-- Neovim 0.12 auto-enables built-in treesitter highlighting for markdown,
+-- which hits a 'range' nil error. Stop it immediately after the filetype is set.
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = { "markdown", "markdown_inline" },
+    callback = function(ev)
+        vim.treesitter.stop(ev.buf)
+    end,
+})

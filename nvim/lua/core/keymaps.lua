@@ -16,9 +16,7 @@ map("n", "<leader>Q", "<cmd>qa!<cr>", { desc = "Force Quit All" })
 map("n", "<leader><space>", "<cmd>nohlsearch<cr>", { desc = "Clear Search Highlight" })
 map("n", "<leader>uw", "<cmd>set wrap!<cr>", { desc = "Toggle [U]I [W]rap" })
 
--- Telescope Mappings
-map("n", "<leader>ff", "<cmd>Telescope find_files<cr>", { desc = "[F]ind [F]iles" })
-map("n", "<leader>fg", "<cmd>Telescope live_grep<cr>", { desc = "[F]ind by [G]rep" })
+-- Telescope Mappings (ff/fg handled by fff.nvim)
 map("n", "<leader>fb", "<cmd>Telescope buffers<cr>", { desc = "[F]ind [B]uffers" })
 map("n", "<leader>fh", "<cmd>Telescope help_tags<cr>", { desc = "[F]ind [H]elp Tags" })
 map("n", "<leader>fo", "<cmd>Telescope oldfiles<cr>", { desc = "[F]ind [O]ld Files" })
