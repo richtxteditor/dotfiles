@@ -37,6 +37,16 @@
   [ "$status" -eq 0 ]
 }
 
+@test "shared shell modules pass bash syntax check" {
+  run bash -n shell/shared/platform.sh shell/bash/profile.bash
+  [ "$status" -eq 0 ]
+}
+
+@test "zsh shell modules pass syntax check" {
+  run bash -c 'find shell/zsh -name "*.zsh" -exec zsh -n {} \;'
+  [ "$status" -eq 0 ]
+}
+
 @test "tmux.conf passes syntax check" {
   if ! command -v tmux &> /dev/null; then
     skip "tmux is not installed"

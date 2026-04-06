@@ -9,6 +9,12 @@ setup() {
   # Create mock bin directory
   export PATH="$TEST_HOME/bin:$PATH"
 
+  cat << 'EOF' > "$TEST_HOME/bin/uname"
+#!/bin/bash
+echo Darwin
+EOF
+  chmod +x "$TEST_HOME/bin/uname"
+
   # Mock `brew` to echo commands and succeed
   cat << 'EOF' > "$TEST_HOME/bin/brew"
 #!/bin/bash
@@ -67,6 +73,10 @@ EOF
   [[ "$(readlink "$HOME/.gitconfig")" == "$dir/.gitconfig" ]]
   [ -L "$HOME/.gitignore_global" ]
   [[ "$(readlink "$HOME/.gitignore_global")" == "$dir/.gitignore_global" ]]
+  [ -L "$HOME/Library/Application Support/com.mitchellh.ghostty/config" ]
+  [[ "$(readlink "$HOME/Library/Application Support/com.mitchellh.ghostty/config")" == "$dir/ghostty/config" ]]
+  [ -L "$HOME/.claude/CLAUDE.md" ]
+  [[ "$(readlink "$HOME/.claude/CLAUDE.md")" == "$dir/claude/CLAUDE.md" ]]
 }
 
 @test "install.sh backups existing files correctly" {
@@ -110,6 +120,21 @@ EOF
 @test "install.sh runs brew bundle" {
   run bash -c 'echo "y" | ./install.sh'
   [[ "$output" == *"Mock brew bundle --file="* ]]
+}
+
+@test "install.sh uses Linux Ghostty path when platform is Linux" {
+  cat << 'EOF' > "$TEST_HOME/bin/uname"
+#!/bin/bash
+echo Linux
+EOF
+  chmod +x "$TEST_HOME/bin/uname"
+
+  run bash -c 'echo "y" | ./install.sh'
+  [ "$status" -eq 0 ]
+
+  local dir="$(pwd)"
+  [ -L "$HOME/.config/ghostty/config" ]
+  [[ "$(readlink "$HOME/.config/ghostty/config")" == "$dir/ghostty/config" ]]
 }
 
 @test "install.sh backs up existing .config files correctly" {

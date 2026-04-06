@@ -5,8 +5,7 @@ setup() {
   mkdir -p "$BATS_TEST_TMPDIR/.oh-my-zsh"
   touch "$BATS_TEST_TMPDIR/.oh-my-zsh/oh-my-zsh.sh"
   export HOME="$BATS_TEST_TMPDIR"
-  cp .zshrc "$BATS_TEST_TMPDIR/.zshrc"
-  touch "$BATS_TEST_TMPDIR/.fzf.zsh"
+  export APPLE_INTERFACE_STYLE="Light"
 }
 
 # Helper: source .zshrc capturing stderr separately, fail on real errors
@@ -58,7 +57,9 @@ source_zshrc_cmd() {
   [ "$output" = "cat=bat" ]
 
   run zsh -c "source .zshrc 2>/tmp/zshrc_err; alias ls"
-  [[ "$output" == "ls=eza "* ]]
+  [[ "$output" == *"eza"* ]]
+  [[ "$output" == *"--icons"* ]]
+  [[ "$output" == *"--git"* ]]
 
   run zsh -c "source .zshrc 2>/tmp/zshrc_err; alias lg"
   [ "$output" = "lg=lazygit" ]
@@ -112,12 +113,22 @@ source_zshrc_cmd() {
   [[ "$output" == *".local/bin"* ]]
 }
 
+@test "zshrc remains a thin entrypoint" {
+  local line_count
+  line_count=$(wc -l < .zshrc | tr -d ' ')
+  [ "$line_count" -le 20 ]
+
+  run grep -c '^source "\$DOTFILES_ROOT/shell/zsh/' .zshrc
+  [ "$status" -eq 0 ]
+  [ "$output" -ge 8 ]
+}
+
 @test "mkcd creates directory and changes into it" {
   local testdir="$BATS_TEST_TMPDIR/mkcd_test_dir"
-  run zsh -c "source .zshrc 2>/tmp/zshrc_err; mkcd '$testdir'; echo \$PWD"
+  run zsh -c "source .zshrc 2>/tmp/zshrc_err; mkcd '$testdir'; printf 'PWD:%s\n' \"\$PWD\""
   [ "$status" -eq 0 ]
   [ -d "$testdir" ]
-  [[ "$output" == *"$testdir"* ]]
+  [[ "$output" == *"PWD:$testdir"* ]]
 }
 
 @test "_noarg_hl passes through exit code of wrapped command" {

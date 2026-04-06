@@ -8,7 +8,7 @@ setup() {
 
   export PATH="$TEST_HOME/bin:$PATH"
 
-  # Mock brew, git, curl, lldb
+  # Mock brew, git, curl, lldb, uname
   for cmd in brew git curl lldb; do
     cat > "$TEST_HOME/bin/$cmd" <<'MOCK'
 #!/bin/bash
@@ -17,6 +17,12 @@ exit 0
 MOCK
     chmod +x "$TEST_HOME/bin/$cmd"
   done
+
+  cat > "$TEST_HOME/bin/uname" <<'MOCK'
+#!/bin/bash
+echo Darwin
+MOCK
+  chmod +x "$TEST_HOME/bin/uname"
 }
 
 @test "install.sh runs in dry-run mode without failing" {
@@ -25,13 +31,10 @@ MOCK
   [[ "$output" == *"Running in dry-run mode"* ]]
 }
 
-@test "install.sh detects LLDB check on macOS (if applicable)" {
-  if [[ "$(uname)" != "Darwin" ]]; then
-    skip "LLDB check only runs on macOS"
-  fi
+@test "install.sh detects LLDB check on macOS" {
   run ./install.sh --dry-run
   [ "$status" -eq 0 ]
-  [[ "$output" == *"LLDB is already installed"* ]] || [[ "$output" == *"DRY RUN: would exit"* ]]
+  [[ "$output" == *"LLDB is already installed"* ]]
 }
 
 @test "dry-run makes zero filesystem changes" {
@@ -61,18 +64,21 @@ MOCK
   [ ! -L "$HOME/.tmux.conf" ]
 }
 
-@test "all files referenced in install.sh exist in repo" {
-  # Extract the files variable
-  local files_val
-  files_val=$(grep '^files=' install.sh | sed 's/^files="//' | sed 's/".*$//')
-  for f in $files_val; do
-    [ -e "$f" ] || { echo "Missing: $f"; false; }
-  done
+@test "all install entrypoints exist in repo" {
+  local expected=(
+    ".zshrc"
+    ".tmux.conf"
+    ".bash_profile"
+    ".fzf.zsh"
+    ".gitconfig"
+    ".gitignore_global"
+    "nvim"
+    "starship.toml"
+    "ghostty/config"
+    "claude/CLAUDE.md"
+  )
 
-  # Extract the config_files variable
-  local config_val
-  config_val=$(grep '^config_files=' install.sh | sed 's/^config_files="//' | sed 's/".*$//')
-  for f in $config_val; do
+  for f in "${expected[@]}"; do
     [ -e "$f" ] || { echo "Missing: $f"; false; }
   done
 }

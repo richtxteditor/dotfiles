@@ -1,0 +1,33 @@
+alias reload='source ~/.zshrc && echo "Config reloaded!"'
+alias zshconfig='${EDITOR:-nvim} ~/.zshrc'
+alias cls='clear'
+alias bbu='brew bundle dump --file="$DOTFILES_ROOT/Brewfile" --force && echo "Brewfile updated!"'
+
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+alias cd='z'
+
+alias cat='bat'
+alias ls='eza --icons --git'
+alias ll='eza --icons --git -l'
+alias la='eza --icons --git -la'
+alias tree='eza --icons --tree --level=2'
+alias lg='lazygit'
+alias fff='fff-mcp'
+
+alias gs='git status -sb'
+alias gl='git log --oneline --graph --decorate --all'
+alias gp='git push'
+alias gpf='git push --force-with-lease'
+alias gpl='git pull --rebase --autostash'
+alias gaa='git add .'
+alias gc='git commit -m'
+
+alias venv='python3 -m venv .venv && echo "Created .venv"'
+alias venvact='source .venv/bin/activate'
+alias explain="gemini 'Explain this error message and suggest a fix:'"
+
+alias tls='tmux ls'
+alias tk='tmux kill-session -t'
+alias tka="tmux list-sessions | grep -v '(attached)' | cut -d: -f1 | xargs -I {} tmux kill-session -t {}"
