@@ -1,31 +1,16 @@
-# >>> juliaup initialize >>>
+BASH_PROFILE_SOURCE="${BASH_SOURCE[0]}"
+while [ -L "$BASH_PROFILE_SOURCE" ]; do
+    BASH_PROFILE_DIR="$(cd -P "$(dirname "$BASH_PROFILE_SOURCE")" && pwd)"
+    BASH_PROFILE_SOURCE="$(readlink "$BASH_PROFILE_SOURCE")"
+    case "$BASH_PROFILE_SOURCE" in
+        /*) ;;
+        *) BASH_PROFILE_SOURCE="$BASH_PROFILE_DIR/$BASH_PROFILE_SOURCE" ;;
+    esac
+done
 
-# !! Contents within this block are managed by juliaup !!
+BASH_PROFILE_DIR="$(cd -P "$(dirname "$BASH_PROFILE_SOURCE")" && pwd)"
 
-case ":$PATH:" in
-    *:$HOME/.juliaup/bin:*)
-        ;;
-
-    *)
-        export PATH=$HOME/.juliaup/bin${PATH:+:${PATH}}
-        ;;
-esac
-
-# <<< juliaup initialize <<<
-
-# --- conda (lazy-load for faster shell startup) ---
-conda() {
-    unset -f conda
-    __conda_setup="$("$HOME/anaconda3/bin/conda" 'shell.bash' 'hook' 2> /dev/null)"
-    if [ $? -eq 0 ]; then
-        eval "$__conda_setup"
-    else
-        if [ -f "$HOME/anaconda3/etc/profile.d/conda.sh" ]; then
-            . "$HOME/anaconda3/etc/profile.d/conda.sh"
-        else
-            export PATH="$HOME/anaconda3/bin:$PATH"
-        fi
-    fi
-    unset __conda_setup
-    conda "$@"
-}
+# shellcheck disable=SC1091
+. "$BASH_PROFILE_DIR/shell/shared/platform.sh"
+# shellcheck disable=SC1091
+. "$BASH_PROFILE_DIR/shell/bash/profile.bash"

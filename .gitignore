@@ -217,7 +217,11 @@ poetry.toml
 # ruff
 .ruff_cache/
 
-# LSP config files
+# Repo-local generated artifacts
+nvim/python-venv/
+nvim/nvim
+nvim/lazy-lock.json
+GEMINI.md
 pyrightconfig.json
 
 ### VisualStudioCode ###

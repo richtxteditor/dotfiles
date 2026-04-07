@@ -1,5 +1,16 @@
 # Dotfiles Cheat Sheet
 
+## Repo Layout
+
+| Path | Role |
+| :--- | :--- |
+| **`.zshrc`** | Thin Zsh entrypoint that loads the modular shell config. |
+| **`.bash_profile`** | Thin Bash entrypoint for login-shell compatibility. |
+| **`shell/shared/platform.sh`** | Shared macOS/Linux detection and path helpers. |
+| **`shell/zsh/`** | Zsh modules split by concern: path, env, platform, aliases, functions, integrations, runtimes. |
+| **`install.sh`** | Platform-aware install script with backup and symlink orchestration. |
+| **`tests/`** | Syntax, install, bootstrap E2E, and hygiene coverage. |
+
 ## Shell & Navigation (Zsh)
 
 | Command | Tool | Description |
@@ -18,9 +29,18 @@
 | :--- | :--- |
 | **`update`** | Runs **all** updates: macOS, Homebrew, and Oh My Zsh. |
 | **`bbu`** | **B**rew **B**undle **U**pdate. Dumps current brew packages to the repo's `Brewfile`. |
-| **`zshconfig`** | Opens `.zshrc` in Neovim. |
+| **`zshconfig`** | Opens `.zshrc` in Neovim; module implementations live under `shell/zsh/`. |
 | **`reload`** | Reloads `.zshrc` without restarting the terminal. |
 | **`mkcd <dir>`**| Creates a directory and immediately `cd`s into it. |
+
+## Testing & CI
+
+| Command | Description |
+| :--- | :--- |
+| **`./test.sh`** | Runs the full local BATS suite. |
+| **`bats tests/bootstrap_e2e.bats`** | Runs install-plus-bootstrap end-to-end checks. |
+| **`bats tests/repo_hygiene.bats`** | Verifies local runtime artifacts are not in the repo. |
+| **GitHub Actions** | Runs `./test.sh` on both macOS and Ubuntu. |
 
 ## Git Workflow
 

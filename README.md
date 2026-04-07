@@ -10,6 +10,20 @@ This repository contains configuration files for a high-performance, terminal-ce
 
 ---
 
+## Structure
+
+The repo is organized around stable entrypoints at the root and modular implementation files behind them:
+
+- Root entrypoints: `.zshrc`, `.bash_profile`, `.tmux.conf`, `install.sh`, `nvim/`, `ghostty/config`, `starship.toml`
+- Shared shell logic: `shell/shared/platform.sh`
+- Bash profile logic: `shell/bash/profile.bash`
+- Zsh modules: `shell/zsh/` for path, env, platform behavior, aliases, functions, integrations, and language managers
+- Tests: `tests/` for consistency, syntax, installer, bootstrap E2E, and repo hygiene coverage
+
+The root files remain the deployment surface. The `shell/` tree is the implementation surface.
+
+---
+
 ## Installation
 
 Follow these steps to deploy the environment on a fresh macOS or Linux installation.
@@ -38,9 +52,10 @@ Follow these steps to deploy the environment on a fresh macOS or Linux installat
 
 The script handles the following:
 - **Homebrew** packages, casks, and VS Code extensions (from `Brewfile`)
-- **Symlinks** for Zsh, Tmux, Neovim, Starship, Ghostty, and Claude Code configs
+- **Symlinks** for Zsh, Bash profile, Tmux, Neovim, Starship, Ghostty, and Claude Code configs
 - **TPM** (Tmux Plugin Manager)
 - **pynvim** in the Mason debugpy venv (for Neovim's Python provider)
+- **Platform-aware targets** for Ghostty (`~/Library/Application Support/...` on macOS, `~/.config/ghostty/...` on Linux)
 
 ### Phase 2: Configuration
 
@@ -143,6 +158,24 @@ Several commands have wrappers that pipe no-argument or `--help` output through 
 ### GRC Colorizer
 
 [GRC](https://github.com/garabik/grc) adds color to common commands like `ping`, `traceroute`, `dig`, `mount`, `ps`, etc.
+
+### Testing and CI
+
+The repo includes layered verification:
+
+- `tests/consistency.bats`: structural checks across entrypoints and references
+- `tests/syntax.bats`: shell, tmux, and Lua syntax validation
+- `tests/install*.bats`: installer dry-run, idempotence, backup behavior, and path coverage
+- `tests/bootstrap_e2e.bats`: install-plus-bootstrap checks for Zsh, Tmux, and Neovim
+- `tests/repo_hygiene.bats`: blocks local runtime artifacts from re-entering the repo
+
+Run everything locally with:
+
+```bash
+./test.sh
+```
+
+GitHub Actions runs the same suite on both macOS and Ubuntu.
 
 ---
 

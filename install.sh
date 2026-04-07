@@ -1,11 +1,16 @@
-#!/bin/bash
-# install.sh
-# This script creates symlinks from the home directory to any desired dotfiles in ~/dotfiles
+#!/usr/bin/env bash
 
-# --- Safety First ---
-set -e # Exit immediately if a command exits with a non-zero status
+set -euo pipefail
 
-# --- Helper Functions ---
+dir="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck disable=SC1091
+. "$dir/shell/shared/platform.sh"
+
+DRY_RUN=""
+timestamp="$(date +%Y%m%d_%H%M%S)"
+olddir="$HOME/dotfiles_backup_$timestamp"
+link_specs=()
+
 run_cmd() {
     if [[ -n "$DRY_RUN" ]]; then
         echo "DRY RUN: $*"
@@ -14,239 +19,224 @@ run_cmd() {
     fi
 }
 
+parse_args() {
+    for arg in "$@"; do
+        case "$arg" in
+            --dry-run|-n) DRY_RUN=1 ;;
+        esac
+    done
+}
+
+confirm_proceed() {
+    echo "--------------------------------------------------"
+    echo "This script will:"
+    echo "1. Install Homebrew (if missing)."
+    echo "2. Install dependencies via 'brew bundle'."
+    echo "3. Backup existing dotfiles to $olddir."
+    echo "4. Create symlinks for zsh, tmux, nvim, etc."
+    echo "5. Install Tmux Plugin Manager (TPM)."
+    echo "--------------------------------------------------"
+
+    if [[ -n "$DRY_RUN" ]]; then
+        echo "Running in dry-run mode (no changes will be made)."
+        return
+    fi
+
+    read -r -n 1 -p "Do you want to proceed? (y/n) " REPLY
+    echo
+    if [[ ! "$REPLY" =~ ^[Yy]$ ]]; then
+        echo "Installation aborted."
+        exit 1
+    fi
+}
+
+prepare_backup_dir() {
+    echo "Creating backup directory at $olddir"
+    run_cmd mkdir -p "$olddir"
+}
+
 check_and_install_lldb() {
-    if [[ "$(uname)" == "Darwin" ]]; then
-        if ! command -v lldb &> /dev/null; then
-            echo "---------------------------------------------------------------------"
-            echo "WARNING: 'lldb' command not found."
-            echo "CodeLLDB requires LLDB to be installed on your system."
-            echo "Please install the Xcode Command Line Tools by running:"
-            echo ""
-            echo "    xcode-select --install"
-            echo ""
-            echo "After installation, re-run this script."
-            echo "---------------------------------------------------------------------"
+    if ! dotfiles_is_macos; then
+        return
+    fi
+
+    if ! command -v lldb >/dev/null 2>&1; then
+        echo "---------------------------------------------------------------------"
+        echo "WARNING: 'lldb' command not found."
+        echo "CodeLLDB requires LLDB to be installed on your system."
+        echo "Please install the Xcode Command Line Tools by running:"
+        echo ""
+        echo "    xcode-select --install"
+        echo ""
+        echo "After installation, re-run this script."
+        echo "---------------------------------------------------------------------"
+        if [[ -n "$DRY_RUN" ]]; then
+            echo "DRY RUN: would exit due to missing LLDB."
+            return
+        fi
+        exit 1
+    fi
+
+    echo "LLDB is already installed."
+}
+
+configure_brew_shellenv() {
+    if dotfiles_is_macos; then
+        if [[ -d /opt/homebrew ]]; then
             if [[ -n "$DRY_RUN" ]]; then
-                echo "DRY RUN: would exit due to missing LLDB."
-                return 0
+                echo "DRY RUN: eval \"$(/opt/homebrew/bin/brew shellenv)\""
+            else
+                eval "$(/opt/homebrew/bin/brew shellenv)"
             fi
-            return 1
-        else
-            echo "LLDB is already installed."
+        elif [[ -d /usr/local/Homebrew ]]; then
+            if [[ -n "$DRY_RUN" ]]; then
+                echo "DRY RUN: eval \"$(/usr/local/bin/brew shellenv)\""
+            else
+                eval "$(/usr/local/bin/brew shellenv)"
+            fi
+        fi
+        return
+    fi
+
+    if dotfiles_is_linux; then
+        if [[ -d /home/linuxbrew/.linuxbrew ]]; then
+            if [[ -n "$DRY_RUN" ]]; then
+                echo "DRY RUN: eval \"$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)\""
+            else
+                eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+            fi
+        fi
+        if [[ -d "$HOME/.linuxbrew" ]]; then
+            if [[ -n "$DRY_RUN" ]]; then
+                echo "DRY RUN: eval \"$(~/.linuxbrew/bin/brew shellenv)\""
+            else
+                eval "$(~/.linuxbrew/bin/brew shellenv)"
+            fi
         fi
     fi
 }
 
-# --- Args ---
-for arg in "$@"; do
-    case "$arg" in
-        --dry-run|-n) DRY_RUN=1 ;;
-    esac
-done
+ensure_homebrew() {
+    if command -v brew >/dev/null 2>&1; then
+        echo "Homebrew is already installed."
+        return
+    fi
 
-# --- Variables ---
-dir=$(cd "$(dirname "$0")" && pwd)           # Dotfiles directory
-timestamp=$(date +%Y%m%d_%H%M%S)             # Current timestamp
-olddir=~/dotfiles_backup_$timestamp          # Backup directory with timestamp
-files=".zshrc .tmux.conf .bash_profile .fzf.zsh .gitconfig .gitignore_global" # Files to symlink in homedir
-config_files="nvim starship.toml"            # Folders/files to symlink in .config
-
-# --- User Confirmation ---
-echo "--------------------------------------------------"
-echo "This script will:"
-echo "1. Install Homebrew (if missing)."
-echo "2. Install dependencies via 'brew bundle'."
-echo "3. Backup existing dotfiles to $olddir."
-echo "4. Create symlinks for zsh, tmux, nvim, etc."
-echo "5. Install Tmux Plugin Manager (TPM)."
-echo "--------------------------------------------------"
-if [[ -n "$DRY_RUN" ]]; then
-    echo "Running in dry-run mode (no changes will be made)."
-else
-    read -p "Do you want to proceed? (y/n) " -n 1 -r
-    echo    # (optional) move to a new line
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo "Installation aborted."
+    echo "Homebrew not found. Installing..."
+    if dotfiles_is_linux && ! command -v curl >/dev/null 2>&1; then
+        echo "Error: curl is required to install Homebrew."
         exit 1
     fi
-fi
 
-# --- Pre-run setup ---
-echo "Creating backup directory at $olddir"
-run_cmd mkdir -p "$olddir"
-echo "Ensuring .config directory exists"
-run_cmd mkdir -p ~/.config
-
-# --- Homebrew Setup ---
-if ! command -v brew &> /dev/null; then
-    echo "Homebrew not found. Installing..."
-    if [[ "$(uname)" == "Linux" ]]; then
-        # Ensure curl exists on Linux
-        if ! command -v curl &> /dev/null; then
-            echo "Error: curl is required to install Homebrew."
-            exit 1
-        fi
-    fi
     run_cmd /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    
-    # Add Homebrew to PATH for macOS/Linux (current shell)
-    if [[ "$(uname)" == "Darwin" ]]; then
-        if test -d /opt/homebrew; then
-            if [[ -z "$DRY_RUN" ]]; then
-                eval "$(/opt/homebrew/bin/brew shellenv)"
-            else
-                echo "DRY RUN: eval \"$(/opt/homebrew/bin/brew shellenv)\""
-            fi
-        elif test -d /usr/local/Homebrew; then
-            if [[ -z "$DRY_RUN" ]]; then
-                eval "$(/usr/local/bin/brew shellenv)"
-            else
-                echo "DRY RUN: eval \"$(/usr/local/bin/brew shellenv)\""
-            fi
-        fi
-    elif [[ "$(uname)" == "Linux" ]]; then
-        if test -d /home/linuxbrew/.linuxbrew; then
-            if [[ -z "$DRY_RUN" ]]; then
-                eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-            else
-                echo "DRY RUN: eval \"$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)\""
-            fi
-        fi
-        if test -d ~/.linuxbrew; then
-            if [[ -z "$DRY_RUN" ]]; then
-                eval "$(~/.linuxbrew/bin/brew shellenv)"
-            else
-                echo "DRY RUN: eval \"$(~/.linuxbrew/bin/brew shellenv)\""
-            fi
-        fi
+    configure_brew_shellenv
+}
+
+install_dependencies() {
+    echo "Installing core dependencies from Brewfile..."
+    run_cmd brew bundle --file="$dir/Brewfile"
+}
+
+install_tpm() {
+    local tpm_dir="$HOME/.tmux/plugins/tpm"
+    if [[ -d "$tpm_dir" ]]; then
+        echo "TPM is already installed."
+        return
     fi
-else
-    echo "Homebrew is already installed."
-fi
 
-# --- Install Dependencies ---
-echo "Installing core dependencies from Brewfile..."
-run_cmd brew bundle --file="$dir/Brewfile"
-
-# --- Dependency Checks ---
-echo "Checking for required dependencies..."
-check_and_install_lldb
-
-# --- TPM Setup ---
-if [ ! -d ~/.tmux/plugins/tpm ]; then
     echo "Installing Tmux Plugin Manager (TPM)..."
-    run_cmd git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
-else
-    echo "TPM is already installed."
-fi
+    run_cmd git clone https://github.com/tmux-plugins/tpm "$tpm_dir"
+}
 
-# --- Symlink files in home directory ---
-for file in $files; do
-    source_file="$dir/$file"
-    target_link=~/$file
+add_link_spec() {
+    link_specs+=("$1|$2|$3")
+}
 
-    # If the target exists AND is not a symlink, back it up.
-    if [ -e "$target_link" ] && [ ! -L "$target_link" ]; then
-        echo "Backing up existing $target_link to $olddir"
+build_link_specs() {
+    link_specs=(
+        ".zshrc|$HOME/.zshrc|.zshrc in home directory"
+        ".tmux.conf|$HOME/.tmux.conf|.tmux.conf in home directory"
+        ".bash_profile|$HOME/.bash_profile|.bash_profile in home directory"
+        ".fzf.zsh|$HOME/.fzf.zsh|.fzf.zsh in home directory"
+        ".gitconfig|$HOME/.gitconfig|.gitconfig in home directory"
+        ".gitignore_global|$HOME/.gitignore_global|.gitignore_global in home directory"
+        "nvim|$HOME/.config/nvim|nvim in ~/.config directory"
+        "starship.toml|$HOME/.config/starship.toml|starship.toml in ~/.config directory"
+        "claude/CLAUDE.md|$HOME/.claude/CLAUDE.md|Claude Code config"
+    )
+
+    local ghostty_target
+    if ghostty_target="$(dotfiles_ghostty_config_target 2>/dev/null)"; then
+        add_link_spec "ghostty/config" "$ghostty_target" "Ghostty config"
+    fi
+}
+
+ensure_symlink() {
+    local relative_source="$1"
+    local target_link="$2"
+    local label="$3"
+    local source_file="$dir/$relative_source"
+    local target_dir current_link=""
+
+    target_dir="$(dirname "$target_link")"
+    run_cmd mkdir -p "$target_dir"
+
+    if [[ -e "$target_link" && ! -L "$target_link" ]]; then
+        echo "Backing up existing $label to $olddir"
         run_cmd mv "$target_link" "$olddir/"
     fi
 
-    # If the symlink doesn't already point to our source, create it.
-    if [ -L "$target_link" ]; then
+    if [[ -L "$target_link" ]]; then
         current_link="$(readlink "$target_link")"
-    else
-        current_link=""
     fi
-    if [ "$current_link" != "$source_file" ]; then
-        echo "Creating symlink for $file in home directory."
+
+    if [[ "$current_link" != "$source_file" ]]; then
+        echo "Creating symlink for $label."
         run_cmd ln -snf "$source_file" "$target_link"
     else
-        echo "Symlink for $file is already correctly set up."
+        echo "Symlink for $label is already correctly set up."
     fi
-done
+}
 
-# --- Symlink files in .config directory ---
-for file in $config_files; do
-    source_file="$dir/$file"
-    target_link=~/.config/$file
+install_links() {
+    local spec relative_source target_link label
+    for spec in "${link_specs[@]}"; do
+        IFS='|' read -r relative_source target_link label <<< "$spec"
+        ensure_symlink "$relative_source" "$target_link" "$label"
+    done
+}
 
-    # If the target exists AND is not a symlink, back it up.
-    if [ -e "$target_link" ] && [ ! -L "$target_link" ]; then
-        echo "Backing up existing $target_link to $olddir"
-        run_cmd mv "$target_link" "$olddir/"
+install_pynvim_provider() {
+    local debugpy_pip="$HOME/.local/share/nvim/mason/packages/debugpy/venv/bin/pip"
+
+    if [[ ! -x "$debugpy_pip" ]]; then
+        echo "Note: debugpy venv not found yet. Open Neovim and let Mason install debugpy,"
+        echo "then re-run this script to set up the Python provider."
+        return
     fi
 
-    # If the symlink doesn't already point to our source, create it.
-    if [ -L "$target_link" ]; then
-        current_link="$(readlink "$target_link")"
-    else
-        current_link=""
-    fi
-    if [ "$current_link" != "$source_file" ]; then
-        echo "Creating symlink for $file in ~/.config directory."
-        run_cmd ln -snf "$source_file" "$target_link"
-    else
-        echo "Symlink for $file is already correctly set up."
-    fi
-done
-
-# --- Ghostty Config ---
-ghostty_source="$dir/ghostty/config"
-ghostty_dir="$HOME/Library/Application Support/com.mitchellh.ghostty"
-ghostty_target="$ghostty_dir/config"
-run_cmd mkdir -p "$ghostty_dir"
-if [ -e "$ghostty_target" ] && [ ! -L "$ghostty_target" ]; then
-    echo "Backing up existing Ghostty config to $olddir"
-    run_cmd mv "$ghostty_target" "$olddir/"
-fi
-if [ -L "$ghostty_target" ]; then
-    current_link="$(readlink "$ghostty_target")"
-else
-    current_link=""
-fi
-if [ "$current_link" != "$ghostty_source" ]; then
-    echo "Creating symlink for Ghostty config."
-    run_cmd ln -snf "$ghostty_source" "$ghostty_target"
-else
-    echo "Symlink for Ghostty config is already correctly set up."
-fi
-
-# --- Claude Code Config ---
-claude_source="$dir/claude/CLAUDE.md"
-claude_dir="$HOME/.claude"
-claude_target="$claude_dir/CLAUDE.md"
-run_cmd mkdir -p "$claude_dir"
-if [ -e "$claude_target" ] && [ ! -L "$claude_target" ]; then
-    echo "Backing up existing Claude Code config to $olddir"
-    run_cmd mv "$claude_target" "$olddir/"
-fi
-if [ -L "$claude_target" ]; then
-    current_link="$(readlink "$claude_target")"
-else
-    current_link=""
-fi
-if [ "$current_link" != "$claude_source" ]; then
-    echo "Creating symlink for Claude Code config."
-    run_cmd ln -snf "$claude_source" "$claude_target"
-else
-    echo "Symlink for Claude Code config is already correctly set up."
-fi
-
-# --- Neovim Python Provider ---
-# Mason's debugpy venv is used as python3_host_prog (set in nvim/init.lua).
-# pynvim must be installed there for :checkhealth to pass.
-debugpy_venv="$HOME/.local/share/nvim/mason/packages/debugpy/venv/bin/pip"
-if [ -x "$debugpy_venv" ]; then
-    if ! "$debugpy_venv" show pynvim &> /dev/null; then
+    if ! "$debugpy_pip" show pynvim >/dev/null 2>&1; then
         echo "Installing pynvim in debugpy venv for Neovim Python provider..."
-        run_cmd "$debugpy_venv" install pynvim
+        run_cmd "$debugpy_pip" install pynvim
     else
         echo "pynvim is already installed in debugpy venv."
     fi
-else
-    echo "Note: debugpy venv not found yet. Open Neovim and let Mason install debugpy,"
-    echo "then re-run this script to set up the Python provider."
-fi
+}
 
-echo "Dotfiles installation complete!"
-echo "If you saw any errors, your original files are safe in $olddir"
+main() {
+    parse_args "$@"
+    confirm_proceed
+    prepare_backup_dir
+    ensure_homebrew
+    install_dependencies
+    echo "Checking for required dependencies..."
+    check_and_install_lldb
+    install_tpm
+    build_link_specs
+    install_links
+    install_pynvim_provider
+    echo "Dotfiles installation complete!"
+    echo "If you saw any errors, your original files are safe in $olddir"
+}
+
+main "$@"
