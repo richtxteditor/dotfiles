@@ -31,3 +31,5 @@ alias explain="gemini 'Explain this error message and suggest a fix:'"
 alias tls='tmux ls'
 alias tk='tmux kill-session -t'
 alias tka="tmux list-sessions | grep -v '(attached)' | cut -d: -f1 | xargs -I {} tmux kill-session -t {}"
+
+alias paneps="ps -t $(tty | sed 's#/dev/##') -o pid,ppid,stat,command"
