@@ -97,9 +97,11 @@
 | Key | Action |
 | :--- | :--- |
 | **`gd`** | Go to Definition. |
+| **`gD`** | Go to Declaration. |
+| **`gi`** | Go to Implementation. |
 | **`gr`** | Find References. |
 | **`K`** | Hover Documentation (LSP or per-language fallback). |
-| **`<Space> K`** | Search DevDocs (offline docs for 300+ languages). |
+| **`<Space> K`** | Open DevDocs for the current filetype. |
 | **`<Space> cf`** | Format Code. |
 | **`<Space> rn`** | Rename Symbol (live preview). |
 | **`<Space> ca`** | Code Action. |
@@ -168,5 +170,9 @@
 After installing plugins, run these commands in Neovim to download offline docs:
 ```
 :DevdocsFetch
-:DevdocsInstall python javascript go rust c
+:DevdocsInstall python~3.12 javascript typescript html css tailwindcss django~5.2 c cpp postgresql~18
 ```
+
+Use `:LspStatus` to inspect the current buffer path, filetype, project root, and attached LSP clients.
+
+`direnv` is integrated into Zsh. Add an `.envrc` in a project root, run `direnv allow`, and Neovim will inherit the correct project environment when launched from that shell.

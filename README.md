@@ -67,7 +67,7 @@ The script handles the following:
     * Open Neovim: `nvim`
     * Wait for `lazy.nvim` to complete plugin installation.
     * Restart Neovim.
-    * Run `:DevdocsFetch` then `:DevdocsInstall python javascript go rust c` for offline docs.
+    * Run `:DevdocsFetch` then `:DevdocsInstall python~3.12 javascript typescript html css tailwindcss django~5.2 c cpp postgresql~18` for offline docs.
 
 3. **Install Language Runtimes (Optional):**
     `nvm` is lazy-loaded for Node.js. `pyenv` and `rbenv` are installed via Homebrew but not auto-initialized.
@@ -129,11 +129,14 @@ Ruby linting is handled by the Solargraph LSP.
 
 ### LSP Coverage
 
-Mason auto-installs and configures these language servers:
+Mason installs and Neovim explicitly enables these language servers:
 
-`pyright` `eslint` `html` `cssls` `tailwindcss` `jsonls` `yamlls` `lua_ls` `bashls` `intelephense` `jdtls` `clangd` `ts_ls` `solargraph` `sqlls` `gopls` `rust_analyzer`
+`pyright` `eslint` `html` `cssls` `tailwindcss` `jsonls` `yamlls` `lua_ls` `bashls` `clangd` `ts_ls` `sqlls` `djlsp`
 
-Additional: `djlsp` (Django, restricted to `htmldjango` filetype with `manage.py` root detection).
+Notes:
+- `djlsp` is restricted to the `htmldjango` filetype and uses `manage.py` root detection.
+- JavaScript and TypeScript use both `ts_ls` and `eslint`.
+- Formatting stays with `conform.nvim`; LSP is not the primary formatter.
 
 File watching (`workspace/didChangeWatchedFiles`) is enabled with dynamic registration for all clients.
 
@@ -245,9 +248,11 @@ Below is a comprehensive guide to the tools and keybindings available in this en
 | Key | Action |
 | :--- | :--- |
 | `gd` | Goto Definition |
+| `gD` | Goto Declaration |
+| `gi` | Goto Implementation |
 | `gr` | Goto References |
 | `K` | Hover Documentation (LSP or per-language fallback) |
-| `<Leader>K` | Search DevDocs (offline docs, 300+ languages) |
+| `<Leader>K` | Open DevDocs for the current filetype |
 | `<Leader>ca` | Code Action |
 | `<Leader>ci` | Incoming Calls (Call Hierarchy) |
 | `<Leader>co` | Outgoing Calls (Call Hierarchy) |
@@ -444,6 +449,7 @@ Your config has `set -g mouse on`.
 #### 1. Core Concepts (How it "Thinks")
 
 * **Prompt:** Powered by Starship. Shows `user@host`, shortened path, Git branch/status, and command duration with millisecond precision.
+  Also shows the active Python virtualenv, `direnv` state, background jobs, and failed exit status when present.
 * **Plugins:** Oh My Zsh manages plugins that add new commands, aliases, and behaviors.
 * **Aliases:** Custom shortcuts for longer commands (e.g., `gs` for `git status -sb`).
 * **Functions:** More powerful than aliases, small shell scripts (e.g., `mkcd`).
@@ -554,6 +560,7 @@ These lines in your `.zshrc` are what enable the version managers.
 | Command | What it does |
 | :--- | :--- |
 | `nvm` | **Lazy Loaded.** NVM loads only when you run `node`, `npm`, etc., speeding up shell start. |
+| `direnv` | Loads per-project `.envrc` files automatically, useful for `.venv` activation and project env vars. |
 
 ---
 
@@ -563,8 +570,11 @@ These lines in your `.zshrc` are what enable the version managers.
 - Homebrew dependencies are managed in a single `Brewfile` (casks, VS Code extensions, and cargo packages included).
 - `.bash_profile` includes Juliaup and a lazy-loaded Conda hook.
 - Git is configured with `pull.rebase`, `push.autoSetupRemote`, `rerere`, `fetch.prune`, and `zdiff3` merge conflict style.
-- Starship prompt shows command duration with millisecond precision for all commands.
+- Starship prompt shows command duration only for commands slower than 50ms.
+- Starship also shows active `.venv`, `direnv` state, background jobs, and non-zero exit status.
 - LSP progress is shown inline via Fidget (no notification popups).
+- `:LspStatus` prints the current buffer path, filetype, repo root, and attached LSP clients.
+- DevDocs works best through explicit installs or `ensure_installed`; the interactive `:DevdocsInstall` picker is currently unreliable upstream.
 - Claude Code is configured via `claude/CLAUDE.md`, symlinked to `~/.claude/CLAUDE.md` by the install script.
 - Indent guides are rendered by [indent-blankline.nvim](https://github.com/lukas-reineke/indent-blankline.nvim).
 

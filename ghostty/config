@@ -32,6 +32,7 @@ window-colorspace = display-p3
 
 # Splits
 unfocused-split-opacity = 0.75
+focus-follows-mouse = true
 
 # Cursor
 cursor-style = block

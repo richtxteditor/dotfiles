@@ -1,7 +1,7 @@
 add_newline = false
 
 # Main format string
-format = "$username@$hostname:$directory$python$git_branch$git_status$cmd_duration$character"
+format = "$username@$hostname:$directory$python$direnv$git_branch$git_status$status$jobs$cmd_duration$character"
 
 [username]
 format = "[$user]($style)"
@@ -29,6 +29,17 @@ detect_extensions = []
 detect_files = []
 detect_folders = []
 
+[direnv]
+disabled = false
+format = " [direnv]($style)"
+style = "yellow"
+
+[status]
+disabled = false
+format = " [exit:$status]($style)"
+style = "red"
+map_symbol = true
+
 [git_branch]
 format = " [$branch]($style)"
 style = "yellow"
@@ -49,10 +60,16 @@ diverged = "⇕"
 up_to_date = ""
 
 [cmd_duration]
-min_time = 0
+min_time = 50
 show_milliseconds = true
 format = " [$duration]($style)"
 style = "yellow"
+
+[jobs]
+symbol = "+"
+style = "blue"
+number_threshold = 1
+format = " [$symbol$number]($style)"
 
 [character]
 success_symbol = " [»](bold green)"
