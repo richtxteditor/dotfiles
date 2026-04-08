@@ -1,7 +1,7 @@
 add_newline = false
 
 # Main format string
-format = "$username@$hostname:$directory$git_branch$git_status$cmd_duration$character"
+format = "$username@$hostname:$directory$python$git_branch$git_status$cmd_duration$character"
 
 [username]
 format = "[$user]($style)"
@@ -21,6 +21,13 @@ truncation_length = 2
 truncation_symbol = "…/"
 truncate_to_repo = false
 home_symbol = "~"
+
+[python]
+format = " [${virtualenv}]($style)"
+style = "blue"
+detect_extensions = []
+detect_files = []
+detect_folders = []
 
 [git_branch]
 format = " [$branch]($style)"
