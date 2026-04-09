@@ -41,6 +41,91 @@ gemini() {
     command gemini "$@"
 }
 
+# Quick repo diagnostics inspired by piechowski.io/post/git-commands-before-reading-code/.
+gchurn() {
+    local since="${1:-1 year ago}"
+    local limit="${2:-20}"
+    local output
+
+    output="$(command git log --format=format: --name-only --since="$since" | sed '/^$/d' | sort | uniq -c | sort -nr | head -n "$limit")"
+
+    printf '%-8s %s\n' "changes" "file"
+    if [[ -n "$output" ]]; then
+        printf '%s\n' "$output" | awk '{count=$1; $1=""; sub(/^[ \t]+/, "", $0); printf "%-8s %s\n", count, $0}'
+    fi
+}
+
+gauthors() {
+    local shortlog_output
+
+    if [[ $# -gt 0 ]]; then
+        shortlog_output="$(command git shortlog -sn --no-merges --since="$1" HEAD)"
+    else
+        shortlog_output="$(command git shortlog -sn --no-merges HEAD)"
+    fi
+
+    printf '%-8s %s\n' "commits" "author"
+    if [[ -n "$shortlog_output" ]]; then
+        printf '%s\n' "$shortlog_output" | awk '{count=$1; $1=""; sub(/^[ \t]+/, "", $0); printf "%-8s %s\n", count, $0}'
+    fi
+}
+
+gbugs() {
+    local since="${1:-1 year ago}"
+    local limit="${2:-20}"
+    local pattern="${3:-fix|bug|broken}"
+    local output
+
+    output="$(command git log -i -E --since="$since" --grep="$pattern" --name-only --format='' | sed '/^$/d' | sort | uniq -c | sort -nr | head -n "$limit")"
+
+    printf '%-8s %s\n' "matches" "file"
+    if [[ -n "$output" ]]; then
+        printf '%s\n' "$output" | awk '{count=$1; $1=""; sub(/^[ \t]+/, "", $0); printf "%-8s %s\n", count, $0}'
+    fi
+}
+
+gvelocity() {
+    local output
+
+    output="$(command git log --format='%ad' --date=format:'%Y-%m' | sort | uniq -c)"
+
+    printf '%-8s %s\n' "commits" "month"
+    if [[ -n "$output" ]]; then
+        printf '%s\n' "$output" | awk '{printf "%-8s %s\n", $1, $2}'
+    fi
+}
+
+gfire() {
+    local since="${1:-1 year ago}"
+    local pattern="${2:-revert|hotfix|emergency|rollback}"
+    local output
+
+    output="$(command git log --oneline --since="$since" | grep -iE "$pattern")"
+
+    printf '%-8s %s\n' "commit" "message"
+    if [[ -n "$output" ]]; then
+        printf '%s\n' "$output"
+    fi
+}
+
+gscan() {
+    local since="${1:-1 year ago}"
+    local limit="${2:-20}"
+
+    printf '== Churn Hotspots (%s, top %s) ==\n' "$since" "$limit"
+    gchurn "$since" "$limit"
+    printf '\n== Authors ==\n'
+    gauthors
+    printf '\n== Recent Authors (%s) ==\n' "$since"
+    gauthors "$since"
+    printf '\n== Bug Hotspots (%s, top %s) ==\n' "$since" "$limit"
+    gbugs "$since" "$limit"
+    printf '\n== Commit Velocity ==\n'
+    gvelocity
+    printf '\n== Firefighting Signals (%s) ==\n' "$since"
+    gfire "$since"
+}
+
 _noarg_hl() {
     local cmd="$1"
     shift

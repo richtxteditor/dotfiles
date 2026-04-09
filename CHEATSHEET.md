@@ -53,6 +53,12 @@
 | **`gp`** | `git push`. |
 | **`gpf`** | `git push --force-with-lease` (Safer force push). |
 | **`gpl`** | `git pull --rebase --autostash`. |
+| **`gchurn [since] [limit]`** | Most-changed files in a repo. Arg 1 = time window, Arg 2 = row limit. Defaults: `1 year ago`, `20`. |
+| **`gauthors [since]`** | Contributors by commit count. Arg 1 = optional time window, e.g. `gauthors "6 months ago"`. |
+| **`gbugs [since] [limit] [pattern]`** | Bug-related file hotspots. Args: time window, row limit, grep regex. |
+| **`gvelocity`** | Commit count by month for the repo history. |
+| **`gfire [since] [pattern]`** | Finds revert/hotfix/rollback style commits. Arg 1 = time window, Arg 2 = grep regex. |
+| **`gscan [since] [limit]`** | Runs the full pre-read repo diagnostic pass. Arg 1 = time window, Arg 2 = row limit. |
 
 ## Tmux (Multiplexer)
 **Prefix:** `Ctrl + a` (Replaces standard `Ctrl + b`)
