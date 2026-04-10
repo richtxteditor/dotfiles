@@ -95,6 +95,7 @@
 | **`<Space> ft`** | Find TODOs. |
 | **`<Space> gg`** | Open Lazygit. |
 | **`<Space> mp`** | Toggle Markdown Preview. |
+| **`<Space> R`** | Restart Neovim and restore the current session. |
 | **`<C-\>`** | Toggle floating terminal (ToggleTerm). |
 | **`<Space> u`** | Toggle Undo Tree. |
 | **`<Space> o`** | Toggle Symbol Outline (Aerial). |

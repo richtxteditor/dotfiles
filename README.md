@@ -217,6 +217,7 @@ Below is a comprehensive guide to the tools and keybindings available in this en
 | `<Leader>w` | Save File |
 | `<Leader>q` | Quit Window |
 | `<Leader>Q` | Force Quit All |
+| `<Leader>R` | Restart Neovim and restore the current session |
 | `<Leader><Space>` | Clear Search Highlight |
 | `<C-\>` | Toggle Floating Terminal (ToggleTerm) |
 | `<Leader>u` | Toggle Undo Tree |

@@ -11,6 +11,13 @@ end
 map("n", "<leader>w", "<cmd>w<cr>", { desc = "Save File" })
 map("n", "<leader>q", "<cmd>q<cr>", { desc = "Quit Window" })
 map("n", "<leader>Q", "<cmd>qa!<cr>", { desc = "Force Quit All" })
+if vim.fn.exists(":restart") == 2 then
+    map("n", "<leader>R", function()
+        local session = vim.fn.stdpath("state") .. "/restart_session.vim"
+        vim.cmd("mksession! " .. vim.fn.fnameescape(session))
+        vim.cmd("restart source " .. vim.fn.fnameescape(session))
+    end, { desc = "Restart Neovim" })
+end
 
 -- Clear search highlight
 map("n", "<leader><space>", "<cmd>nohlsearch<cr>", { desc = "Clear Search Highlight" })
