@@ -9,4 +9,6 @@ case "${DOTFILES_PLATFORM:-}" in
     ;;
 esac
 
-source "$ZSH/oh-my-zsh.sh"
+if [[ -f "$ZSH/oh-my-zsh.sh" ]]; then
+  source "$ZSH/oh-my-zsh.sh"
+fi

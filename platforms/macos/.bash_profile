@@ -9,18 +9,9 @@ while [ -L "$BASH_PROFILE_SOURCE" ]; do
 done
 
 BASH_PROFILE_DIR="$(cd -P "$(dirname "$BASH_PROFILE_SOURCE")" && pwd)"
-export DOTFILES_ROOT="$BASH_PROFILE_DIR"
+
+export DOTFILES_ROOT="$(cd -P "$BASH_PROFILE_DIR/../.." && pwd)"
+export DOTFILES_PLATFORM="macos"
 
 # shellcheck disable=SC1091
-. "$DOTFILES_ROOT/shell/shared/platform.sh"
-
-case "${DOTFILES_PLATFORM:-$(dotfiles_platform)}" in
-    macos)
-        # shellcheck disable=SC1091
-        . "$DOTFILES_ROOT/platforms/macos/.bash_profile"
-        ;;
-    linux)
-        # shellcheck disable=SC1091
-        . "$DOTFILES_ROOT/platforms/ubuntu/.bash_profile"
-        ;;
-esac
+. "$DOTFILES_ROOT/shell/bash/entrypoint.bash"

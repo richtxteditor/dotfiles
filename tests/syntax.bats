@@ -20,7 +20,7 @@
   if ! command -v zsh &> /dev/null; then
     skip "zsh is not installed"
   fi
-  run zsh -n .zshrc
+  run zsh -n .zshrc platforms/macos/.zshrc platforms/ubuntu/.zshrc
   [ "$status" -eq 0 ]
 }
 
@@ -33,7 +33,7 @@
 }
 
 @test "bash_profile passes syntax check" {
-  run bash -n .bash_profile
+  run bash -n .bash_profile platforms/macos/.bash_profile platforms/ubuntu/.bash_profile
   [ "$status" -eq 0 ]
 }
 

@@ -11,8 +11,16 @@ return {
       show_scores = true,
     },
   },
-  -- This plugin initializes itself lazily.
-  lazy = false,
+  lazy = true,
+  cmd = {
+    "FFFFind",
+    "FFFScan",
+    "FFFRefreshGit",
+    "FFFClearCache",
+    "FFFHealth",
+    "FFFDebug",
+    "FFFOpenLog",
+  },
   keys = {
     {
       "<leader>ff",

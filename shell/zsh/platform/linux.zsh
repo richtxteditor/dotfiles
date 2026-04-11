@@ -5,6 +5,8 @@ update() {
   fi
 
   sudo apt-get update && sudo apt-get upgrade -y
-  omz update
+  if command -v omz >/dev/null 2>&1; then
+    omz update
+  fi
   echo "Updates complete."
 }

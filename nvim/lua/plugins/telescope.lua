@@ -11,6 +11,9 @@ return {
         border = true,
         prompt_prefix = " ",
         selection_caret = " ",
+        preview = {
+          treesitter = false,
+        },
       },
     })
   end,

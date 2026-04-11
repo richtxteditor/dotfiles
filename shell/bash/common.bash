@@ -8,7 +8,12 @@ esac
 
 case ":$PATH:" in
     *:"$HOME/.local/bin":*) ;;
-    *) export PATH="$PATH:$HOME/.local/bin" ;;
+    *) export PATH="$HOME/.local/bin${PATH:+:${PATH}}" ;;
+esac
+
+case ":$PATH:" in
+    *:"$HOME/.cargo/bin":*) ;;
+    *) export PATH="$HOME/.cargo/bin${PATH:+:${PATH}}" ;;
 esac
 
 case ":$PATH:" in
@@ -29,6 +34,7 @@ esac
 export EDITOR="nvim"
 export VISUAL="nvim"
 export LANG="en_US.UTF-8"
+export LC_ALL="en_US.UTF-8"
 
 conda() {
     unset -f conda

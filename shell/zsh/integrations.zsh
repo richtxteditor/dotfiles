@@ -21,7 +21,11 @@ if command -v direnv >/dev/null 2>&1; then
 fi
 
 if command -v starship >/dev/null 2>&1; then
-    eval "$(starship init zsh)"
+    if dotfiles_is_wsl && dotfiles_is_windows_mount_path; then
+        PROMPT='%F{green}%n%f@%F{cyan}%m%f:%F{magenta}%2~%f %(?.%F{green}.%F{red})»%f '
+    else
+        eval "$(starship init zsh)"
+    fi
 fi
 
 if [[ -f "$DOTFILES_ROOT/.fzf.zsh" ]]; then

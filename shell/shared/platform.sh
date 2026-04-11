@@ -19,6 +19,40 @@ dotfiles_is_linux() {
     [ "$(dotfiles_platform)" = "linux" ]
 }
 
+dotfiles_is_wsl() {
+    if ! dotfiles_is_linux; then
+        return 1
+    fi
+
+    if [ -n "${WSL_DISTRO_NAME:-}" ] || [ -n "${WSL_INTEROP:-}" ]; then
+        return 0
+    fi
+
+    case "$(uname -r 2>/dev/null)" in
+        *[Mm]icrosoft* ) return 0 ;;
+    esac
+
+    return 1
+}
+
+dotfiles_is_windows_mount_path() {
+    case "${1:-$PWD}" in
+        /mnt/*) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+dotfiles_use_eza_icons() {
+    if [ -n "${DOTFILES_EZA_ICONS:-}" ]; then
+        case "$DOTFILES_EZA_ICONS" in
+            1|true|TRUE|yes|YES|on|ON) return 0 ;;
+            0|false|FALSE|no|NO|off|OFF) return 1 ;;
+        esac
+    fi
+
+    dotfiles_is_macos
+}
+
 dotfiles_read_interface_style() {
     if [ -n "${DOTFILES_INTERFACE_STYLE:-}" ]; then
         printf '%s\n' "$DOTFILES_INTERFACE_STYLE"

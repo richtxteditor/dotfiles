@@ -2,7 +2,6 @@ add_newline = false
 scan_timeout = 10
 command_timeout = 250
 
-# Main format string
 format = "$username@$hostname:$directory$python$direnv$git_branch$git_status$status$jobs$cmd_duration$character"
 
 [username]

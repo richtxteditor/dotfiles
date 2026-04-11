@@ -5,13 +5,28 @@ alias cls='clear'
 alias rm='rm -i'
 alias cp='cp -i'
 alias mv='mv -i'
-alias cd='z'
 
-alias cat='bat'
-alias ls='eza --icons --git'
-alias ll='eza --icons --git -l'
-alias la='eza --icons --git -la'
-alias tree='eza --icons --tree --level=2'
+if command -v zoxide >/dev/null 2>&1; then
+  alias cd='z'
+fi
+
+if command -v bat >/dev/null 2>&1; then
+  alias cat='bat'
+fi
+
+if command -v eza >/dev/null 2>&1; then
+  if dotfiles_use_eza_icons; then
+    alias ls='eza --icons --git'
+    alias ll='eza --icons --git -l'
+    alias la='eza --icons --git -la'
+    alias tree='eza --icons --tree --level=2'
+  else
+    alias ls='eza --git'
+    alias ll='eza --git -l'
+    alias la='eza --git -la'
+    alias tree='eza --tree --level=2'
+  fi
+fi
 alias lg='lazygit'
 alias fff='fff-mcp'
 

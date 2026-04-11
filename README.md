@@ -41,7 +41,7 @@ Follow these steps to deploy the environment on a fresh macOS or Linux installat
     ```
 
 2. **Run Installation Script:**
-    This script detects your platform, backs up existing configurations, creates symbolic links, and sets up the Tmux Plugin Manager (TPM). On macOS it installs Homebrew dependencies automatically. On Linux it skips Homebrew by default and prints an Ubuntu-first `apt` workaround instead.
+    This script detects your platform, backs up existing configurations, creates symbolic links, and sets up the Tmux Plugin Manager (TPM). On macOS it installs Homebrew dependencies automatically. On Ubuntu/Linux it skips Homebrew, installs core packages with `apt`, and installs the latest Neovim release from upstream into `~/.local`.
     ```bash
     cd ~/dotfiles
     ./install.sh
@@ -62,7 +62,7 @@ Follow these steps to deploy the environment on a fresh macOS or Linux installat
 
 The script handles the following:
 - **macOS:** Homebrew packages, casks, and VS Code extensions (from `Brewfile`)
-- **Linux:** Ubuntu-first `apt` workaround only; no Homebrew install path by default
+- **Linux:** Ubuntu-first `apt` install for core packages, plus latest upstream Neovim in `~/.local`; no Homebrew install path by default
 - **Symlinks** for Zsh, Bash profile, Tmux, Neovim, Starship, Ghostty, and Claude Code configs
 - **Default shell switch** to `zsh` when `zsh` and `chsh` are available
 - **TPM** (Tmux Plugin Manager)

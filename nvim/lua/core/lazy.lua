@@ -1,7 +1,9 @@
 -- lua/core/lazy.lua
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.uv.fs_stat(lazypath) then
+local uv = vim.uv or vim.loop
+
+if not uv.fs_stat(lazypath) then
     print("Installing lazy.nvim...")
     vim.fn.system({
         "git",
@@ -11,6 +13,11 @@ if not vim.uv.fs_stat(lazypath) then
         "--branch=stable", -- latest stable release
         lazypath,
     })
+
+    if vim.v.shell_error ~= 0 or not uv.fs_stat(lazypath) then
+        vim.api.nvim_err_writeln("Failed to install lazy.nvim. Check git/network access and restart Neovim.")
+        return
+    end
 end
 vim.opt.rtp:prepend(lazypath)
 
@@ -24,4 +31,3 @@ require("lazy").setup({
     checker = { enabled = true, notify = false },
     change_detection = { notify = false },
 })
-

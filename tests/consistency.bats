@@ -26,6 +26,12 @@
     "starship.toml"
     "ghostty/config.macos"
     "ghostty/config.linux"
+    "platforms/macos/.zshrc"
+    "platforms/ubuntu/.zshrc"
+    "platforms/macos/.bash_profile"
+    "platforms/ubuntu/.bash_profile"
+    "platforms/macos/starship.toml"
+    "platforms/ubuntu/starship.toml"
     "tmux/common.conf"
     "tmux/macos.conf"
     "tmux/linux.conf"
@@ -69,9 +75,11 @@
   local modules=(
     "shell/shared/platform.sh"
     "shell/bash/profile.bash"
+    "shell/bash/entrypoint.bash"
     "shell/bash/common.bash"
     "shell/bash/macos.bash"
     "shell/bash/linux.bash"
+    "shell/zsh/entrypoint.zsh"
     "shell/zsh/path.zsh"
     "shell/zsh/path/common.zsh"
     "shell/zsh/path/macos.zsh"
@@ -92,8 +100,14 @@
     "shell/zsh/lang-managers.zsh"
   )
 
-  grep -q "shell/shared/platform.sh" .zshrc
-  grep -q "shell/bash/profile.bash" .bash_profile
+  grep -q "platforms/macos/.zshrc" .zshrc
+  grep -q "platforms/ubuntu/.zshrc" .zshrc
+  grep -q "platforms/macos/.bash_profile" .bash_profile
+  grep -q "platforms/ubuntu/.bash_profile" .bash_profile
+  grep -q "shell/zsh/entrypoint.zsh" platforms/macos/.zshrc
+  grep -q "shell/zsh/entrypoint.zsh" platforms/ubuntu/.zshrc
+  grep -q "shell/bash/entrypoint.bash" platforms/macos/.bash_profile
+  grep -q "shell/bash/entrypoint.bash" platforms/ubuntu/.bash_profile
   grep -q "source-file ~/.tmux/common.conf" .tmux.conf
   grep -q "source-file ~/.tmux/macos.conf" .tmux.conf
   grep -q "source-file ~/.tmux/linux.conf" .tmux.conf
