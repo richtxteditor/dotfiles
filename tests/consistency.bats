@@ -50,6 +50,16 @@
   [ "$lines" -gt 0 ]
 }
 
+@test "CI workflow references cross-platform smoke install script" {
+  [ -f ".github/workflows/test.yml" ]
+  [ -f ".github/workflows/full-bootstrap.yml" ]
+  [ -f "scripts/ci-smoke-install.sh" ]
+  grep -q "scripts/ci-smoke-install.sh linux" .github/workflows/test.yml
+  grep -q "scripts/ci-smoke-install.sh macos skip-deps" .github/workflows/test.yml
+  grep -q "scripts/ci-smoke-install.sh linux" .github/workflows/full-bootstrap.yml
+  grep -q "scripts/ci-smoke-install.sh macos full" .github/workflows/full-bootstrap.yml
+}
+
 @test "nvim init.lua entry point exists" {
   [ -f "nvim/init.lua" ]
 

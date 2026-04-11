@@ -16,6 +16,14 @@
   [ "$status" -eq 0 ]
 }
 
+@test "shellcheck passes on ci smoke install script" {
+  if ! command -v shellcheck &> /dev/null; then
+    skip "shellcheck is not installed"
+  fi
+  run shellcheck ./scripts/ci-smoke-install.sh
+  [ "$status" -eq 0 ]
+}
+
 @test "zshrc passes syntax check" {
   if ! command -v zsh &> /dev/null; then
     skip "zsh is not installed"
@@ -34,6 +42,11 @@
 
 @test "bash_profile passes syntax check" {
   run bash -n .bash_profile platforms/macos/.bash_profile platforms/ubuntu/.bash_profile
+  [ "$status" -eq 0 ]
+}
+
+@test "ci smoke install script passes bash syntax check" {
+  run bash -n scripts/ci-smoke-install.sh
   [ "$status" -eq 0 ]
 }
 

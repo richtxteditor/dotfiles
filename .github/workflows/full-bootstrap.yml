@@ -1,0 +1,29 @@
+name: full-bootstrap
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 7 * * *"
+
+jobs:
+  full-bootstrap:
+    name: ${{ matrix.os }} full bootstrap
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Full bootstrap smoke (Ubuntu)
+        if: runner.os == 'Linux'
+        run: ./scripts/ci-smoke-install.sh linux
+
+      - name: Full bootstrap smoke (macOS)
+        if: runner.os == 'macOS'
+        run: ./scripts/ci-smoke-install.sh macos full
