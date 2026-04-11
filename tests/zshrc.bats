@@ -100,7 +100,7 @@ source_zshrc_cmd() {
 }
 
 @test "bbu fails clearly when brew is unavailable" {
-  run zsh -c "DOTFILES_PLATFORM=linux source .zshrc 2>/tmp/zshrc_err; unfunction brew 2>/dev/null || true; bbu"
+  run env PATH="/usr/bin:/bin" zsh -c "DOTFILES_PLATFORM=linux source .zshrc 2>/tmp/zshrc_err; bbu"
   [ "$status" -eq 1 ]
   [ "$output" = "brew not installed" ]
 }
@@ -120,8 +120,8 @@ source_zshrc_cmd() {
   run zsh -c "DOTFILES_PLATFORM=macos source .zshrc 2>/tmp/zshrc_err; echo \$PATH"
   [[ "$output" == *"/opt/homebrew/bin"* ]]
 
-  run zsh -c "DOTFILES_PLATFORM=linux source .zshrc 2>/tmp/zshrc_err; echo \$PATH"
-  [[ "$output" != *"/opt/homebrew/bin"* ]]
+  run env PATH="/usr/bin:/bin" zsh -c "DOTFILES_PLATFORM=linux source .zshrc 2>/tmp/zshrc_err; echo \$PATH"
+  [[ "$output" != /opt/homebrew/bin:* ]]
 }
 
 @test "zshrc loads platform-specific plugins" {

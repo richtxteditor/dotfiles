@@ -84,7 +84,7 @@ confirm_proceed() {
         return
     fi
 
-    read -r -n 1 -p "Do you want to proceed? (y/n) " REPLY
+    read -r -p "Do you want to proceed? (y/n) " REPLY
     echo
     if [[ ! "$REPLY" =~ ^[Yy]$ ]]; then
         echo "Installation aborted."
@@ -175,6 +175,11 @@ install_dependencies() {
 
 ensure_default_shell_is_zsh() {
     local zsh_path="${ZSH_PATH:-}"
+
+    if [[ -z "$DRY_RUN" && ! -t 0 ]]; then
+        echo "Skipping default shell change: non-interactive session."
+        return
+    fi
 
     if [[ "${SHELL:-}" == *zsh ]]; then
         echo "Default shell already uses zsh."
