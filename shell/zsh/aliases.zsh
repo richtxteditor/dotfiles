@@ -1,7 +1,6 @@
 alias reload='source ~/.zshrc && echo "Config reloaded!"'
 alias zshconfig='${EDITOR:-nvim} ~/.zshrc'
 alias cls='clear'
-alias bbu='brew bundle dump --file="$DOTFILES_ROOT/Brewfile" --force && echo "Brewfile updated!"'
 
 alias rm='rm -i'
 alias cp='cp -i'
@@ -33,3 +32,12 @@ alias tk='tmux kill-session -t'
 alias tka="tmux list-sessions | grep -v '(attached)' | cut -d: -f1 | xargs -I {} tmux kill-session -t {}"
 
 alias paneps="ps -t $(tty | sed 's#/dev/##') -o pid,ppid,stat,command"
+
+bbu() {
+  if ! command -v brew >/dev/null 2>&1; then
+    echo "brew not installed"
+    return 1
+  fi
+
+  brew bundle dump --file="$DOTFILES_ROOT/Brewfile" --force && echo "Brewfile updated!"
+}

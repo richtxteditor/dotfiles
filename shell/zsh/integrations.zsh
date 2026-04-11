@@ -4,10 +4,10 @@ if command -v grc >/dev/null 2>&1; then
     GRC_ZSH="/usr/local/etc/grc.zsh"
   fi
   if [[ ! -r "$GRC_ZSH" ]]; then
-    GRC_ZSH="/home/linuxbrew/.linuxbrew/etc/grc.zsh"
+    GRC_ZSH="/etc/grc.zsh"
   fi
   if [[ ! -r "$GRC_ZSH" ]]; then
-    GRC_ZSH="$HOME/.linuxbrew/etc/grc.zsh"
+    GRC_ZSH="/usr/share/grc/grc.zsh"
   fi
   [[ -r "$GRC_ZSH" ]] && source "$GRC_ZSH"
 fi

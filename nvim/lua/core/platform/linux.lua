@@ -1,0 +1,1 @@
+-- Linux-specific Neovim hooks live here.

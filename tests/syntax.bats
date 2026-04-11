@@ -38,7 +38,7 @@
 }
 
 @test "shared shell modules pass bash syntax check" {
-  run bash -n shell/shared/platform.sh shell/bash/profile.bash
+  run bash -n shell/shared/platform.sh shell/bash/profile.bash shell/bash/common.bash shell/bash/macos.bash shell/bash/linux.bash
   [ "$status" -eq 0 ]
 }
 
@@ -51,9 +51,19 @@
   if ! command -v tmux &> /dev/null; then
     skip "tmux is not installed"
   fi
-  # Start a temporary tmux server with the config to check for parse errors
+
+  local tmux_home="$BATS_TEST_TMPDIR/tmux-home"
+  mkdir -p "$tmux_home/.tmux"
+  ln -snf "$PWD/tmux/common.conf" "$tmux_home/.tmux/common.conf"
+  ln -snf "$PWD/tmux/macos.conf" "$tmux_home/.tmux/macos.conf"
+  ln -snf "$PWD/tmux/linux.conf" "$tmux_home/.tmux/linux.conf"
+
+  # Start a temporary tmux server with the installed layout to check for parse errors
   local socket="bats_tmux_$$"
-  run tmux -L "$socket" -f .tmux.conf start-server \; kill-server
+  run env HOME="$tmux_home" TMUX_TMPDIR="$BATS_TEST_TMPDIR" tmux -L "$socket" -f .tmux.conf start-server \; kill-server
+  if [ "$status" -ne 0 ] && [[ "$output" == *"Operation not permitted"* ]]; then
+    skip "tmux socket creation blocked by sandbox"
+  fi
   [ "$status" -eq 0 ]
 }
 

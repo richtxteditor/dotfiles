@@ -8,8 +8,8 @@ setup() {
 
   export PATH="$TEST_HOME/bin:$PATH"
 
-  # Mock brew, git, curl, lldb, uname
-  for cmd in brew git curl lldb; do
+  # Mock brew, git, curl, lldb, apt-get, zsh, chsh
+  for cmd in brew git curl lldb apt-get zsh chsh; do
     cat > "$TEST_HOME/bin/$cmd" <<'MOCK'
 #!/bin/bash
 echo "Mock $0 $@"
@@ -35,6 +35,34 @@ MOCK
   run ./install.sh --dry-run
   [ "$status" -eq 0 ]
   [[ "$output" == *"LLDB is already installed"* ]]
+}
+
+@test "install.sh skips Homebrew on Linux by default and prints workaround" {
+  cat > "$TEST_HOME/bin/uname" <<'MOCK'
+#!/bin/bash
+echo Linux
+MOCK
+  chmod +x "$TEST_HOME/bin/uname"
+
+  run ./install.sh --dry-run
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Detected platform: Linux"* ]]
+  [[ "$output" == *"Skip Homebrew dependency install on Linux"* ]]
+  [[ "$output" == *"Linux workaround: Ubuntu-first apt install for core tools"* ]]
+  [[ "$output" == *"sudo apt-get update && sudo apt-get install -y"* ]]
+}
+
+@test "install.sh explains manual zsh shell switch when shell path is not in /etc/shells" {
+  cat > "$TEST_HOME/bin/uname" <<'MOCK'
+#!/bin/bash
+echo Linux
+MOCK
+  chmod +x "$TEST_HOME/bin/uname"
+
+  run env SHELL=/bin/bash ZSH_PATH="$TEST_HOME/bin/zsh" ./install.sh --dry-run
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Skipping default shell change: $TEST_HOME/bin/zsh not listed in /etc/shells."* ]]
+  [[ "$output" == *"Add it to /etc/shells, then run: chsh -s $TEST_HOME/bin/zsh"* ]]
 }
 
 @test "dry-run makes zero filesystem changes" {
@@ -74,7 +102,11 @@ MOCK
     ".gitignore_global"
     "nvim"
     "starship.toml"
-    "ghostty/config"
+    "ghostty/config.macos"
+    "ghostty/config.linux"
+    "tmux/common.conf"
+    "tmux/macos.conf"
+    "tmux/linux.conf"
     "claude/CLAUDE.md"
   )
 

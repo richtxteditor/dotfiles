@@ -24,7 +24,11 @@
     ".gitignore_global"
     "nvim"
     "starship.toml"
-    "ghostty/config"
+    "ghostty/config.macos"
+    "ghostty/config.linux"
+    "tmux/common.conf"
+    "tmux/macos.conf"
+    "tmux/linux.conf"
     "claude/CLAUDE.md"
   )
 
@@ -45,13 +49,18 @@
 
   # Verify it requires the expected core modules
   grep -q "require.*core.lazy" nvim/init.lua
+  grep -q "require.*core.platform" nvim/init.lua
   grep -q "require.*core.options" nvim/init.lua
   grep -q "require.*core.keymaps" nvim/init.lua
 }
 
 @test "every lua file required by init.lua exists" {
-  # init.lua requires core.lazy, core.options, core.keymaps
+  # init.lua requires core.lazy, core.platform, core.options, core.keymaps
   [ -f "nvim/lua/core/lazy.lua" ]
+  [ -f "nvim/lua/core/platform/init.lua" ]
+  [ -f "nvim/lua/core/platform/common.lua" ]
+  [ -f "nvim/lua/core/platform/macos.lua" ]
+  [ -f "nvim/lua/core/platform/linux.lua" ]
   [ -f "nvim/lua/core/options.lua" ]
   [ -f "nvim/lua/core/keymaps.lua" ]
 }
@@ -60,10 +69,22 @@
   local modules=(
     "shell/shared/platform.sh"
     "shell/bash/profile.bash"
+    "shell/bash/common.bash"
+    "shell/bash/macos.bash"
+    "shell/bash/linux.bash"
     "shell/zsh/path.zsh"
+    "shell/zsh/path/common.zsh"
+    "shell/zsh/path/macos.zsh"
+    "shell/zsh/path/linux.zsh"
     "shell/zsh/environment.zsh"
     "shell/zsh/platform.zsh"
+    "shell/zsh/platform/common.zsh"
+    "shell/zsh/platform/macos.zsh"
+    "shell/zsh/platform/linux.zsh"
     "shell/zsh/plugins.zsh"
+    "shell/zsh/plugins/common.zsh"
+    "shell/zsh/plugins/macos.zsh"
+    "shell/zsh/plugins/linux.zsh"
     "shell/zsh/options.zsh"
     "shell/zsh/aliases.zsh"
     "shell/zsh/functions.zsh"
@@ -73,6 +94,22 @@
 
   grep -q "shell/shared/platform.sh" .zshrc
   grep -q "shell/bash/profile.bash" .bash_profile
+  grep -q "source-file ~/.tmux/common.conf" .tmux.conf
+  grep -q "source-file ~/.tmux/macos.conf" .tmux.conf
+  grep -q "source-file ~/.tmux/linux.conf" .tmux.conf
+  grep -q 'dotfiles_platform' shell/bash/profile.bash
+  grep -q 'shell/bash/common.bash' shell/bash/profile.bash
+  grep -q 'shell/bash/macos.bash' shell/bash/profile.bash
+  grep -q 'shell/bash/linux.bash' shell/bash/profile.bash
+  grep -q 'shell/zsh/path/common.zsh' shell/zsh/path.zsh
+  grep -q 'shell/zsh/path/macos.zsh' shell/zsh/path.zsh
+  grep -q 'shell/zsh/path/linux.zsh' shell/zsh/path.zsh
+  grep -q 'shell/zsh/platform/common.zsh' shell/zsh/platform.zsh
+  grep -q 'shell/zsh/platform/macos.zsh' shell/zsh/platform.zsh
+  grep -q 'shell/zsh/platform/linux.zsh' shell/zsh/platform.zsh
+  grep -q 'shell/zsh/plugins/common.zsh' shell/zsh/plugins.zsh
+  grep -q 'shell/zsh/plugins/macos.zsh' shell/zsh/plugins.zsh
+  grep -q 'shell/zsh/plugins/linux.zsh' shell/zsh/plugins.zsh
 
   for module in "${modules[@]}"; do
     [ -f "$module" ] || { echo "Missing shell module: $module"; false; }

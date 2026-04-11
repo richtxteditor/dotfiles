@@ -99,6 +99,12 @@ source_zshrc_cmd() {
   [[ "$output" == *"gemini is a shell function"* ]]
 }
 
+@test "bbu fails clearly when brew is unavailable" {
+  run zsh -c "DOTFILES_PLATFORM=linux source .zshrc 2>/tmp/zshrc_err; unfunction brew 2>/dev/null || true; bbu"
+  [ "$status" -eq 1 ]
+  [ "$output" = "brew not installed" ]
+}
+
 @test "zshrc properly configures lazy-loaded NVM" {
   run zsh -c "source .zshrc 2>/tmp/zshrc_err; which node"
   [ -n "$output" ]
@@ -109,8 +115,23 @@ source_zshrc_cmd() {
 @test "zshrc path contains basic directories" {
   run zsh -c "source .zshrc 2>/tmp/zshrc_err; echo \$PATH"
   [ -n "$output" ]
-  [[ "$output" == *"/opt/homebrew/bin"* ]]
   [[ "$output" == *".local/bin"* ]]
+
+  run zsh -c "DOTFILES_PLATFORM=macos source .zshrc 2>/tmp/zshrc_err; echo \$PATH"
+  [[ "$output" == *"/opt/homebrew/bin"* ]]
+
+  run zsh -c "DOTFILES_PLATFORM=linux source .zshrc 2>/tmp/zshrc_err; echo \$PATH"
+  [[ "$output" != *"/opt/homebrew/bin"* ]]
+}
+
+@test "zshrc loads platform-specific plugins" {
+  run zsh -c "DOTFILES_PLATFORM=macos source .zshrc 2>/tmp/zshrc_err; print -l -- \$plugins"
+  [[ "$output" == *"brew"* ]]
+  [[ "$output" == *"macos"* ]]
+
+  run zsh -c "DOTFILES_PLATFORM=linux source .zshrc 2>/tmp/zshrc_err; print -l -- \$plugins"
+  [[ "$output" == *"sudo"* ]]
+  [[ "$output" != *"macos"* ]]
 }
 
 @test "zshrc remains a thin entrypoint" {

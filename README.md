@@ -6,7 +6,7 @@
 ![Multiplexer](https://img.shields.io/badge/multiplexer-tmux-orange.svg)
 ![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)
 
-This repository contains configuration files for a high-performance, terminal-centric development environment on macOS and Linux. The setup integrates Ghostty, Zsh, Tmux, and Neovim into a unified workspace, prioritizing keyboard-driven navigation, fast startup times, and automatic dark/light mode switching.
+This repository contains configuration files for a high-performance, terminal-centric development environment on macOS and Linux. The setup integrates Ghostty, Zsh, Tmux, and Neovim into a unified workspace, prioritizing keyboard-driven navigation, fast startup times, and platform-aware behavior.
 
 ---
 
@@ -14,10 +14,15 @@ This repository contains configuration files for a high-performance, terminal-ce
 
 The repo is organized around stable entrypoints at the root and modular implementation files behind them:
 
-- Root entrypoints: `.zshrc`, `.bash_profile`, `.tmux.conf`, `install.sh`, `nvim/`, `ghostty/config`, `starship.toml`
+- Root entrypoints: `.zshrc`, `.bash_profile`, `.tmux.conf`, `install.sh`, `nvim/`, `ghostty/`, `starship.toml`
 - Shared shell logic: `shell/shared/platform.sh`
 - Bash profile logic: `shell/bash/profile.bash`
+- OS-specific Bash config: separate macOS and Linux files under `shell/bash/`
 - Zsh modules: `shell/zsh/` for path, env, platform behavior, aliases, functions, integrations, and language managers
+- OS-specific Zsh config: separate macOS and Linux files under `shell/zsh/path/`, `shell/zsh/plugins/`, and `shell/zsh/platform/`
+- OS-specific Tmux config: shared loader in `.tmux.conf`, platform files under `tmux/`
+- OS-specific Ghostty config: `ghostty/config.macos` and `ghostty/config.linux`
+- OS-specific Neovim hooks: shared loader in `nvim/lua/core/platform/` with separate macOS/Linux files
 - Tests: `tests/` for consistency, syntax, installer, bootstrap E2E, and repo hygiene coverage
 
 The root files remain the deployment surface. The `shell/` tree is the implementation surface.
@@ -36,7 +41,7 @@ Follow these steps to deploy the environment on a fresh macOS or Linux installat
     ```
 
 2. **Run Installation Script:**
-    This script backs up existing configurations, creates symbolic links, installs all dependencies (Homebrew, Zsh, Neovim, etc.), and sets up the Tmux Plugin Manager (TPM).
+    This script detects your platform, backs up existing configurations, creates symbolic links, and sets up the Tmux Plugin Manager (TPM). On macOS it installs Homebrew dependencies automatically. On Linux it skips Homebrew by default and prints an Ubuntu-first `apt` workaround instead.
     ```bash
     cd ~/dotfiles
     ./install.sh
@@ -48,11 +53,18 @@ Follow these steps to deploy the environment on a fresh macOS or Linux installat
     ./install.sh --dry-run
     ```
 
+    **Optional flags:**
+    ```bash
+    ./install.sh --skip-deps
+    ```
+
 ### What Gets Installed
 
 The script handles the following:
-- **Homebrew** packages, casks, and VS Code extensions (from `Brewfile`)
+- **macOS:** Homebrew packages, casks, and VS Code extensions (from `Brewfile`)
+- **Linux:** Ubuntu-first `apt` workaround only; no Homebrew install path by default
 - **Symlinks** for Zsh, Bash profile, Tmux, Neovim, Starship, Ghostty, and Claude Code configs
+- **Default shell switch** to `zsh` when `zsh` and `chsh` are available
 - **TPM** (Tmux Plugin Manager)
 - **pynvim** in the Mason debugpy venv (for Neovim's Python provider)
 - **Platform-aware targets** for Ghostty (`~/Library/Application Support/...` on macOS, `~/.config/ghostty/...` on Linux)
@@ -70,7 +82,7 @@ The script handles the following:
     * Run `:DevdocsFetch` then `:DevdocsInstall python~3.12 javascript typescript html css tailwindcss django~5.2 c cpp postgresql~18` for offline docs.
 
 3. **Install Language Runtimes (Optional):**
-    `nvm` is lazy-loaded for Node.js. `pyenv` and `rbenv` are installed via Homebrew but not auto-initialized.
+    `nvm` is lazy-loaded for Node.js. `pyenv` and `rbenv` can be installed separately if you use them; they are not auto-initialized here.
     ```bash
     # Node.js
     nvm install 20
@@ -81,9 +93,9 @@ The script handles the following:
 
 ## Features
 
-### Dark/Light Mode Auto-Switching
+### Theme Switching
 
-The entire environment responds to macOS appearance changes:
+On macOS, the environment responds to system appearance changes automatically. On Linux, the same themes are available, but automatic switching depends on the individual tool and your desktop environment.
 
 | Component | Dark Theme | Light Theme |
 | :--- | :--- | :--- |
@@ -93,7 +105,7 @@ The entire environment responds to macOS appearance changes:
 | **Nom** | glamour: dark | glamour: light |
 | **Gemini CLI** | Atom One | Google Code |
 
-Neovim switches automatically via [dark-notify](https://github.com/cormacrelf/dark-notify). Ghostty uses its built-in `theme = dark:...,light:...` syntax. Shell tools (bat, nom, gemini) switch at invocation time.
+Neovim switches automatically via [dark-notify](https://github.com/cormacrelf/dark-notify) on macOS. Ghostty uses its built-in `theme = dark:...,light:...` syntax. Shell tools (`bat`, `nom`, `gemini`) can switch at invocation time.
 
 ### Format-on-Save
 
@@ -193,8 +205,8 @@ Below is a comprehensive guide to the tools and keybindings available in this en
 | :--- | :--- |
 | **Font** | FiraCode Nerd Font, size 16 |
 | **Opacity** | 90% with background blur |
-| **Quick Terminal** | `Cmd+`` `` ` (top drop-down, auto-hides) |
-| **Color Space** | Display P3 |
+| **Quick Terminal** | macOS: `Cmd+\``. Linux: use standard window launch or compositor binding |
+| **Color Space** | macOS only: Display P3 |
 | **Splits/Tabs** | Inherit working directory |
 | **Copy** | Copy-on-select to clipboard |
 | **Shell Integration** | SSH terminfo + env forwarding |
@@ -202,10 +214,11 @@ Below is a comprehensive guide to the tools and keybindings available in this en
 #### Split Navigation
 | Key | Action |
 | :--- | :--- |
-| `Cmd+Alt+H` | Focus split left |
-| `Cmd+Alt+J` | Focus split down |
-| `Cmd+Alt+K` | Focus split up |
-| `Cmd+Alt+L` | Focus split right |
+| macOS: `Cmd+Alt+H` | Focus split left |
+| macOS: `Cmd+Alt+J` | Focus split down |
+| macOS: `Cmd+Alt+K` | Focus split up |
+| macOS: `Cmd+Alt+L` | Focus split right |
+| Linux: `Ctrl+Alt+H/J/K/L` | Focus splits |
 
 ### Neovim
 *Your modal text editor.*
@@ -496,9 +509,9 @@ This is a curated list of the most important aliases you've configured.
 | `reload` | `source ~/.zshrc` |
 | `zshconfig` | `nvim ~/.zshrc` |
 | `cls` | `clear` |
-| `update` | Updates macOS, Homebrew, and Oh My Zsh. |
-| `bbu` | `brew bundle dump --file=~/dotfiles/Brewfile --force` (Updates repo Brewfile) |
-| `icloud` | Opens your iCloud Drive folder. |
+| `update` | macOS: updates system software, Homebrew, Oh My Zsh. Linux: runs Ubuntu/Debian `apt` update/upgrade. |
+| `bbu` | Dumps current Homebrew packages to `Brewfile` when `brew` is installed. |
+| `icloud` | Opens iCloud Drive folder on macOS. |
 
 **Safety:**
 
@@ -550,9 +563,9 @@ These perform actions that aliases cannot.
 | Function | How to Use |
 | :--- | :--- |
 | `mkcd <dir>` | Creates a directory and immediately `cd`s into it. |
-| `ic` | Jumps directly to your iCloud Drive folder. |
-| `nom` | Wrapper to auto-switch themes based on macOS dark/light mode. |
-| `gemini` | Wrapper to auto-switch themes based on macOS dark/light mode. |
+| `ic` | Jumps directly to your iCloud Drive folder on macOS. |
+| `nom` | Wrapper to switch themes based on detected interface style. |
+| `gemini` | Wrapper to switch themes based on detected interface style. |
 
 #### 6. Tool Initializations (The "Magic")
 
@@ -568,7 +581,8 @@ These lines in your `.zshrc` are what enable the version managers.
 ## Notes
 
 - `fzf` keybindings are loaded from `.fzf.zsh` when present (tracked in this repo), otherwise `fzf --zsh` is used.
-- Homebrew dependencies are managed in a single `Brewfile` (casks, VS Code extensions, and cargo packages included).
+- macOS dependencies are tracked in a single `Brewfile` (packages, casks, VS Code extensions, cargo packages).
+- Linux instructions are optimized for Ubuntu/Debian. Other distributions should install equivalent packages manually.
 - `.bash_profile` includes Juliaup and a lazy-loaded Conda hook.
 - Git is configured with `pull.rebase`, `push.autoSetupRemote`, `rerere`, `fetch.prune`, and `zdiff3` merge conflict style.
 - Starship prompt shows command duration only for commands slower than 50ms.
@@ -588,7 +602,7 @@ Run the test suite to verify the configuration:
 ./test.sh
 ```
 
-The suite includes 36 tests covering syntax validation, installation logic, symlink correctness, zshrc behavior, and cross-file consistency.
+The suite includes 52 tests covering syntax validation, installation logic, symlink correctness, platform-specific shell behavior, and cross-file consistency.
 
 ---
 

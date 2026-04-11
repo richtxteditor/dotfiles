@@ -1,0 +1,57 @@
+# Font
+font-family = FiraCode Nerd Font
+font-size = 16
+font-thicken = true
+bold-color = bright
+
+# Theme (auto dark/light)
+theme = dark:Ayu Mirage,light:Violet Light
+minimum-contrast = 1.5
+
+# Window
+background-opacity = 0.9
+window-padding-x = 8
+window-padding-y = 4
+window-padding-balance = true
+window-padding-color = extend
+window-width = 130
+window-height = 33
+window-save-state = always
+window-inherit-font-size = true
+window-inherit-working-directory = true
+tab-inherit-working-directory = true
+split-inherit-working-directory = true
+
+# Splits
+unfocused-split-opacity = 0.75
+focus-follows-mouse = true
+
+# Cursor
+cursor-style = block
+cursor-style-blink = true
+cursor-click-to-move = true
+mouse-hide-while-typing = true
+
+# Quick Terminal
+quick-terminal-position = top
+quick-terminal-animation-duration = 0.1
+quick-terminal-autohide = true
+
+# Keybinds
+keybind = ctrl+alt+h=goto_split:left
+keybind = ctrl+alt+j=goto_split:down
+keybind = ctrl+alt+k=goto_split:up
+keybind = ctrl+alt+l=goto_split:right
+right-click-action = paste
+
+# Text
+faint-opacity = 0.3
+
+# Behavior
+copy-on-select = clipboard
+confirm-close-surface = true
+notify-on-command-finish = unfocused
+notify-on-command-finish-after = 10s
+scroll-to-bottom = keystroke,output
+shell-integration-features = ssh-terminfo,ssh-env
+env = EDITOR=nvim

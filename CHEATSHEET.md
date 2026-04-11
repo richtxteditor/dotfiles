@@ -27,8 +27,8 @@
 
 | Command | Description |
 | :--- | :--- |
-| **`update`** | Runs **all** updates: macOS, Homebrew, and Oh My Zsh. |
-| **`bbu`** | **B**rew **B**undle **U**pdate. Dumps current brew packages to the repo's `Brewfile`. |
+| **`update`** | macOS: updates system software, Homebrew, Oh My Zsh. Linux: runs Ubuntu/Debian `apt` update/upgrade. |
+| **`bbu`** | Function. Dumps current brew packages to the repo `Brewfile` when `brew` is installed. |
 | **`zshconfig`** | Opens `.zshrc` in Neovim; module implementations live under `shell/zsh/`. |
 | **`reload`** | Reloads `.zshrc` without restarting the terminal. |
 | **`mkcd <dir>`**| Creates a directory and immediately `cd`s into it. |
@@ -165,8 +165,8 @@
 | **Node.js** | Managed by `nvm`. Run `nvm install 20`. |
 | **Python** | Managed by `pyenv`. Run `pyenv install 3.12`. |
 | **Ruby** | Managed by `rbenv`. Run `rbenv install 3.3.0`. |
-| **Go** | Installed via Homebrew. LSP: `gopls`. Formatters: `goimports`, `gofumpt`. |
-| **Rust** | Installed via Homebrew. LSP: `rust-analyzer`. DAP: `codelldb`. |
+| **Go** | Install via distro packages or Homebrew. LSP: `gopls`. Formatters: `goimports`, `gofumpt`. |
+| **Rust** | Install via distro packages, `rustup`, or Homebrew. LSP: `rust-analyzer`. DAP: `codelldb`. |
 | **Java** | `openjdk` installed. Neovim uses `jdtls` & `google-java-format`. |
 | **C/C++** | `clang` / `llvm` installed. Neovim uses `clangd` & `clang-format`. DAP: `codelldb`. |
 | **TypeScript** | Uses `ts_ls`, `prettier`, `eslint`. Ensure `tsconfig.json` exists. |

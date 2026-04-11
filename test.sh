@@ -11,7 +11,7 @@ echo "Running tests..."
 # Check if bats is installed
 if ! command -v bats &> /dev/null; then
     echo "Error: BATS is not installed."
-    echo "Please install it via 'brew install bats-core shellcheck'"
+    echo "On Ubuntu: sudo apt-get install -y bats"
     exit 1
 fi
 

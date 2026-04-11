@@ -74,7 +74,7 @@ EOF
   [ -L "$HOME/.gitignore_global" ]
   [[ "$(readlink "$HOME/.gitignore_global")" == "$dir/.gitignore_global" ]]
   [ -L "$HOME/Library/Application Support/com.mitchellh.ghostty/config" ]
-  [[ "$(readlink "$HOME/Library/Application Support/com.mitchellh.ghostty/config")" == "$dir/ghostty/config" ]]
+  [[ "$(readlink "$HOME/Library/Application Support/com.mitchellh.ghostty/config")" == "$dir/ghostty/config.macos" ]]
   [ -L "$HOME/.claude/CLAUDE.md" ]
   [[ "$(readlink "$HOME/.claude/CLAUDE.md")" == "$dir/claude/CLAUDE.md" ]]
 }
@@ -131,10 +131,12 @@ EOF
 
   run bash -c 'echo "y" | ./install.sh'
   [ "$status" -eq 0 ]
+  [[ "$output" == *"Skipping Homebrew on Linux."* ]]
+  [[ "$output" != *"Mock brew bundle --file="* ]]
 
   local dir="$(pwd)"
   [ -L "$HOME/.config/ghostty/config" ]
-  [[ "$(readlink "$HOME/.config/ghostty/config")" == "$dir/ghostty/config" ]]
+  [[ "$(readlink "$HOME/.config/ghostty/config")" == "$dir/ghostty/config.linux" ]]
 }
 
 @test "install.sh backs up existing .config files correctly" {
