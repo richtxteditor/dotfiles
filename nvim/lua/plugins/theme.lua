@@ -25,6 +25,9 @@ return {
   -- Automatic Theme Switching based on macOS Dark Mode
   {
     "cormacrelf/dark-notify",
+    cond = function()
+      return vim.fn.has("mac") == 1
+    end,
     config = function()
       require("dark_notify").run({
         schemes = {
