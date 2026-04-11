@@ -57,10 +57,12 @@
   ln -snf "$PWD/tmux/common.conf" "$tmux_home/.tmux/common.conf"
   ln -snf "$PWD/tmux/macos.conf" "$tmux_home/.tmux/macos.conf"
   ln -snf "$PWD/tmux/linux.conf" "$tmux_home/.tmux/linux.conf"
+  local tmux_tmpdir
+  tmux_tmpdir="$(mktemp -d /tmp/dotfiles-tmux.XXXXXX)"
 
   # Start a temporary tmux server with the installed layout to check for parse errors
   local socket="bats_tmux_$$"
-  run env HOME="$tmux_home" TMUX_TMPDIR="$BATS_TEST_TMPDIR" tmux -L "$socket" -f .tmux.conf start-server \; kill-server
+  run env HOME="$tmux_home" TMUX_TMPDIR="$tmux_tmpdir" tmux -L "$socket" -f .tmux.conf start-server \; kill-server
   if [ "$status" -ne 0 ] && [[ "$output" == *"Operation not permitted"* ]]; then
     skip "tmux socket creation blocked by sandbox"
   fi

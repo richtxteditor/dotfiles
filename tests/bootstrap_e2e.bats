@@ -63,7 +63,9 @@ EOF
   [ "$status" -eq 0 ]
 
   local socket="bats_tmux_e2e_$$"
-  run env HOME="$HOME" TMUX_TMPDIR="$BATS_TEST_TMPDIR" tmux -L "$socket" -f "$HOME/.tmux.conf" start-server \; show -g prefix \; kill-server
+  local tmux_tmpdir
+  tmux_tmpdir="$(mktemp -d /tmp/dotfiles-tmux.XXXXXX)"
+  run env HOME="$HOME" TMUX_TMPDIR="$tmux_tmpdir" tmux -L "$socket" -f "$HOME/.tmux.conf" start-server \; show -g prefix \; kill-server
   if [ "$status" -ne 0 ] && [[ "$output" == *"Operation not permitted"* ]]; then
     skip "tmux socket creation blocked by sandbox"
   fi
