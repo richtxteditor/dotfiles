@@ -1,15 +1,16 @@
 return {
     {
         "nvim-treesitter/nvim-treesitter",
+        lazy = false,
         build = ":TSUpdate",
         config = function()
-            require("nvim-treesitter.configs").setup({
+            require("nvim-treesitter").setup({
                 -- List of language parsers to install
                 ensure_installed = {
                     "python", "javascript", "typescript", "tsx",
                     "html", "css", "json", "yaml", "bash",
                     "php", "java", "c", "cpp", "rust", "ruby", "go", "sql", "htmldjango", "regex",
-                    "markdown", "markdown_inline",
+                    "markdown", "markdown_inline", "latex",
                 },
                 auto_install = true,
                 highlight = {

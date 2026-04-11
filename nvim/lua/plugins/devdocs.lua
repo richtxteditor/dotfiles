@@ -15,31 +15,57 @@ return {
         "DevdocsUpdate",
     },
     keys = {
-        { "<leader>K", "<cmd>DevdocsOpenCurrentFloat<cr>", desc = "Open current file docs" },
+        {
+            "<leader>K",
+            function()
+                local ft = vim.bo.filetype
+                if (ft == "tex" or ft == "plaintex" or ft == "bib") and vim.fn.executable("texdoc") == 1 then
+                    local topic = vim.fn.expand("<cword>")
+                    if topic == nil or topic == "" then
+                        topic = "latex"
+                    end
+                    vim.cmd("botright split")
+                    vim.cmd("terminal texdoc " .. vim.fn.shellescape(topic))
+                    return
+                end
+
+                vim.cmd("DevdocsOpenCurrentFloat")
+            end,
+            desc = "Open current file docs",
+        },
     },
     opts = {
         filetypes = {
+            bash = "bash",
+            sh = "bash",
+            zsh = "bash",
+            c = "c",
+            cpp = { "cpp", "c" },
             python = { "python~3.12", "django~5.2" },
             javascript = { "javascript", "typescript" },
-            javascriptreact = { "javascript", "typescript", "html", "css", "tailwindcss" },
+            javascriptreact = { "react", "javascript", "typescript", "html", "css", "tailwindcss" },
             typescript = { "typescript", "javascript" },
-            typescriptreact = { "typescript", "javascript", "html", "css", "tailwindcss" },
+            typescriptreact = { "react", "typescript", "javascript", "html", "css", "tailwindcss" },
             html = { "html", "css", "tailwindcss" },
             css = { "css", "tailwindcss" },
             scss = { "css", "tailwindcss" },
+            markdown = "markdown",
             sql = "postgresql~18",
             htmldjango = { "django~5.2", "html", "css", "tailwindcss" },
         },
         ensure_installed = {
+            "bash",
+            "c",
+            "cpp",
+            "markdown",
             "python~3.12",
             "javascript",
             "typescript",
+            "react",
             "html",
             "css",
             "tailwindcss",
             "django~5.2",
-            "c",
-            "cpp",
             "postgresql~18",
         },
         float_win = {

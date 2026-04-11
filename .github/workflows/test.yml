@@ -32,3 +32,24 @@ jobs:
 
       - name: Run test suite
         run: ./test.sh
+
+      - name: Smoke install (Ubuntu)
+        if: runner.os == 'Linux'
+        run: |
+          printf 'y\n' | ./install.sh
+          export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+          test "$(readlink "$HOME/.zshrc")" = "$GITHUB_WORKSPACE/platforms/ubuntu/.zshrc"
+          test "$(readlink "$HOME/.bash_profile")" = "$GITHUB_WORKSPACE/platforms/ubuntu/.bash_profile"
+          test "$(readlink "$HOME/.config/starship.toml")" = "$GITHUB_WORKSPACE/platforms/ubuntu/starship.toml"
+          command -v zsh
+          command -v tmux
+          command -v tree-sitter
+          command -v node
+          command -v npm
+          command -v ruby
+          command -v go
+          command -v php
+          command -v composer
+          command -v javac
+          command -v luarocks
+          "$HOME/.local/bin/nvim" --version | head -n 1

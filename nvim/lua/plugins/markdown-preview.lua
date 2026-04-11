@@ -9,7 +9,7 @@ return {
         ft = { "markdown" },
 
         -- This command runs the first time you install the plugin.
-        build = "cd app && npm install",
+        build = "cd app && npm install --no-package-lock && git -C .. checkout -- app/yarn.lock && rm -f package-lock.json",
 
         -- This is the crucial part: define the keymaps here.
         keys = {
@@ -26,4 +26,3 @@ return {
         },
     },
 }
-

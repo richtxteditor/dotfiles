@@ -91,6 +91,8 @@ return {
                 "ts_ls",
                 "sqlls",
                 "djlsp",
+                "marksman",
+                "texlab",
             }
 
             for _, server in ipairs(managed_servers) do
@@ -102,6 +104,14 @@ return {
             vim.lsp.config("djlsp", {
                 filetypes = { "htmldjango" },
                 root_markers = { "manage.py" },
+            })
+
+            vim.lsp.config("marksman", {
+                filetypes = { "markdown" },
+            })
+
+            vim.lsp.config("texlab", {
+                filetypes = { "tex", "plaintex", "bib" },
             })
 
             vim.lsp.config("lua_ls", {
