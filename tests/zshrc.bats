@@ -112,10 +112,10 @@ exit 0
 EOF
   chmod +x "$BATS_TEST_TMPDIR/bin/bat"
 
-  run env DOTFILES_PLATFORM=linux PATH="$BATS_TEST_TMPDIR/bin:/usr/bin:/bin" zsh -c "source .zshrc 2>/tmp/zshrc_err; alias cd; alias ls; alias cat"
+  run env DOTFILES_PLATFORM=linux DOTFILES_EZA_ICONS=0 PATH="$BATS_TEST_TMPDIR/bin:/usr/bin:/bin" zsh -c "source .zshrc 2>/tmp/zshrc_err; alias cd; alias ls; alias cat"
   [ "$status" -eq 0 ]
   [[ "$output" == *"cd=z"* ]]
-  [[ "$output" == *"ls='eza --icons --git'"* ]]
+  [[ "$output" == *"ls='eza --git'"* ]]
   [[ "$output" == *"cat=bat"* ]]
 }
 
