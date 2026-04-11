@@ -630,7 +630,7 @@ bootstrap_neovim_environment() {
     echo "Bootstrapping Mason tooling..."
     nvim --headless "+MasonUpdate" "+MasonToolsInstallSync" +qa
 
-    lua_list="$(printf '"'"'"%s",'"'"' "${treesitter_languages[@]}")"
+    lua_list="$(printf '"%s",' "${treesitter_languages[@]}")"
     lua_list="${lua_list%,}"
 
     echo "Bootstrapping treesitter parsers..."

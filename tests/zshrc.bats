@@ -239,7 +239,7 @@ EOF
 
   # _noarg_hl with no args should pipe through bat; if bat not available
   # or not a tty, it falls through to command directly
-  run zsh -c "export PATH='$BATS_TEST_TMPDIR/bin:\$PATH'; source .zshrc 2>/tmp/zshrc_err; _noarg_hl failcmd"
+  run zsh -c "source .zshrc 2>/tmp/zshrc_err; _noarg_hl '$BATS_TEST_TMPDIR/bin/failcmd'"
   [ "$status" -eq 42 ]
 }
 
