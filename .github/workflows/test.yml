@@ -35,8 +35,8 @@ jobs:
 
       - name: Smoke install (Ubuntu)
         if: runner.os == 'Linux'
-        run: ./scripts/ci-smoke-install.sh linux
+        run: bash ./scripts/ci-smoke-install.sh linux
 
       - name: Smoke install (macOS)
         if: runner.os == 'macOS'
-        run: ./scripts/ci-smoke-install.sh macos skip-deps
+        run: bash ./scripts/ci-smoke-install.sh macos skip-deps

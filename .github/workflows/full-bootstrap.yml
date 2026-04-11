@@ -22,8 +22,8 @@ jobs:
 
       - name: Full bootstrap smoke (Ubuntu)
         if: runner.os == 'Linux'
-        run: ./scripts/ci-smoke-install.sh linux
+        run: bash ./scripts/ci-smoke-install.sh linux
 
       - name: Full bootstrap smoke (macOS)
         if: runner.os == 'macOS'
-        run: ./scripts/ci-smoke-install.sh macos full
+        run: bash ./scripts/ci-smoke-install.sh macos full
