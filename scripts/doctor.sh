@@ -40,13 +40,20 @@ fail() {
 
 expected_link_target() {
     local path="$1"
+    local platform_dir
+
+    if dotfiles_is_linux; then
+        platform_dir="ubuntu"
+    else
+        platform_dir="macos"
+    fi
 
     case "$path" in
-        ".zshrc") printf '%s\n' "$repo_root/platforms/$(dotfiles_is_linux && printf 'ubuntu' || printf 'macos')/.zshrc" ;;
-        ".bash_profile") printf '%s\n' "$repo_root/platforms/$(dotfiles_is_linux && printf 'ubuntu' || printf 'macos')/.bash_profile" ;;
+        ".zshrc") printf '%s\n' "$repo_root/platforms/$platform_dir/.zshrc" ;;
+        ".bash_profile") printf '%s\n' "$repo_root/platforms/$platform_dir/.bash_profile" ;;
         ".tmux.conf") printf '%s\n' "$repo_root/.tmux.conf" ;;
         ".config/nvim") printf '%s\n' "$repo_root/nvim" ;;
-        ".config/starship.toml") printf '%s\n' "$repo_root/platforms/$(dotfiles_is_linux && printf 'ubuntu' || printf 'macos')/starship.toml" ;;
+        ".config/starship.toml") printf '%s\n' "$repo_root/platforms/$platform_dir/starship.toml" ;;
         *) return 1 ;;
     esac
 }
@@ -138,7 +145,7 @@ check_default_shell() {
     if [[ "${SHELL:-}" == *zsh ]]; then
         pass "Default shell uses zsh"
     else
-        warn "Default shell is $SHELL"
+        warn "Default shell is ${SHELL:-unset}"
     fi
 }
 
