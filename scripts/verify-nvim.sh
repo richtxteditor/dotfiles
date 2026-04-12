@@ -37,10 +37,14 @@ assert_token_in_file() {
     fi
 }
 
-require_file "$repo_root/nvim/lua/plugins/lsp.lua" || true
-require_file "$repo_root/nvim/lua/plugins/mason-tools.lua" || true
-require_file "$repo_root/nvim/lua/plugins/treesitter.lua" || true
-require_file "$repo_root/nvim/lua/plugins/devdocs.lua" || true
+for required_file in \
+    "$repo_root/nvim/lua/plugins/lsp.lua" \
+    "$repo_root/nvim/lua/plugins/mason-tools.lua" \
+    "$repo_root/nvim/lua/plugins/treesitter.lua" \
+    "$repo_root/nvim/lua/plugins/devdocs.lua"
+do
+    require_file "$required_file"
+done
 
 if command -v nvim >/dev/null 2>&1; then
     if nvim --headless '+quitall' >/dev/null 2>&1; then
