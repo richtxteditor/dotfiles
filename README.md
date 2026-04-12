@@ -12,9 +12,10 @@ This repository contains configuration files for a high-performance, terminal-ce
 
 ## Structure
 
-The repo is organized around stable entrypoints at the root and modular implementation files behind them:
+The repo is organized around stable root dispatchers plus platform-specific deployment targets and shared implementation modules:
 
-- Root entrypoints: `.zshrc`, `.bash_profile`, `.tmux.conf`, `install.sh`, `nvim/`, `ghostty/`, `starship.toml`
+- Root dispatchers: `.zshrc`, `.bash_profile`, `.tmux.conf`, `install.sh`
+- Platform deployment targets: `platforms/macos/` and `platforms/ubuntu/` for Zsh, Bash, and Starship
 - Shared shell logic: `shell/shared/platform.sh`
 - Bash profile logic: `shell/bash/profile.bash`
 - OS-specific Bash config: separate macOS and Linux files under `shell/bash/`
@@ -23,9 +24,11 @@ The repo is organized around stable entrypoints at the root and modular implemen
 - OS-specific Tmux config: shared loader in `.tmux.conf`, platform files under `tmux/`
 - OS-specific Ghostty config: `ghostty/config.macos` and `ghostty/config.linux`
 - OS-specific Neovim hooks: shared loader in `nvim/lua/core/platform/` with separate macOS/Linux files
+- Toolchain manifest: `config/toolchain.sh` for package lists, version floors, and Neovim tool inventory
+- Verification scripts: `scripts/doctor.sh`, `scripts/verify-nvim.sh`, and `scripts/ci-smoke-install.sh`
 - Tests: `tests/` for consistency, syntax, installer, bootstrap E2E, and repo hygiene coverage
 
-The root files remain the deployment surface. The `shell/` tree is the implementation surface.
+The `platforms/` tree is the deployment surface for shell prompt/profile files. The `shell/` tree is the implementation surface.
 
 ---
 
@@ -41,7 +44,7 @@ Follow these steps to deploy the environment on a fresh macOS or Linux installat
     ```
 
 2. **Run Installation Script:**
-    This script detects your platform, backs up existing configurations, creates symbolic links, and sets up the Tmux Plugin Manager (TPM). On macOS it installs Homebrew dependencies automatically. On Ubuntu/Linux it skips Homebrew, installs core packages with `apt`, and installs the latest Neovim release from upstream into `~/.local`.
+    This script detects your platform, backs up existing configurations, creates symbolic links, and sets up the terminal/editor environment. On macOS it installs Homebrew dependencies automatically. On Ubuntu/Linux it skips Homebrew, installs core packages with `apt`, and installs the latest Neovim release from upstream into `~/.local`.
     ```bash
     cd ~/dotfiles
     ./install.sh
@@ -58,6 +61,12 @@ Follow these steps to deploy the environment on a fresh macOS or Linux installat
     ./install.sh --skip-deps
     ```
 
+    **Read-only verification:**
+    ```bash
+    ./scripts/doctor.sh
+    ./scripts/verify-nvim.sh
+    ```
+
 ### What Gets Installed
 
 The script handles the following:
@@ -66,7 +75,12 @@ The script handles the following:
 - **Symlinks** for Zsh, Bash profile, Tmux, Neovim, Starship, Ghostty, and Claude Code configs
 - **Default shell switch** to `zsh` when `zsh` and `chsh` are available
 - **TPM** (Tmux Plugin Manager)
+- **Oh My Zsh** plus `zsh-autosuggestions`, `zsh-syntax-highlighting`, and `fzf-tab`
+- **tree-sitter-cli** on Linux via `npm`
+- **Rustup** on Linux for Rust-based Neovim plugins
+- **Node and Ruby Neovim hosts**
 - **pynvim** in the Mason debugpy venv (for Neovim's Python provider)
+- **Interactive Neovim bootstrap** for plugins, Mason tooling, treesitter parsers, and DevDocs installs when `install.sh` runs in a real terminal
 - **Platform-aware targets** for Ghostty (`~/Library/Application Support/...` on macOS, `~/.config/ghostty/...` on Linux)
 
 ### Phase 2: Configuration
@@ -75,11 +89,11 @@ The script handles the following:
     * Start a session: `tmux` or `ta`
     * Press **Ctrl+a** then **I** (Shift+i) to install plugins.
 
-2. **Initialize Neovim Plugins:**
-    * Open Neovim: `nvim`
-    * Wait for `lazy.nvim` to complete plugin installation.
-    * Restart Neovim.
-    * Run `:DevdocsFetch` then `:DevdocsInstall python~3.12 javascript typescript html css tailwindcss django~5.2 c cpp postgresql~18` for offline docs.
+2. **Verify Neovim and shell health:**
+    ```bash
+    ./scripts/doctor.sh
+    nvim "+checkhealth" +qa
+    ```
 
 3. **Install Language Runtimes (Optional):**
     `nvm` is lazy-loaded for Node.js. `pyenv` and `rbenv` can be installed separately if you use them; they are not auto-initialized here.
@@ -143,7 +157,7 @@ Ruby linting is handled by the Solargraph LSP.
 
 Mason installs and Neovim explicitly enables these language servers:
 
-`pyright` `eslint` `html` `cssls` `tailwindcss` `jsonls` `yamlls` `lua_ls` `bashls` `clangd` `ts_ls` `sqlls` `djlsp`
+`pyright` `eslint` `html` `cssls` `tailwindcss` `jsonls` `yamlls` `lua_ls` `bashls` `clangd` `ts_ls` `sqlls` `djlsp` `marksman` `texlab`
 
 Notes:
 - `djlsp` is restricted to the `htmldjango` filetype and uses `manage.py` root detection.
@@ -154,7 +168,7 @@ File watching (`workspace/didChangeWatchedFiles`) is enabled with dynamic regist
 
 ### Treesitter
 
-Syntax highlighting, indentation, and code folding via tree-sitter parsers for 25+ languages. Includes [treesitter-context](https://github.com/nvim-treesitter/nvim-treesitter-context) for sticky function/class headers at the top of the buffer.
+Syntax highlighting, indentation, and code folding via tree-sitter parsers for the core development stack in this repo, including Python, JavaScript, TypeScript, TSX, HTML, CSS, JSON, YAML, Bash, PHP, Java, C, C++, Rust, Ruby, Go, SQL, Django templates, Markdown, and LaTeX. Includes [treesitter-context](https://github.com/nvim-treesitter/nvim-treesitter-context) for sticky function/class headers at the top of the buffer.
 
 ### Session Management
 
@@ -182,6 +196,7 @@ The repo includes layered verification:
 - `tests/syntax.bats`: shell, tmux, and Lua syntax validation
 - `tests/install*.bats`: installer dry-run, idempotence, backup behavior, and path coverage
 - `tests/bootstrap_e2e.bats`: install-plus-bootstrap checks for Zsh, Tmux, and Neovim
+- `tests/ci_smoke_install.bats`: CI smoke-script behavior and release-gate coverage
 - `tests/repo_hygiene.bats`: blocks local runtime artifacts from re-entering the repo
 
 Run everything locally with:
@@ -190,7 +205,7 @@ Run everything locally with:
 ./test.sh
 ```
 
-GitHub Actions runs the same suite on both macOS and Ubuntu.
+GitHub Actions runs the suite on both macOS and Ubuntu. Push/PR CI also runs cross-platform smoke installs, and a separate nightly/manual workflow runs full bootstrap smoke on both OSes.
 
 ---
 
@@ -583,6 +598,7 @@ These lines in your `.zshrc` are what enable the version managers.
 - `fzf` keybindings are loaded from `.fzf.zsh` when present (tracked in this repo), otherwise `fzf --zsh` is used.
 - macOS dependencies are tracked in a single `Brewfile` (packages, casks, VS Code extensions, cargo packages).
 - Linux instructions are optimized for Ubuntu/Debian. Other distributions should install equivalent packages manually.
+- `config/toolchain.sh` is the source of truth for package lists, minimum tool versions, and Neovim bootstrap inventory.
 - `.bash_profile` includes Juliaup and a lazy-loaded Conda hook.
 - Git is configured with `pull.rebase`, `push.autoSetupRemote`, `rerere`, `fetch.prune`, and `zdiff3` merge conflict style.
 - Starship prompt shows command duration only for commands slower than 50ms.
@@ -602,7 +618,13 @@ Run the test suite to verify the configuration:
 ./test.sh
 ```
 
-The suite includes 52 tests covering syntax validation, installation logic, symlink correctness, platform-specific shell behavior, and cross-file consistency.
+For machine health and editor contract checks:
+```bash
+./scripts/doctor.sh
+./scripts/verify-nvim.sh
+```
+
+The suite currently includes 80 tests covering syntax validation, installation logic, idempotence, symlink correctness, platform-specific shell behavior, CI smoke flows, bootstrap E2E, and cross-file consistency.
 
 ---
 
