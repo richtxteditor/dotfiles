@@ -35,9 +35,8 @@ MOCK
 setup_linux_minimal_path() {
   local cmd
 
-  ln -sf /bin/bash "$TEST_HOME/bin/bash"
-  for cmd in date dirname mkdir pwd grep; do
-    ln -sf "/usr/bin/$cmd" "$TEST_HOME/bin/$cmd"
+  for cmd in bash date dirname mkdir pwd grep; do
+    link_host_cmd "$cmd"
   done
 
   cat > "$TEST_HOME/bin/uname" <<'MOCK'
@@ -49,6 +48,32 @@ else
 fi
 MOCK
   chmod +x "$TEST_HOME/bin/uname"
+}
+
+setup_macos_minimal_path() {
+  local cmd
+
+  for cmd in bash date dirname mkdir pwd; do
+    link_host_cmd "$cmd"
+  done
+
+  cat > "$TEST_HOME/bin/uname" <<'MOCK'
+#!/bin/bash
+if [ "$1" = "-m" ]; then
+  echo x86_64
+else
+  echo Darwin
+fi
+MOCK
+  chmod +x "$TEST_HOME/bin/uname"
+}
+
+link_host_cmd() {
+  local cmd="$1"
+  local host_path
+
+  host_path="$(command -v "$cmd")"
+  ln -sf "$host_path" "$TEST_HOME/bin/$cmd"
 }
 
 @test "install.sh runs in dry-run mode without failing" {
@@ -64,9 +89,17 @@ MOCK
 }
 
 @test "install.sh warns clearly when LLDB is missing on macOS" {
-  rm -f "$TEST_HOME/bin/lldb"
+  rm -f "$TEST_HOME/bin/"*
+  setup_macos_minimal_path
 
-  run env DOTFILES_PLATFORM=macos ./install.sh --dry-run
+  cat > "$TEST_HOME/bin/brew" <<'MOCK'
+#!/bin/bash
+echo "Mock $0 $@"
+exit 0
+MOCK
+  chmod +x "$TEST_HOME/bin/brew"
+
+  run env HOME="$HOME" PATH="$TEST_HOME/bin" DOTFILES_PLATFORM=macos /bin/bash ./install.sh --dry-run
   [ "$status" -eq 0 ]
   [[ "$output" == *"WARNING: 'lldb' command not found."* ]]
   [[ "$output" == *"DRY RUN: would exit due to missing LLDB."* ]]
