@@ -89,10 +89,14 @@ check_tool() {
 
 tool_version() {
     local tool="$1"
+    local version
 
     case "$tool" in
         nvim) nvim --version 2>/dev/null | awk 'NR==1 { gsub(/^v/, "", $2); print $2 }' ;;
-        node) node --version 2>/dev/null | sed 's/^v//' ;;
+        node)
+            version="$(node --version 2>/dev/null)" || return 1
+            printf '%s\n' "${version#v}"
+            ;;
         npm) npm --version 2>/dev/null ;;
         go) go version 2>/dev/null | awk '{ gsub(/^go/, "", $3); print $3 }' ;;
         php) php -v 2>/dev/null | awk 'NR==1 { print $2 }' ;;
@@ -116,7 +120,9 @@ check_min_version() {
         return
     fi
 
-    have="$(tool_version "$tool" || true)"
+    if ! have="$(tool_version "$tool")"; then
+        have=""
+    fi
     if [[ -z "$have" ]]; then
         warn "Could not determine version for $tool"
         return
