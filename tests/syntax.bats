@@ -28,7 +28,7 @@
   if ! command -v shellcheck &> /dev/null; then
     skip "shellcheck is not installed"
   fi
-  run shellcheck ./scripts/doctor.sh ./scripts/verify-nvim.sh ./config/toolchain.sh
+  run shellcheck -x ./scripts/doctor.sh ./scripts/verify-nvim.sh ./config/toolchain.sh
   if [ "$status" -ne 0 ]; then
     echo "$output"
   fi
