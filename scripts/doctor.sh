@@ -4,9 +4,9 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "$0")/.." && pwd)"
 
-# shellcheck disable=SC1091
+# shellcheck source=../shell/shared/platform.sh
 . "$repo_root/shell/shared/platform.sh"
-# shellcheck disable=SC1091
+# shellcheck source=../config/toolchain.sh
 . "$repo_root/config/toolchain.sh"
 
 failures=0

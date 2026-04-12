@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # shellcheck shell=bash disable=SC2034
 
 DOTFILES_APT_PACKAGES=(
