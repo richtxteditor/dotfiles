@@ -60,6 +60,35 @@
   grep -q "bash ./scripts/ci-smoke-install.sh macos full" .github/workflows/full-bootstrap.yml
 }
 
+@test "full bootstrap workflow keeps manual, nightly, and both-OS release coverage" {
+  [ -f ".github/workflows/full-bootstrap.yml" ]
+
+  grep -q '^  workflow_dispatch:' .github/workflows/full-bootstrap.yml
+  grep -q '^  schedule:' .github/workflows/full-bootstrap.yml
+  grep -q 'cron: "0 7 \* \* \*"' .github/workflows/full-bootstrap.yml
+  grep -Fq 'name: ${{ matrix.os }} full bootstrap' .github/workflows/full-bootstrap.yml
+  grep -Fq 'runs-on: ${{ matrix.os }}' .github/workflows/full-bootstrap.yml
+  grep -q 'fail-fast: false' .github/workflows/full-bootstrap.yml
+  grep -q 'ubuntu-latest' .github/workflows/full-bootstrap.yml
+  grep -q 'macos-latest' .github/workflows/full-bootstrap.yml
+}
+
+@test "bootstrap e2e covers both macOS and Linux install paths" {
+  [ -f "tests/bootstrap_e2e.bats" ]
+
+  grep -q '@test "installed zsh entrypoint bootstraps from symlinked home"' tests/bootstrap_e2e.bats
+  grep -q '@test "installed linux zsh entrypoint bootstraps from symlinked home"' tests/bootstrap_e2e.bats
+
+  grep -q '@test "installed macOS bash entrypoint bootstraps from symlinked home"' tests/bootstrap_e2e.bats
+  grep -q '@test "installed linux bash entrypoint bootstraps from symlinked home"' tests/bootstrap_e2e.bats
+
+  grep -q '@test "installed tmux config parses after install"' tests/bootstrap_e2e.bats
+  grep -q '@test "installed linux tmux config parses after install"' tests/bootstrap_e2e.bats
+
+  grep -q '@test "installed neovim config loads headless with stub lazy bootstrap"' tests/bootstrap_e2e.bats
+  grep -q '@test "installed linux neovim config loads headless with stub lazy bootstrap"' tests/bootstrap_e2e.bats
+}
+
 @test "nvim init.lua entry point exists" {
   [ -f "nvim/init.lua" ]
 

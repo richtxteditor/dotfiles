@@ -32,6 +32,25 @@ MOCK
   chmod +x "$TEST_HOME/bin/uname"
 }
 
+setup_linux_minimal_path() {
+  local cmd
+
+  ln -sf /bin/bash "$TEST_HOME/bin/bash"
+  for cmd in date dirname mkdir pwd grep; do
+    ln -sf "/usr/bin/$cmd" "$TEST_HOME/bin/$cmd"
+  done
+
+  cat > "$TEST_HOME/bin/uname" <<'MOCK'
+#!/bin/bash
+if [ "$1" = "-m" ]; then
+  echo x86_64
+else
+  echo Linux
+fi
+MOCK
+  chmod +x "$TEST_HOME/bin/uname"
+}
+
 @test "install.sh runs in dry-run mode without failing" {
   run ./install.sh --dry-run
   [ "$status" -eq 0 ]
@@ -44,6 +63,15 @@ MOCK
   [[ "$output" == *"LLDB is already installed"* ]]
 }
 
+@test "install.sh warns clearly when LLDB is missing on macOS" {
+  rm -f "$TEST_HOME/bin/lldb"
+
+  run env DOTFILES_PLATFORM=macos ./install.sh --dry-run
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"WARNING: 'lldb' command not found."* ]]
+  [[ "$output" == *"DRY RUN: would exit due to missing LLDB."* ]]
+}
+
 @test "install.sh skips Homebrew on Linux by default and prints workaround" {
   run env DOTFILES_PLATFORM=linux ./install.sh --dry-run
   [ "$status" -eq 0 ]
@@ -54,6 +82,32 @@ MOCK
   [[ "$output" == *"Install latest Neovim stable from upstream."* ]]
   [[ "$output" == *"Latest Neovim stable is installed separately from upstream into ~/.local."* ]]
   [[ "$output" == *"tree-sitter-cli is installed separately via npm."* ]]
+}
+
+@test "install.sh fails clearly when apt-get is unavailable on Linux" {
+  rm -f "$TEST_HOME/bin/"*
+  setup_linux_minimal_path
+
+  run env HOME="$HOME" PATH="$TEST_HOME/bin" DOTFILES_PLATFORM=linux /bin/bash -c 'printf "y\n" | ./install.sh'
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"Ubuntu-focused setup: apt-get not found."* ]]
+  [[ "$output" == *"Install equivalent packages manually on your distro."* ]]
+}
+
+@test "install.sh fails clearly on unsupported Linux Neovim architecture" {
+  cat > "$TEST_HOME/bin/uname" <<'MOCK'
+#!/bin/bash
+if [ "$1" = "-m" ]; then
+  echo riscv64
+else
+  echo Linux
+fi
+MOCK
+  chmod +x "$TEST_HOME/bin/uname"
+
+  run env DOTFILES_PLATFORM=linux bash -c 'printf "y\n" | ./install.sh'
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"Unsupported Linux architecture for upstream Neovim tarball: riscv64"* ]]
 }
 
 @test "install.sh explains manual zsh shell switch when shell path is not in /etc/shells" {
@@ -117,6 +171,32 @@ MOCK
   for f in "${expected[@]}"; do
     [ -e "$f" ] || { echo "Missing: $f"; false; }
   done
+}
+
+@test "install.sh skips optional tooling setup clearly when helper commands are unavailable" {
+  rm -f "$TEST_HOME/bin/"*
+  setup_linux_minimal_path
+
+  cat > "$TEST_HOME/bin/git" <<'MOCK'
+#!/bin/bash
+echo "Mock $0 $@"
+exit 0
+MOCK
+  chmod +x "$TEST_HOME/bin/git"
+
+  cat > "$TEST_HOME/bin/zsh" <<'MOCK'
+#!/bin/bash
+echo "Mock $0 $@"
+exit 0
+MOCK
+  chmod +x "$TEST_HOME/bin/zsh"
+
+  run env HOME="$HOME" PATH="$TEST_HOME/bin" DOTFILES_PLATFORM=linux SHELL=/bin/bash /bin/bash ./install.sh --dry-run --skip-deps
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Skipping tree-sitter-cli install: npm not found."* ]]
+  [[ "$output" == *"Skipping locale setup: locale-gen/update-locale not available."* ]]
+  [[ "$output" == *"Skipping Node.js Neovim host install: npm not found."* ]]
+  [[ "$output" == *"Skipping Ruby Neovim host install: ruby/gem not found."* ]]
 }
 
 @test "install.sh is idempotent" {
