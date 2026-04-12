@@ -1,3 +1,5 @@
+# shellcheck shell=bash disable=SC2034
+
 DOTFILES_APT_PACKAGES=(
     git curl zsh tmux fzf ripgrep fd-find bat xclip
     build-essential zoxide eza zsh-autosuggestions zsh-syntax-highlighting
