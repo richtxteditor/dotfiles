@@ -174,3 +174,31 @@
   grep -q "ensure_symlink()" install.sh
   grep -q 'link_specs=(' install.sh
 }
+
+@test "toolchain manifest is sourced by install and verification scripts" {
+  [ -f "config/toolchain.sh" ]
+  grep -q 'config/toolchain.sh' install.sh
+  grep -q 'config/toolchain.sh' scripts/doctor.sh
+  grep -q 'config/toolchain.sh' scripts/verify-nvim.sh
+}
+
+@test "toolchain manifest required brew packages exist in Brewfile" {
+  local package
+  local required_packages
+
+  required_packages="$(
+    bash -lc '
+      set -euo pipefail
+      . ./config/toolchain.sh
+      printf "%s\n" "${DOTFILES_BREW_REQUIRED_PACKAGES[@]}"
+    '
+  )"
+
+  while IFS= read -r package; do
+    [ -n "$package" ] || continue
+    grep -Eq "^brew \"$package\"$|^brew \"$package\"," Brewfile || {
+      echo "Missing Brewfile package: $package"
+      false
+    }
+  done <<< "$required_packages"
+}

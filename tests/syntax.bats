@@ -24,6 +24,14 @@
   [ "$status" -eq 0 ]
 }
 
+@test "shellcheck passes on doctor and Neovim verify scripts" {
+  if ! command -v shellcheck &> /dev/null; then
+    skip "shellcheck is not installed"
+  fi
+  run shellcheck ./scripts/doctor.sh ./scripts/verify-nvim.sh ./config/toolchain.sh
+  [ "$status" -eq 0 ]
+}
+
 @test "zshrc passes syntax check" {
   if ! command -v zsh &> /dev/null; then
     skip "zsh is not installed"
@@ -47,6 +55,11 @@
 
 @test "ci smoke install script passes bash syntax check" {
   run bash -n scripts/ci-smoke-install.sh
+  [ "$status" -eq 0 ]
+}
+
+@test "doctor and Neovim verify scripts pass bash syntax check" {
+  run bash -n scripts/doctor.sh scripts/verify-nvim.sh config/toolchain.sh
   [ "$status" -eq 0 ]
 }
 
@@ -87,5 +100,13 @@
     skip "luac is not installed (install lua or luajit)"
   fi
   run bash -c 'find nvim -name "*.lua" -not -path "*/python-venv/*" -exec luac -p {} \;'
+  [ "$status" -eq 0 ]
+}
+
+@test "verify nvim script passes contract checks" {
+  if ! command -v nvim &> /dev/null; then
+    skip "nvim is not installed"
+  fi
+  run bash scripts/verify-nvim.sh
   [ "$status" -eq 0 ]
 }

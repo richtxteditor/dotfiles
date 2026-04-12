@@ -5,6 +5,8 @@ set -euo pipefail
 dir="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck disable=SC1091
 . "$dir/shell/shared/platform.sh"
+# shellcheck disable=SC1091
+. "$dir/config/toolchain.sh"
 
 DRY_RUN=""
 SKIP_DEPS=""
@@ -38,8 +40,11 @@ platform_label() {
 }
 
 print_linux_package_workaround() {
+    local apt_packages
+    apt_packages="$(dotfiles_join_by ' ' "${DOTFILES_APT_PACKAGES[@]}")"
+
     echo "Ubuntu package install command:"
-    echo "  sudo apt-get update && sudo apt-get install -y git curl zsh tmux fzf ripgrep fd-find bat xclip build-essential zoxide eza zsh-autosuggestions zsh-syntax-highlighting python3 python3-venv python3-pip nodejs npm ruby-full golang-go clangd php-cli php-mbstring php-xml composer default-jdk luarocks locales texlive-latex-base"
+    echo "  sudo apt-get update && sudo apt-get install -y $apt_packages"
     echo "Latest Neovim stable is installed separately from upstream into ~/.local."
     echo "Rustup is installed separately into ~/.cargo for Rust-based Neovim plugins."
     echo "tree-sitter-cli is installed separately via npm."
@@ -190,7 +195,7 @@ install_linux_dependencies() {
 
     print_linux_package_workaround
     run_with_optional_sudo apt-get update
-    run_with_optional_sudo apt-get install -y git curl zsh tmux fzf ripgrep fd-find bat xclip build-essential zoxide eza zsh-autosuggestions zsh-syntax-highlighting python3 python3-venv python3-pip nodejs npm ruby-full golang-go clangd php-cli php-mbstring php-xml composer default-jdk luarocks locales texlive-latex-base
+    run_with_optional_sudo apt-get install -y "${DOTFILES_APT_PACKAGES[@]}"
 }
 
 linux_neovim_arch() {
@@ -213,7 +218,7 @@ current_nvim_version() {
 }
 
 version_ge() {
-    [[ "$(printf '%s\n%s\n' "$2" "$1" | sort -V | head -n 1)" == "$2" ]]
+    dotfiles_version_ge "$1" "$2"
 }
 
 install_latest_neovim_linux() {
@@ -589,25 +594,8 @@ install_pynvim_provider() {
 
 bootstrap_neovim_environment() {
     local treesitter_languages lua_list devdocs_entries devdocs_args
-    treesitter_languages=(
-        python javascript typescript tsx
-        html css json yaml bash
-        php java c cpp rust ruby go sql htmldjango regex
-        markdown markdown_inline latex
-    )
-    devdocs_entries=(
-        bash
-        c
-        cpp
-        css
-        "django~5.2"
-        html
-        javascript
-        markdown
-        react
-        tailwindcss
-        typescript
-    )
+    treesitter_languages=("${DOTFILES_NVIM_TREESITTER_LANGUAGES[@]}")
+    devdocs_entries=("${DOTFILES_DEVDOCS_ENTRIES[@]}")
 
     if [[ -n "$DRY_RUN" ]]; then
         echo "DRY RUN: bootstrap Neovim plugins, Mason tools, and treesitter parsers"
