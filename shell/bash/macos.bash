@@ -9,7 +9,7 @@ update() {
     sudo softwareupdate -i -a
 
     if command -v brew >/dev/null 2>&1; then
-        brew update && brew upgrade && brew cleanup
+        brew update && HOMEBREW_NO_AUTO_UPDATE=1 brew upgrade && brew cleanup
     fi
 
     echo "Updates complete."

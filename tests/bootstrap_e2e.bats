@@ -106,6 +106,7 @@ EOF
   [[ "$output" == *"gs='git status -sb'"* ]]
   [[ "$output" == *"icloud='cd ~/Library/Mobile\\ Documents/com~apple~CloudDocs'"* ]]
   [[ "$output" == *"softwareupdate -i -a"* ]]
+  [[ "$output" == *"HOMEBREW_NO_AUTO_UPDATE=1 brew upgrade"* ]]
   [[ "$output" == *"node ()"* ]]
   [[ "$output" == *"_noarg_hl is a shell function"* ]]
   [[ "$output" == *"platform:macos"* ]]
@@ -134,6 +135,7 @@ EOF
   [[ "$output" == *"icloud="* ]]
   [[ "$output" == *"update is a function"* ]]
   [[ "$output" == *"softwareupdate -i -a"* ]]
+  [[ "$output" == *"HOMEBREW_NO_AUTO_UPDATE=1 brew upgrade"* ]]
   [[ "$output" == *"platform:macos"* ]]
   [[ "$output" == *"/opt/homebrew/bin"* ]]
 }

@@ -175,10 +175,41 @@ EOF
   [[ "$output" == *"gemini is a shell function"* ]]
 }
 
+@test "zshrc replaces conflicting update and bbu aliases on reload" {
+  run zsh -c "alias update='echo aliased'; alias bbu='echo aliased'; source .zshrc 2>$BATS_TEST_TMPDIR/zshrc_stderr; type update; type bbu"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"update is a shell function"* ]]
+  [[ "$output" == *"bbu is a shell function"* ]]
+
+  run grep -F "parse error" "$BATS_TEST_TMPDIR/zshrc_stderr"
+  [ "$status" -eq 1 ]
+}
+
 @test "bbu fails clearly when brew is unavailable" {
   run env PATH="/usr/bin:/bin" zsh -c "DOTFILES_PLATFORM=linux source .zshrc 2>/tmp/zshrc_err; bbu"
   [ "$status" -eq 1 ]
   [ "$output" = "brew not installed" ]
+}
+
+@test "macOS update disables Homebrew auto-update during upgrade" {
+  run env DOTFILES_PLATFORM=macos zsh -c '
+    source .zshrc 2>/tmp/zshrc_err
+    sudo() { "$@"; }
+    softwareupdate() { echo "softwareupdate:$*"; }
+    brew() {
+      if [ "$1" = "upgrade" ]; then
+        echo "brew-upgrade:auto-update=${HOMEBREW_NO_AUTO_UPDATE:-unset}"
+      else
+        echo "brew:$1"
+      fi
+    }
+    update
+  '
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"softwareupdate:-i -a"* ]]
+  [[ "$output" == *"brew:update"* ]]
+  [[ "$output" == *"brew-upgrade:auto-update=1"* ]]
+  [[ "$output" == *"brew:cleanup"* ]]
 }
 
 @test "zshrc properly configures lazy-loaded NVM" {

@@ -48,7 +48,9 @@ alias tka="tmux list-sessions | grep -v '(attached)' | cut -d: -f1 | xargs -I {}
 
 alias paneps="ps -t $(tty | sed 's#/dev/##') -o pid,ppid,stat,command"
 
-bbu() {
+(( $+aliases[bbu] )) && unalias bbu
+
+function bbu {
   if ! command -v brew >/dev/null 2>&1; then
     echo "brew not installed"
     return 1

@@ -1,4 +1,6 @@
-update() {
+(( $+aliases[update] )) && unalias update
+
+function update {
   if ! command -v apt-get >/dev/null 2>&1; then
     echo "Ubuntu-focused setup: apt-get not found."
     return 1
