@@ -1,5 +1,6 @@
 add_newline = false
-scan_timeout = 10
+# 10ms is too aggressive in larger repos and causes startup warnings.
+scan_timeout = 100
 command_timeout = 250
 
 # Main format string
