@@ -21,7 +21,7 @@
 | **`cat <file>`** | **bat** | Displays file contents with syntax highlighting and line numbers. |
 | **`Ctrl + r`** | **fzf** | Fuzzy search your command history. |
 | **`Ctrl + t`** | **fzf** | Fuzzy find a file and paste its path into the command line. |
-| **`Ctrl + Space`**| **autosuggest**| Accept the grey "ghost text" suggestion. |
+| **`→`** | **autosuggest** | Accept the grey "ghost text" suggestion. |
 
 ## System & Config Management
 

@@ -505,7 +505,7 @@ These features are designed to minimize typing.
 
 | Tool | Action | Keybinding / How to Use |
 | :--- | :--- | :--- |
-| **zsh-autosuggestions** | Accept "Ghost Text" | Press **`Ctrl+Space`** or **Right Arrow (`→`)**. |
+| **zsh-autosuggestions** | Accept "Ghost Text" | Press **Right Arrow (`→`)**. |
 | | | *The grey text is a suggestion from your command history.* |
 | **fzf-tab** | Interactive Completion | Press **`Tab`** on any command (e.g., `cd`, `nvim`, `rm`). |
 | | | *An interactive, fuzzy-searchable menu of files will appear.* |

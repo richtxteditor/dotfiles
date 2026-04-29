@@ -12,7 +12,6 @@ if command -v grc >/dev/null 2>&1; then
   [[ -r "$GRC_ZSH" ]] && source "$GRC_ZSH"
 fi
 
-bindkey '^@' autosuggest-accept
 bindkey -M menuselect '^i' menu-complete
 bindkey -M menuselect '^[[Z' reverse-menu-complete
 
