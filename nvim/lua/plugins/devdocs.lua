@@ -78,4 +78,11 @@ return {
             vim.api.nvim_buf_set_keymap(bufnr, "n", "q", ":close<cr>", { silent = true })
         end,
     },
+    config = function(_, opts)
+        -- nvim-devdocs logs one debug notification per converted page while
+        -- building docs. Large docs, like Python, otherwise trigger hundreds
+        -- of hit-enter prompts in Neovim.
+        require("nvim-devdocs.log").debug = function() end
+        require("nvim-devdocs").setup(opts)
+    end,
 }

@@ -77,6 +77,30 @@ return {
                 })
             end, { desc = "Show current buffer LSP status" })
 
+            local python_path_from_venv = function(venv)
+                if not venv or venv == "" then
+                    return nil
+                end
+
+                local python = venv .. "/bin/python"
+                if vim.fn.executable(python) == 1 then
+                    return python
+                end
+            end
+
+            local find_python_path = function(root_dir)
+                if root_dir and root_dir ~= "" then
+                    for _, name in ipairs({ ".venv", "venv" }) do
+                        local python = python_path_from_venv(root_dir .. "/" .. name)
+                        if python then
+                            return python
+                        end
+                    end
+                end
+
+                return python_path_from_venv(vim.env.VIRTUAL_ENV)
+            end
+
             local managed_servers = {
                 "pyright",
                 "eslint",
@@ -100,6 +124,31 @@ return {
                     capabilities = capabilities,
                 })
             end
+
+            vim.lsp.config("pyright", {
+                root_markers = {
+                    "pyrightconfig.json",
+                    "pyproject.toml",
+                    "setup.py",
+                    "setup.cfg",
+                    "requirements.txt",
+                    "Pipfile",
+                    "manage.py",
+                    ".venv",
+                    "venv",
+                    ".git",
+                },
+                before_init = function(_, config)
+                    local python = find_python_path(config.root_dir)
+                    if python then
+                        config.settings = vim.tbl_deep_extend("force", config.settings or {}, {
+                            python = {
+                                pythonPath = python,
+                            },
+                        })
+                    end
+                end,
+            })
 
             vim.lsp.config("djlsp", {
                 filetypes = { "htmldjango" },
@@ -180,6 +229,51 @@ return {
             local luasnip = require("luasnip")
             require("luasnip.loaders.from_vscode").lazy_load()
 
+            local open_url = function(url)
+                local cmd
+                if vim.fn.has("mac") == 1 and vim.fn.executable("open") == 1 then
+                    cmd = { "open", url }
+                elseif vim.fn.has("unix") == 1 and vim.fn.executable("xdg-open") == 1 then
+                    cmd = { "xdg-open", url }
+                end
+
+                if cmd then
+                    local job = vim.fn.jobstart(cmd, { detach = true })
+                    if job > 0 then
+                        return
+                    end
+                end
+
+                local _, err = vim.ui.open(url)
+                if err then
+                    vim.notify(("Could not open URL: %s"):format(err), vim.log.levels.ERROR)
+                end
+            end
+
+            local open_completion_documentation_url = function()
+                local entry = cmp.get_selected_entry() or cmp.get_active_entry()
+                if not entry then
+                    entry = cmp.visible() and cmp.get_entries()[1] or nil
+                end
+
+                if not entry then
+                    vim.notify("No completion item available", vim.log.levels.INFO)
+                    return
+                end
+
+                local docs = table.concat(entry:get_documentation(), "\n")
+                local url = docs:match("%[[^%]]+%]%((https?://[^%)%s]+)%)")
+                    or docs:match("(https?://[%w%-%._~:/%?#%[%]@!%$&'()%*%+,;=%%]+)")
+
+                if not url then
+                    vim.notify("No documentation URL found for this completion item", vim.log.levels.INFO)
+                    return
+                end
+
+                url = url:gsub("[%)%],%.;]+$", "")
+                open_url(url)
+            end
+
             cmp.setup({
                 snippet = {
                     expand = function(args)
@@ -194,7 +288,8 @@ return {
                     ["<C-k>"] = cmp.mapping.select_prev_item(),
                     ["<C-j>"] = cmp.mapping.select_next_item(),
                     ["<CR>"] = cmp.mapping.confirm({ select = true }),
-                    ["<C-Space>"] = cmp.mapping.complete(),
+                    ["<C-g>d"] = cmp.mapping(open_completion_documentation_url, { "i", "s" }),
+                    ["<C-g>c"] = cmp.mapping.complete(),
                     ["<Tab>"] = cmp.mapping(function(fallback)
                         if cmp.visible() then
                             cmp.select_next_item()

@@ -161,6 +161,7 @@ Mason installs and Neovim explicitly enables these language servers:
 
 Notes:
 - `djlsp` is restricted to the `htmldjango` filetype and uses `manage.py` root detection.
+- Pyright prefers a project `.venv` or `venv`, then falls back to the shell `VIRTUAL_ENV`.
 - JavaScript and TypeScript use both `ts_ls` and `eslint`.
 - Formatting stays with `conform.nvim`; LSP is not the primary formatter.
 
@@ -287,6 +288,8 @@ Below is a comprehensive guide to the tools and keybindings available in this en
 | `<Leader>co` | Outgoing Calls (Call Hierarchy) |
 | `<Leader>rn` | Rename Symbol (live preview) |
 | `<Leader>cf` | Code Format |
+| `<C-g>d` | Open Selected Completion Documentation Link |
+| `<C-g>c` | Trigger Completion Manually |
 | `<Tab>` | Select Next Completion Item / Jump (Tabout) |
 | `<S-Tab>` | Select Previous Completion Item |
 
