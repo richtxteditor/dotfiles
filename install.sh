@@ -376,6 +376,29 @@ install_zsh_extras() {
     install_omz_plugin "fzf-tab" "https://github.com/Aloxaf/fzf-tab"
 }
 
+install_hunkdiff() {
+    local npm_prefix="$HOME/.local"
+
+    if command -v hunk >/dev/null 2>&1; then
+        echo "hunkdiff is already installed."
+        return
+    fi
+
+    if ! command -v npm >/dev/null 2>&1; then
+        echo "Skipping hunkdiff install: npm not found."
+        return
+    fi
+
+    echo "Installing hunkdiff for Git Hunk aliases..."
+    if [[ -n "$DRY_RUN" ]]; then
+        echo "DRY RUN: npm install -g --prefix $npm_prefix hunkdiff"
+        return
+    fi
+
+    mkdir -p "$npm_prefix"
+    npm install -g --prefix "$npm_prefix" hunkdiff
+}
+
 install_node_neovim_host() {
     local npm_prefix="$HOME/.local"
 
@@ -647,6 +670,7 @@ main() {
     install_tree_sitter_cli
     ensure_utf8_locale_linux
     install_zsh_extras
+    install_hunkdiff
     install_node_neovim_host
     install_ruby_neovim_host
     install_tpm

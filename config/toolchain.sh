@@ -11,7 +11,7 @@ DOTFILES_APT_PACKAGES=(
 )
 
 DOTFILES_BREW_REQUIRED_PACKAGES=(
-    neovim node php composer lua luarocks go ruby tree-sitter
+    neovim node php composer lua luarocks go ruby tree-sitter-cli
     tmux ripgrep fd eza fzf shellcheck starship openjdk
 )
 
@@ -95,12 +95,19 @@ dotfiles_version_ge() {
     local need="$2"
 
     awk -v have="$have" -v need="$need" '
-        function part(value, index, items, count) {
+        function part(value, idx, items, count, n, i) {
             count = split(value, items, /[^0-9]+/)
-            if (index > count || items[index] == "") {
-                return 0
+            n = 0
+            for (i = 1; i <= count; i++) {
+                if (items[i] == "") {
+                    continue
+                }
+                n++
+                if (n == idx) {
+                    return items[i] + 0
+                }
             }
-            return items[index] + 0
+            return 0
         }
         BEGIN {
             for (i = 1; i <= 6; i++) {

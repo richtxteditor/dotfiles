@@ -40,7 +40,7 @@ Follow these steps to deploy the environment on a fresh macOS or Linux installat
 
 1. **Clone Repository:**
     ```bash
-    git clone https://github.com/your-username/dotfiles.git ~/dotfiles
+    git clone https://github.com/richtxteditor/dotfiles.git ~/dotfiles
     ```
 
 2. **Run Installation Script:**
@@ -58,8 +58,11 @@ Follow these steps to deploy the environment on a fresh macOS or Linux installat
 
     **Optional flags:**
     ```bash
-    ./install.sh --skip-deps
+    ./install.sh --dry-run      # print planned actions without making changes
+    ./install.sh --skip-deps    # skip Homebrew/apt/Neovim core dependency installation
     ```
+
+    `--skip-deps` does not skip symlink creation or post-install tooling such as Oh My Zsh, TPM, Neovim providers, Starship, Rustup, hunkdiff, or tree-sitter helpers. Use `--dry-run` when you want a fully read-only run.
 
     **Read-only verification:**
     ```bash
@@ -77,6 +80,7 @@ The script handles the following:
 - **TPM** (Tmux Plugin Manager)
 - **Oh My Zsh** plus `zsh-autosuggestions`, `zsh-syntax-highlighting`, and `fzf-tab`
 - **tree-sitter-cli** on Linux via `npm`
+- **hunkdiff** via `npm` for the Git Hunk aliases in `.gitconfig`
 - **Rustup** on Linux for Rust-based Neovim plugins
 - **Node and Ruby Neovim hosts**
 - **pynvim** in the Mason debugpy venv (for Neovim's Python provider)

@@ -87,6 +87,14 @@ exit 0
 SCRIPT
 exit 0
 fi
+if [[ "$*" == *"https://sh.rustup.rs"* ]]; then
+cat <<'SCRIPT'
+#!/bin/sh
+echo "Mock rustup installer $@"
+exit 0
+SCRIPT
+exit 0
+fi
 if [ "$1" = "-fsSL" ] && [[ "$2" == *"github.com/neovim/neovim/releases/latest/download/"* ]] && [ "$3" = "-o" ]; then
   : > "$4"
   echo "Mock curl $2 -> $4"
@@ -207,11 +215,19 @@ EOF
   [[ "$output" == *"Installing latest Neovim stable from upstream release (nvim-linux-x86_64.tar.gz)"* ]]
   [[ "$output" == *"Mock curl https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz"* ]]
   [[ "$output" == *"Mock tar extracted to "* ]]
+  [[ "$output" == *"Installing rustup..."* || "$output" == *"rustup is already installed."* ]]
+  if [[ "$output" == *"Installing rustup..."* ]]; then
+    [[ "$output" == *"Mock rustup installer -y --profile minimal"* ]]
+  fi
   [[ "$output" == *"Mock locale-gen en_US.UTF-8"* ]]
   [[ "$output" == *"Mock update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8"* ]]
   [[ "$output" == *"Installing tree-sitter-cli via npm..."* || "$output" == *"tree-sitter-cli is already installed."* ]]
   if [[ "$output" == *"Installing tree-sitter-cli via npm..."* ]]; then
     [[ "$output" == *"Mock npm install -g --prefix $HOME/.local tree-sitter-cli"* ]]
+  fi
+  [[ "$output" == *"Installing hunkdiff for Git Hunk aliases..."* || "$output" == *"hunkdiff is already installed."* ]]
+  if [[ "$output" == *"Installing hunkdiff for Git Hunk aliases..."* ]]; then
+    [[ "$output" == *"Mock npm install -g --prefix $HOME/.local hunkdiff"* ]]
   fi
   [[ "$output" == *"Installing Node.js Neovim host..."* ]]
   [[ "$output" == *"Mock npm install -g --prefix $HOME/.local neovim"* ]]

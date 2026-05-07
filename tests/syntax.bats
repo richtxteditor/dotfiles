@@ -28,7 +28,7 @@
   if ! command -v shellcheck &> /dev/null; then
     skip "shellcheck is not installed"
   fi
-  run shellcheck -x ./scripts/doctor.sh ./scripts/verify-nvim.sh ./config/toolchain.sh
+  run shellcheck -x ./scripts/doctor.sh ./scripts/verify-nvim.sh ./scripts/install-sleep-guard.sh ./config/toolchain.sh
   if [ "$status" -ne 0 ]; then
     echo "$output"
   fi
@@ -62,7 +62,7 @@
 }
 
 @test "doctor and Neovim verify scripts pass bash syntax check" {
-  run bash -n scripts/doctor.sh scripts/verify-nvim.sh config/toolchain.sh
+  run bash -n scripts/doctor.sh scripts/verify-nvim.sh scripts/install-sleep-guard.sh config/toolchain.sh
   [ "$status" -eq 0 ]
 }
 
@@ -111,5 +111,16 @@
     skip "nvim is not installed"
   fi
   run bash scripts/verify-nvim.sh
+  [ "$status" -eq 0 ]
+}
+
+@test "sleep guard plist template is valid after substitution" {
+  if ! command -v plutil &> /dev/null; then
+    skip "plutil is not installed"
+  fi
+
+  local tmp_plist="$BATS_TEST_TMPDIR/com.user.sleep-guard.plist"
+  sed "s#__DOTFILES_REPO__#$(pwd)#g" scripts/com.user.sleep-guard.plist.template > "$tmp_plist"
+  run plutil -lint "$tmp_plist"
   [ "$status" -eq 0 ]
 }

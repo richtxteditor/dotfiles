@@ -14,6 +14,18 @@
   [ -f ".gitignore_global" ]
 }
 
+@test "gitconfig parses and Hunk aliases are backed by installer" {
+  git config --file .gitconfig --name-only --list >/dev/null
+
+  [ "$(git config --file .gitconfig --get alias.hdiff)" = '-c core.pager="hunk pager" diff' ]
+  [ "$(git config --file .gitconfig --get alias.hshow)" = '-c core.pager="hunk pager" show' ]
+  [ "$(git config --file .gitconfig --get alias.hunkdiff)" = '!hunk diff' ]
+  [ "$(git config --file .gitconfig --get alias.hunkshow)" = '!hunk show' ]
+
+  grep -q 'install_hunkdiff()' install.sh
+  grep -q 'npm install -g --prefix "$npm_prefix" hunkdiff' install.sh
+}
+
 @test "all install entrypoints referenced by install.sh exist in repo" {
   local expected=(
     ".zshrc"
@@ -201,4 +213,30 @@
       false
     }
   done <<< "$required_packages"
+}
+
+@test "macOS toolchain installs tree-sitter CLI formula" {
+  source config/toolchain.sh
+
+  [[ " ${DOTFILES_BREW_REQUIRED_PACKAGES[*]} " == *" tree-sitter-cli "* ]]
+  grep -Eq '^brew "tree-sitter-cli"$|^brew "tree-sitter-cli",' Brewfile
+}
+
+@test "dotfiles_version_ge compares semantic versions portably" {
+  source config/toolchain.sh
+
+  run dotfiles_version_ge 0.12.2 0.12.1
+  [ "$status" -eq 0 ]
+
+  run dotfiles_version_ge 18.19.0 18.19.0
+  [ "$status" -eq 0 ]
+
+  run dotfiles_version_ge 9.1.0 9.2.0
+  [ "$status" -eq 1 ]
+
+  run dotfiles_version_ge 22.17.0 18.19.0
+  [ "$status" -eq 0 ]
+
+  run dotfiles_version_ge go1.26.2 1.22.0
+  [ "$status" -eq 0 ]
 }

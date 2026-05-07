@@ -10,3 +10,9 @@
   [ ! -e "nvim/python-venv" ]
   [ ! -e "nvim/nvim" ]
 }
+
+@test "repo does not hardcode this machine's dotfiles checkout path" {
+  run bash -c 'grep -R --exclude-dir=.git "[/]Users/what/Sites/dotfiles" -- .'
+  [ "$status" -eq 1 ]
+  [ -z "$output" ]
+}

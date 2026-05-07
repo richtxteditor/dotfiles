@@ -1,321 +1,343 @@
 return {
-    {
-        "williamboman/mason.nvim",
-        opts = {
-            ui = { border = "rounded" },
-        },
-    },
-    {
-        "neovim/nvim-lspconfig",
-        dependencies = {
-            "williamboman/mason.nvim",
-            "williamboman/mason-lspconfig.nvim",
-            "hrsh7th/cmp-nvim-lsp",
-            "folke/lazydev.nvim",
-        },
-        config = function()
-            local capabilities = require("cmp_nvim_lsp").default_capabilities()
-            capabilities.workspace = capabilities.workspace or {}
-            capabilities.workspace.didChangeWatchedFiles = capabilities.workspace.didChangeWatchedFiles or {}
-            capabilities.workspace.didChangeWatchedFiles.dynamicRegistration = true
+	{
+		"williamboman/mason.nvim",
+		opts = {
+			ui = { border = "rounded" },
+		},
+	},
+	{
+		"neovim/nvim-lspconfig",
+		dependencies = {
+			"williamboman/mason.nvim",
+			"williamboman/mason-lspconfig.nvim",
+			"hrsh7th/cmp-nvim-lsp",
+			"folke/lazydev.nvim",
+		},
+		config = function()
+			local capabilities = require("cmp_nvim_lsp").default_capabilities()
+			capabilities.workspace = capabilities.workspace or {}
+			capabilities.workspace.didChangeWatchedFiles = capabilities.workspace.didChangeWatchedFiles or {}
+			capabilities.workspace.didChangeWatchedFiles.dynamicRegistration = true
 
-            vim.diagnostic.config({
-                severity_sort = true,
-                update_in_insert = false,
-                float = {
-                    border = "rounded",
-                    source = "if_many",
-                },
-                underline = true,
-                virtual_text = {
-                    spacing = 2,
-                    source = "if_many",
-                    prefix = "●",
-                },
-                signs = true,
-            })
+			vim.diagnostic.config({
+				severity_sort = true,
+				update_in_insert = false,
+				float = {
+					border = "rounded",
+					source = "if_many",
+				},
+				underline = true,
+				virtual_text = {
+					spacing = 2,
+					source = "if_many",
+					prefix = "●",
+				},
+				signs = true,
+			})
 
-            vim.api.nvim_create_autocmd("LspAttach", {
-                callback = function(args)
-                    local bufnr = args.buf
-                    local map = function(mode, lhs, rhs, desc)
-                        vim.keymap.set(mode, lhs, rhs, {
-                            noremap = true,
-                            silent = true,
-                            buffer = bufnr,
-                            desc = desc,
-                        })
-                    end
+			vim.api.nvim_create_autocmd("LspAttach", {
+				callback = function(args)
+					local bufnr = args.buf
+					local map = function(mode, lhs, rhs, desc)
+						vim.keymap.set(mode, lhs, rhs, {
+							noremap = true,
+							silent = true,
+							buffer = bufnr,
+							desc = desc,
+						})
+					end
 
-                    map("n", "gd", vim.lsp.buf.definition, "[G]oto [D]efinition")
-                    map("n", "gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
-                    map("n", "gi", vim.lsp.buf.implementation, "[G]oto [I]mplementation")
-                    map("n", "gr", vim.lsp.buf.references, "[G]oto [R]eferences")
-                    map("n", "K", vim.lsp.buf.hover, "Hover Documentation")
-                    map("n", "<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction")
-                    map("n", "<leader>ci", vim.lsp.buf.incoming_calls, "[C]all Hierarchy [I]ncoming")
-                    map("n", "<leader>co", vim.lsp.buf.outgoing_calls, "[C]all Hierarchy [O]utgoing")
-                    map("n", "<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame Symbol")
-                end,
-            })
+					map("n", "gd", vim.lsp.buf.definition, "[G]oto [D]efinition")
+					map("n", "gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
+					map("n", "gi", vim.lsp.buf.implementation, "[G]oto [I]mplementation")
+					map("n", "gr", vim.lsp.buf.references, "[G]oto [R]eferences")
+					map("n", "K", vim.lsp.buf.hover, "Hover Documentation")
+					map("n", "<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction")
+					map("n", "<leader>ci", vim.lsp.buf.incoming_calls, "[C]all Hierarchy [I]ncoming")
+					map("n", "<leader>co", vim.lsp.buf.outgoing_calls, "[C]all Hierarchy [O]utgoing")
+					map("n", "<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame Symbol")
+				end,
+			})
 
-            vim.api.nvim_create_user_command("LspStatus", function()
-                local bufnr = vim.api.nvim_get_current_buf()
-                local path = vim.api.nvim_buf_get_name(bufnr)
-                local filetype = vim.bo[bufnr].filetype
-                local root = vim.fs.root(path, { ".git" })
-                local clients = vim.lsp.get_clients({ bufnr = bufnr })
-                local client_names = vim.tbl_map(function(client)
-                    return client.name
-                end, clients)
+			vim.api.nvim_create_user_command("LspStatus", function()
+				local bufnr = vim.api.nvim_get_current_buf()
+				local path = vim.api.nvim_buf_get_name(bufnr)
+				local filetype = vim.bo[bufnr].filetype
+				local root = vim.fs.root(path, { ".git" })
+				local clients = vim.lsp.get_clients({ bufnr = bufnr })
+				local client_names = vim.tbl_map(function(client)
+					return client.name
+				end, clients)
 
-                vim.print({
-                    buffer = path,
-                    filetype = filetype,
-                    root = root,
-                    clients = client_names,
-                })
-            end, { desc = "Show current buffer LSP status" })
+				vim.print({
+					buffer = path,
+					filetype = filetype,
+					root = root,
+					clients = client_names,
+				})
+			end, { desc = "Show current buffer LSP status" })
 
-            local python_path_from_venv = function(venv)
-                if not venv or venv == "" then
-                    return nil
-                end
+			local python_path_from_venv = function(venv)
+				if not venv or venv == "" then
+					return nil
+				end
 
-                local python = venv .. "/bin/python"
-                if vim.fn.executable(python) == 1 then
-                    return python
-                end
-            end
+				local python = venv .. "/bin/python"
+				if vim.fn.executable(python) == 1 then
+					return python
+				end
+			end
 
-            local find_python_path = function(root_dir)
-                if root_dir and root_dir ~= "" then
-                    for _, name in ipairs({ ".venv", "venv" }) do
-                        local python = python_path_from_venv(root_dir .. "/" .. name)
-                        if python then
-                            return python
-                        end
-                    end
-                end
+			local find_python_path = function(root_dir)
+				if root_dir and root_dir ~= "" then
+					for _, name in ipairs({ ".venv", "venv" }) do
+						local python = python_path_from_venv(root_dir .. "/" .. name)
+						if python then
+							return python
+						end
+					end
+				end
 
-                return python_path_from_venv(vim.env.VIRTUAL_ENV)
-            end
+				return python_path_from_venv(vim.env.VIRTUAL_ENV)
+			end
 
-            local managed_servers = {
-                "pyright",
-                "eslint",
-                "html",
-                "cssls",
-                "tailwindcss",
-                "jsonls",
-                "yamlls",
-                "lua_ls",
-                "bashls",
-                "clangd",
-                "ts_ls",
-                "sqlls",
-                "djlsp",
-                "marksman",
-                "texlab",
-            }
+			local managed_servers = {
+				"pyright",
+				"eslint",
+				"html",
+				"cssls",
+				"tailwindcss",
+				"jsonls",
+				"yamlls",
+				"lua_ls",
+				"bashls",
+				"clangd",
+				"gopls",
+				"rust_analyzer",
+				"intelephense",
+				"ts_ls",
+				"sqlls",
+				"djlsp",
+				"marksman",
+				"texlab",
+			}
 
-            for _, server in ipairs(managed_servers) do
-                vim.lsp.config(server, {
-                    capabilities = capabilities,
-                })
-            end
+			for _, server in ipairs(managed_servers) do
+				vim.lsp.config(server, {
+					capabilities = capabilities,
+				})
+			end
 
-            vim.lsp.config("pyright", {
-                root_markers = {
-                    "pyrightconfig.json",
-                    "pyproject.toml",
-                    "setup.py",
-                    "setup.cfg",
-                    "requirements.txt",
-                    "Pipfile",
-                    "manage.py",
-                    ".venv",
-                    "venv",
-                    ".git",
-                },
-                before_init = function(_, config)
-                    local python = find_python_path(config.root_dir)
-                    if python then
-                        config.settings = vim.tbl_deep_extend("force", config.settings or {}, {
-                            python = {
-                                pythonPath = python,
-                            },
-                        })
-                    end
-                end,
-            })
+			vim.lsp.config("pyright", {
+				root_markers = {
+					"pyrightconfig.json",
+					"pyproject.toml",
+					"setup.py",
+					"setup.cfg",
+					"requirements.txt",
+					"Pipfile",
+					"manage.py",
+					".venv",
+					"venv",
+					".git",
+				},
+				before_init = function(_, config)
+					local python = find_python_path(config.root_dir)
+					if python then
+						config.settings = vim.tbl_deep_extend("force", config.settings or {}, {
+							python = {
+								pythonPath = python,
+							},
+						})
+					end
+				end,
+			})
 
-            vim.lsp.config("djlsp", {
-                filetypes = { "htmldjango" },
-                root_markers = { "manage.py" },
-            })
+			vim.lsp.config("djlsp", {
+				filetypes = { "htmldjango" },
+				root_markers = { "manage.py" },
+			})
 
-            vim.lsp.config("marksman", {
-                filetypes = { "markdown" },
-            })
+			vim.lsp.config("gopls", {
+				filetypes = { "go", "gomod", "gowork", "gosum" },
+			})
 
-            vim.lsp.config("texlab", {
-                filetypes = { "tex", "plaintex", "bib" },
-            })
+			vim.lsp.config("tailwindcss", {
+				filetypes = {
+					"html",
+					"css",
+					"scss",
+					"javascriptreact",
+					"typescriptreact",
+					"htmldjango",
+				},
+			})
 
-            vim.lsp.config("lua_ls", {
-                settings = {
-                    Lua = {
-                        completion = {
-                            callSnippet = "Replace",
-                        },
-                        diagnostics = {
-                            globals = { "vim" },
-                        },
-                        workspace = {
-                            checkThirdParty = false,
-                        },
-                        telemetry = { enable = false },
-                    },
-                },
-            })
+			vim.lsp.config("yamlls", {
+				filetypes = { "yaml" },
+			})
 
-            vim.lsp.config("ts_ls", {
-                settings = {
-                    typescript = {
-                        inlayHints = {
-                            includeInlayParameterNameHints = "all",
-                            includeInlayFunctionParameterTypeHints = true,
-                            includeInlayVariableTypeHints = true,
-                        },
-                    },
-                    javascript = {
-                        inlayHints = {
-                            includeInlayParameterNameHints = "all",
-                            includeInlayFunctionParameterTypeHints = true,
-                            includeInlayVariableTypeHints = true,
-                        },
-                    },
-                },
-            })
+			vim.lsp.config("marksman", {
+				filetypes = { "markdown" },
+			})
 
-            require("mason-lspconfig").setup({
-                automatic_enable = false,
-            })
+			vim.lsp.config("texlab", {
+				filetypes = { "tex", "plaintex", "bib" },
+			})
 
-            vim.lsp.enable(managed_servers)
-        end,
-    },
-    {
-        "hrsh7th/nvim-cmp",
-        event = "InsertEnter",
-        dependencies = {
-            {
-                "L3MON4D3/LuaSnip",
-                build = (function()
-                    if vim.fn.has("win32") == 1 or vim.fn.executable("make") == 0 then
-                        return
-                    end
-                    return "make install_jsregexp"
-                end)(),
-            },
-            "saadparwaiz1/cmp_luasnip",
-            "hrsh7th/cmp-buffer",
-            "hrsh7th/cmp-path",
-            "windwp/nvim-autopairs",
-        },
-        config = function()
-            local cmp = require("cmp")
-            local luasnip = require("luasnip")
-            require("luasnip.loaders.from_vscode").lazy_load()
+			vim.lsp.config("lua_ls", {
+				settings = {
+					Lua = {
+						completion = {
+							callSnippet = "Replace",
+						},
+						diagnostics = {
+							globals = { "vim" },
+						},
+						workspace = {
+							checkThirdParty = false,
+						},
+						telemetry = { enable = false },
+					},
+				},
+			})
 
-            local open_url = function(url)
-                local cmd
-                if vim.fn.has("mac") == 1 and vim.fn.executable("open") == 1 then
-                    cmd = { "open", url }
-                elseif vim.fn.has("unix") == 1 and vim.fn.executable("xdg-open") == 1 then
-                    cmd = { "xdg-open", url }
-                end
+			vim.lsp.config("ts_ls", {
+				settings = {
+					typescript = {
+						inlayHints = {
+							includeInlayParameterNameHints = "all",
+							includeInlayFunctionParameterTypeHints = true,
+							includeInlayVariableTypeHints = true,
+						},
+					},
+					javascript = {
+						inlayHints = {
+							includeInlayParameterNameHints = "all",
+							includeInlayFunctionParameterTypeHints = true,
+							includeInlayVariableTypeHints = true,
+						},
+					},
+				},
+			})
 
-                if cmd then
-                    local job = vim.fn.jobstart(cmd, { detach = true })
-                    if job > 0 then
-                        return
-                    end
-                end
+			require("mason-lspconfig").setup({
+				automatic_enable = false,
+			})
 
-                local _, err = vim.ui.open(url)
-                if err then
-                    vim.notify(("Could not open URL: %s"):format(err), vim.log.levels.ERROR)
-                end
-            end
+			vim.lsp.enable(managed_servers)
+		end,
+	},
+	{
+		"hrsh7th/nvim-cmp",
+		event = "InsertEnter",
+		dependencies = {
+			{
+				"L3MON4D3/LuaSnip",
+				build = (function()
+					if vim.fn.has("win32") == 1 or vim.fn.executable("make") == 0 then
+						return
+					end
+					return "make install_jsregexp"
+				end)(),
+			},
+			"saadparwaiz1/cmp_luasnip",
+			"hrsh7th/cmp-buffer",
+			"hrsh7th/cmp-path",
+			"rafamadriz/friendly-snippets",
+		},
+		config = function()
+			local cmp = require("cmp")
+			local luasnip = require("luasnip")
+			require("luasnip.loaders.from_vscode").lazy_load()
 
-            local open_completion_documentation_url = function()
-                local entry = cmp.get_selected_entry() or cmp.get_active_entry()
-                if not entry then
-                    entry = cmp.visible() and cmp.get_entries()[1] or nil
-                end
+			local open_url = function(url)
+				local cmd
+				if vim.fn.has("mac") == 1 and vim.fn.executable("open") == 1 then
+					cmd = { "open", url }
+				elseif vim.fn.has("unix") == 1 and vim.fn.executable("xdg-open") == 1 then
+					cmd = { "xdg-open", url }
+				end
 
-                if not entry then
-                    vim.notify("No completion item available", vim.log.levels.INFO)
-                    return
-                end
+				if cmd then
+					local job = vim.fn.jobstart(cmd, { detach = true })
+					if job > 0 then
+						return
+					end
+				end
 
-                local docs = table.concat(entry:get_documentation(), "\n")
-                local url = docs:match("%[[^%]]+%]%((https?://[^%)%s]+)%)")
-                    or docs:match("(https?://[%w%-%._~:/%?#%[%]@!%$&'()%*%+,;=%%]+)")
+				local _, err = vim.ui.open(url)
+				if err then
+					vim.notify(("Could not open URL: %s"):format(err), vim.log.levels.ERROR)
+				end
+			end
 
-                if not url then
-                    vim.notify("No documentation URL found for this completion item", vim.log.levels.INFO)
-                    return
-                end
+			local open_completion_documentation_url = function()
+				local entry = cmp.get_selected_entry() or cmp.get_active_entry()
+				if not entry then
+					entry = cmp.visible() and cmp.get_entries()[1] or nil
+				end
 
-                url = url:gsub("[%)%],%.;]+$", "")
-                open_url(url)
-            end
+				if not entry then
+					vim.notify("No completion item available", vim.log.levels.INFO)
+					return
+				end
 
-            cmp.setup({
-                snippet = {
-                    expand = function(args)
-                        luasnip.lsp_expand(args.body)
-                    end,
-                },
-                window = {
-                    completion = cmp.config.window.bordered({ border = "rounded" }),
-                    documentation = cmp.config.window.bordered({ border = "rounded" }),
-                },
-                mapping = {
-                    ["<C-k>"] = cmp.mapping.select_prev_item(),
-                    ["<C-j>"] = cmp.mapping.select_next_item(),
-                    ["<CR>"] = cmp.mapping.confirm({ select = true }),
-                    ["<C-g>d"] = cmp.mapping(open_completion_documentation_url, { "i", "s" }),
-                    ["<C-g>c"] = cmp.mapping.complete(),
-                    ["<Tab>"] = cmp.mapping(function(fallback)
-                        if cmp.visible() then
-                            cmp.select_next_item()
-                        elseif luasnip.expand_or_jumpable() then
-                            luasnip.expand_or_jump()
-                        else
-                            fallback()
-                        end
-                    end, { "i", "s" }),
-                    ["<S-Tab>"] = cmp.mapping(function(fallback)
-                        if cmp.visible() then
-                            cmp.select_prev_item()
-                        elseif luasnip.jumpable(-1) then
-                            luasnip.jump(-1)
-                        else
-                            fallback()
-                        end
-                    end, { "i", "s" }),
-                },
-                sources = cmp.config.sources({
-                    { name = "nvim_lsp" },
-                    { name = "luasnip" },
-                    { name = "buffer" },
-                    { name = "path" },
-                }),
-            })
-        end,
-    },
+				local docs = table.concat(entry:get_documentation(), "\n")
+				local url = docs:match("%[[^%]]+%]%((https?://[^%)%s]+)%)")
+					or docs:match("(https?://[%w%-%._~:/%?#%[%]@!%$&'()%*%+,;=%%]+)")
+
+				if not url then
+					vim.notify("No documentation URL found for this completion item", vim.log.levels.INFO)
+					return
+				end
+
+				url = url:gsub("[%)%],%.;]+$", "")
+				open_url(url)
+			end
+
+			cmp.setup({
+				snippet = {
+					expand = function(args)
+						luasnip.lsp_expand(args.body)
+					end,
+				},
+				window = {
+					completion = cmp.config.window.bordered({ border = "rounded" }),
+					documentation = cmp.config.window.bordered({ border = "rounded" }),
+				},
+				mapping = {
+					["<C-k>"] = cmp.mapping.select_prev_item(),
+					["<C-j>"] = cmp.mapping.select_next_item(),
+					["<CR>"] = cmp.mapping.confirm({ select = true }),
+					["<C-g>d"] = cmp.mapping(open_completion_documentation_url, { "i", "s" }),
+					["<C-g>c"] = cmp.mapping.complete(),
+					["<Tab>"] = cmp.mapping(function(fallback)
+						if cmp.visible() then
+							cmp.select_next_item()
+						elseif luasnip.expand_or_jumpable() then
+							luasnip.expand_or_jump()
+						else
+							fallback()
+						end
+					end, { "i", "s" }),
+					["<S-Tab>"] = cmp.mapping(function(fallback)
+						if cmp.visible() then
+							cmp.select_prev_item()
+						elseif luasnip.jumpable(-1) then
+							luasnip.jump(-1)
+						else
+							fallback()
+						end
+					end, { "i", "s" }),
+				},
+				sources = cmp.config.sources({
+					{ name = "nvim_lsp" },
+					{ name = "luasnip" },
+					{ name = "buffer" },
+					{ name = "path" },
+				}),
+			})
+		end,
+	},
 }

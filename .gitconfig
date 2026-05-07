@@ -32,3 +32,8 @@
 	process = git-lfs filter-process
 	required = true
 	clean = git-lfs clean -- %f
+[alias]
+	hdiff = -c core.pager=\"hunk pager\" diff
+	hshow = -c core.pager=\"hunk pager\" show
+	hunkdiff = !hunk diff
+	hunkshow = !hunk show

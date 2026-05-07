@@ -228,6 +228,7 @@ MOCK
   [ "$status" -eq 0 ]
   [[ "$output" == *"Skipping tree-sitter-cli install: npm not found."* ]]
   [[ "$output" == *"Skipping locale setup: locale-gen/update-locale not available."* ]]
+  [[ "$output" == *"Skipping hunkdiff install: npm not found."* ]]
   [[ "$output" == *"Skipping Node.js Neovim host install: npm not found."* ]]
   [[ "$output" == *"Skipping Ruby Neovim host install: ruby/gem not found."* ]]
 }

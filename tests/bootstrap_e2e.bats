@@ -41,6 +41,14 @@ exit 0
 SCRIPT
 exit 0
 fi
+if [[ "$*" == *"https://sh.rustup.rs"* ]]; then
+cat <<'SCRIPT'
+#!/bin/sh
+echo "Mock rustup installer $@"
+exit 0
+SCRIPT
+exit 0
+fi
 if [ "$1" = "-fsSL" ] && [[ "$2" == *"github.com/neovim/neovim/releases/latest/download/"* ]] && [ "$3" = "-o" ]; then
   : > "$4"
   echo "Mock curl $2 -> $4"
