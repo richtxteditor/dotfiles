@@ -39,6 +39,7 @@ return {
 
 			-- Linters
 			"flake8",
+			"rubocop",
 			"shellcheck",
 			"sqlfluff",
 			"cpplint",
