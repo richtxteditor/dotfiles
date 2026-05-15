@@ -17,8 +17,7 @@ window-padding-balance = true
 window-padding-color = extend
 window-width = 130
 window-height = 33
-# Avoid restoring a stale quick-terminal theme after day/night changes.
-window-save-state = never
+window-save-state = always
 window-inherit-font-size = true
 window-inherit-working-directory = true
 tab-inherit-working-directory = true
