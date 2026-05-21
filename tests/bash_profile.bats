@@ -20,7 +20,7 @@ setup() {
 }
 
 @test "bash_profile loads Linux-specific path and update function" {
-  run env DOTFILES_PLATFORM=linux bash -lc 'source ./.bash_profile; printf "%s\n" "$PATH"; type update'
+  run env DOTFILES_PLATFORM=linux PATH=/usr/bin:/bin:/usr/sbin:/sbin bash -lc 'source ./.bash_profile; printf "%s\n" "$PATH"; type update'
   [ "$status" -eq 0 ]
   [[ "$output" != *"/opt/homebrew/bin"* ]]
   [[ "$output" == *".local/bin"* ]]
