@@ -22,11 +22,6 @@ case ":$PATH:" in
 esac
 
 case ":$PATH:" in
-    *:"$HOME/.opencode/bin":*) ;;
-    *) export PATH="$HOME/.opencode/bin:$PATH" ;;
-esac
-
-case ":$PATH:" in
     *:"$HOME/.antigravity/antigravity/bin":*) ;;
     *) export PATH="$HOME/.antigravity/antigravity/bin:$PATH" ;;
 esac
