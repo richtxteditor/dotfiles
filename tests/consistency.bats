@@ -62,6 +62,25 @@
   [ "$lines" -gt 0 ]
 }
 
+@test "Brewfile includes macOS casks and VS Code extensions" {
+  grep -q '^cask "visual-studio-code"$' Brewfile
+  grep -q '^cask "unnaturalscrollwheels"$' Brewfile
+  grep -q '^vscode "ms-python.python"$' Brewfile
+  grep -q '^brew "ffmpeg"$' Brewfile
+}
+
+@test "Neovim lazy lockfile is tracked as repo state" {
+  [ -f "nvim/lazy-lock.json" ]
+
+  if ! command -v python3 >/dev/null 2>&1; then
+    skip "python3 is not installed"
+  fi
+
+  run python3 -m json.tool nvim/lazy-lock.json
+  [ "$status" -eq 0 ]
+  ! git check-ignore -q nvim/lazy-lock.json
+}
+
 @test "CI workflow references cross-platform smoke install script" {
   [ -f ".github/workflows/test.yml" ]
   [ -f ".github/workflows/full-bootstrap.yml" ]
@@ -70,6 +89,26 @@
   grep -q "bash ./scripts/ci-smoke-install.sh macos skip-deps" .github/workflows/test.yml
   grep -q "bash ./scripts/ci-smoke-install.sh linux" .github/workflows/full-bootstrap.yml
   grep -q "bash ./scripts/ci-smoke-install.sh macos full" .github/workflows/full-bootstrap.yml
+}
+
+@test "CI workflows use read-only permissions and secret scanning" {
+  grep -q '^permissions:' .github/workflows/test.yml
+  grep -q '^  contents: read' .github/workflows/test.yml
+  grep -q 'actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd' .github/workflows/test.yml
+  grep -q 'gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7' .github/workflows/test.yml
+  ! grep -Eq 'uses: .+@(v[0-9]+|main|master|latest)' .github/workflows/test.yml
+
+  grep -q '^permissions:' .github/workflows/full-bootstrap.yml
+  grep -q '^  contents: read' .github/workflows/full-bootstrap.yml
+  grep -q 'actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd' .github/workflows/full-bootstrap.yml
+  ! grep -Eq 'uses: .+@(v[0-9]+|main|master|latest)' .github/workflows/full-bootstrap.yml
+}
+
+@test "Homebrew snapshot and hardening backlog are documented" {
+  git check-ignore -q Brewfile.snapshot
+  grep -q 'Brewfile.snapshot' README.md
+  [ -f "SECURITY_HARDENING.md" ]
+  grep -q 'Remaining supply-chain surfaces' SECURITY_HARDENING.md
 }
 
 @test "full bootstrap workflow keeps manual, nightly, and both-OS release coverage" {
@@ -220,6 +259,14 @@
 
   [[ " ${DOTFILES_BREW_REQUIRED_PACKAGES[*]} " == *" tree-sitter-cli "* ]]
   grep -Eq '^brew "tree-sitter-cli"$|^brew "tree-sitter-cli",' Brewfile
+}
+
+@test "installer uses single macOS Brewfile" {
+  grep -q 'brew bundle --file="$dir/Brewfile"' install.sh
+  ! grep -q 'add_brew_profile()' install.sh
+  ! grep -q 'Brewfile.gui' install.sh
+  ! grep -q 'Brewfile.vscode' install.sh
+  ! grep -q 'Brewfile.extras' install.sh
 }
 
 @test "dotfiles_version_ge compares semantic versions portably" {

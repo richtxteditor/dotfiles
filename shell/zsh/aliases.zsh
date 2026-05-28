@@ -51,10 +51,12 @@ alias paneps="ps -t $(tty | sed 's#/dev/##') -o pid,ppid,stat,command"
 (( $+aliases[bbu] )) && unalias bbu
 
 function bbu {
+  local snapshot="$DOTFILES_ROOT/Brewfile.snapshot"
+
   if ! command -v brew >/dev/null 2>&1; then
     echo "brew not installed"
     return 1
   fi
 
-  brew bundle dump --file="$DOTFILES_ROOT/Brewfile" --force && echo "Brewfile updated!"
+  brew bundle dump --file="$snapshot" --force && echo "Brewfile.snapshot updated; move intentional entries into Brewfile manually."
 }

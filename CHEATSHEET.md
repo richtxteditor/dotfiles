@@ -28,7 +28,7 @@
 | Command | Description |
 | :--- | :--- |
 | **`update`** | macOS: updates system software, Homebrew, Oh My Zsh. Linux: runs Ubuntu/Debian `apt` update/upgrade. |
-| **`bbu`** | Function. Dumps current brew packages to the repo `Brewfile` when `brew` is installed. |
+| **`bbu`** | Function. Dumps current brew packages to ignored `Brewfile.snapshot`; manually move wanted entries into `Brewfile`. |
 | **`zshconfig`** | Opens `.zshrc` in Neovim; module implementations live under `shell/zsh/`. |
 | **`reload`** | Reloads `.zshrc` without restarting the terminal. |
 | **`mkcd <dir>`**| Creates a directory and immediately `cd`s into it. |

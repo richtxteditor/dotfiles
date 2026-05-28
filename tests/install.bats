@@ -82,6 +82,35 @@ link_host_cmd() {
   [[ "$output" == *"Running in dry-run mode"* ]]
 }
 
+@test "install.sh dry-run does not execute remote installer commands" {
+  rm -f "$TEST_HOME/bin/"*
+  setup_macos_minimal_path
+
+  cat > "$TEST_HOME/bin/lldb" <<'MOCK'
+#!/bin/bash
+exit 0
+MOCK
+  chmod +x "$TEST_HOME/bin/lldb"
+
+  cat > "$TEST_HOME/bin/curl" <<'MOCK'
+#!/bin/bash
+echo "curl should not run during dry-run" >&2
+exit 42
+MOCK
+  chmod +x "$TEST_HOME/bin/curl"
+
+  run env HOME="$HOME" PATH="$TEST_HOME/bin" DOTFILES_PLATFORM=macos /bin/bash ./install.sh --dry-run
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"DRY RUN: download https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"* ]]
+  [[ "$output" != *"curl should not run during dry-run"* ]]
+}
+
+@test "install.sh rejects unknown options" {
+  run ./install.sh --profile unknown --dry-run
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"Unknown option: --profile"* ]]
+}
+
 @test "install.sh detects LLDB check on macOS" {
   run env DOTFILES_PLATFORM=macos ./install.sh --dry-run
   [ "$status" -eq 0 ]

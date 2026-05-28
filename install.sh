@@ -23,11 +23,20 @@ run_cmd() {
 }
 
 parse_args() {
-    for arg in "$@"; do
-        case "$arg" in
-            --dry-run|-n) DRY_RUN=1 ;;
-            --skip-deps) SKIP_DEPS=1 ;;
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --dry-run|-n)
+                DRY_RUN=1
+                ;;
+            --skip-deps)
+                SKIP_DEPS=1
+                ;;
+            *)
+                echo "Unknown option: $1" >&2
+                exit 1
+                ;;
         esac
+        shift
     done
 }
 
@@ -65,7 +74,7 @@ confirm_proceed() {
         if dotfiles_is_macos; then
             echo "$step. Install Homebrew (if missing)."
             ((step++))
-            echo "$step. Install dependencies via 'brew bundle'."
+            echo "$step. Install macOS dependencies via 'brew bundle' from Brewfile."
         elif dotfiles_is_linux; then
             echo "$step. Skip Homebrew on Linux."
             ((step++))
@@ -107,6 +116,38 @@ confirm_proceed() {
     fi
 }
 
+run_downloaded_script() {
+    local label="$1"
+    local url="$2"
+    local interpreter="$3"
+    local temp_dir script_path status
+    shift 3
+
+    if [[ -n "$DRY_RUN" ]]; then
+        echo "DRY RUN: download $url and run $interpreter $* ($label)"
+        return
+    fi
+
+    temp_dir="$(mktemp -d)"
+    script_path="$temp_dir/install.sh"
+
+    curl -fsSL "$url" -o "$script_path"
+    status=$?
+    if [[ "$status" -ne 0 ]]; then
+        rm -rf "$temp_dir"
+        return "$status"
+    fi
+
+    "$interpreter" "$script_path" "$@"
+    status=$?
+    if [[ "$status" -ne 0 ]]; then
+        rm -rf "$temp_dir"
+        return "$status"
+    fi
+
+    rm -rf "$temp_dir"
+}
+
 prepare_backup_dir() {
     echo "Creating backup directory at $olddir"
     run_cmd mkdir -p "$olddir"
@@ -141,13 +182,13 @@ configure_brew_shellenv() {
     if dotfiles_is_macos; then
         if [[ -d /opt/homebrew ]]; then
             if [[ -n "$DRY_RUN" ]]; then
-                echo "DRY RUN: eval \"$(/opt/homebrew/bin/brew shellenv)\""
+                echo "DRY RUN: eval \"\$(/opt/homebrew/bin/brew shellenv)\""
             else
                 eval "$(/opt/homebrew/bin/brew shellenv)"
             fi
         elif [[ -d /usr/local/Homebrew ]]; then
             if [[ -n "$DRY_RUN" ]]; then
-                echo "DRY RUN: eval \"$(/usr/local/bin/brew shellenv)\""
+                echo "DRY RUN: eval \"\$(/usr/local/bin/brew shellenv)\""
             else
                 eval "$(/usr/local/bin/brew shellenv)"
             fi
@@ -169,7 +210,7 @@ ensure_homebrew() {
     fi
 
     echo "Homebrew not found. Installing..."
-    run_cmd /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    run_downloaded_script "Homebrew installer" "https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh" /bin/bash
     configure_brew_shellenv
 }
 
@@ -281,7 +322,7 @@ install_starship() {
     fi
 
     echo "Installing starship..."
-    run_cmd bash -c "curl -fsSL https://starship.rs/install.sh | sh -s -- -y -b \"$HOME/.local/bin\""
+    run_downloaded_script "starship installer" "https://starship.rs/install.sh" sh -y -b "$HOME/.local/bin"
 }
 
 install_rustup() {
@@ -295,7 +336,7 @@ install_rustup() {
     fi
 
     echo "Installing rustup..."
-    run_cmd bash -c "curl https://sh.rustup.rs -sSf | sh -s -- -y --profile minimal"
+    run_downloaded_script "rustup installer" "https://sh.rustup.rs" sh -y --profile minimal
 }
 
 install_tree_sitter_cli() {
@@ -452,7 +493,12 @@ install_dependencies() {
         return
     fi
 
-    echo "Installing core dependencies from Brewfile..."
+    if [[ ! -f "$dir/Brewfile" ]]; then
+        echo "Missing Brewfile: $dir/Brewfile" >&2
+        exit 1
+    fi
+
+    echo "Installing macOS dependencies from Brewfile..."
     run_cmd brew bundle --file="$dir/Brewfile"
 }
 

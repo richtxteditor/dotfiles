@@ -58,11 +58,15 @@ Follow these steps to deploy the environment on a fresh macOS or Linux installat
 
     **Optional flags:**
     ```bash
-    ./install.sh --dry-run      # print planned actions without making changes
-    ./install.sh --skip-deps    # skip Homebrew/apt/Neovim core dependency installation
+    ./install.sh --dry-run          # print planned actions without making changes
+    ./install.sh --skip-deps        # skip Homebrew/apt/Neovim core dependency installation
     ```
 
     `--skip-deps` does not skip symlink creation or post-install tooling such as Oh My Zsh, TPM, Neovim providers, Starship, Rustup, hunkdiff, or tree-sitter helpers. Use `--dry-run` when you want a fully read-only run.
+
+    On macOS, plain `./install.sh` installs the Homebrew bundle from `Brewfile`.
+
+    To refresh Homebrew state, run `bbu`. It writes an ignored `Brewfile.snapshot`; review that file and move intentional entries into `Brewfile` manually.
 
     **Read-only verification:**
     ```bash
@@ -73,7 +77,7 @@ Follow these steps to deploy the environment on a fresh macOS or Linux installat
 ### What Gets Installed
 
 The script handles the following:
-- **macOS:** Homebrew packages, casks, and VS Code extensions (from `Brewfile`)
+- **macOS:** Homebrew packages, GUI casks, and VS Code extensions from `Brewfile`
 - **Linux:** Ubuntu-first `apt` install for core packages, plus latest upstream Neovim in `~/.local`; no Homebrew install path by default
 - **Symlinks** for Zsh, Bash profile, Tmux, Neovim, Starship, Ghostty, and Claude Code configs
 - **Default shell switch** to `zsh` when `zsh` and `chsh` are available
@@ -203,6 +207,8 @@ The repo includes layered verification:
 - `tests/bootstrap_e2e.bats`: install-plus-bootstrap checks for Zsh, Tmux, and Neovim
 - `tests/ci_smoke_install.bats`: CI smoke-script behavior and release-gate coverage
 - `tests/repo_hygiene.bats`: blocks local runtime artifacts from re-entering the repo
+- CI also runs Gitleaks to catch accidentally committed credentials.
+- CI actions are pinned to immutable commit SHAs; refresh them by resolving the desired tag with `git ls-remote` and updating the inline version comment.
 
 Run everything locally with:
 
@@ -532,7 +538,7 @@ This is a curated list of the most important aliases you've configured.
 | `zshconfig` | `nvim ~/.zshrc` |
 | `cls` | `clear` |
 | `update` | macOS: updates system software, Homebrew, Oh My Zsh. Linux: runs Ubuntu/Debian `apt` update/upgrade. |
-| `bbu` | Dumps current Homebrew packages to `Brewfile` when `brew` is installed. |
+| `bbu` | Dumps current Homebrew packages to ignored `Brewfile.snapshot` when `brew` is installed. |
 | `icloud` | Opens iCloud Drive folder on macOS. |
 
 **Safety:**
@@ -603,7 +609,9 @@ These lines in your `.zshrc` are what enable the version managers.
 ## Notes
 
 - `fzf` keybindings are loaded from `.fzf.zsh` when present (tracked in this repo), otherwise `fzf --zsh` is used.
-- macOS dependencies are tracked in a single `Brewfile` (packages, casks, VS Code extensions, cargo packages).
+- macOS dependencies live in a single `Brewfile`.
+- Neovim plugin versions are pinned in `nvim/lazy-lock.json`.
+- Oh My Zsh compfix stays enabled by default. Set `DOTFILES_DISABLE_OMZ_COMPFIX=1` only when you accept the completion-directory risk; `scripts/doctor.sh` reports insecure completion paths and suggests remediation.
 - Linux instructions are optimized for Ubuntu/Debian. Other distributions should install equivalent packages manually.
 - `config/toolchain.sh` is the source of truth for package lists, minimum tool versions, and Neovim bootstrap inventory.
 - `.bash_profile` includes Juliaup and a lazy-loaded Conda hook.

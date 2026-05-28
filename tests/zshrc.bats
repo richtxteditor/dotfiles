@@ -191,6 +191,27 @@ EOF
   [ "$output" = "brew not installed" ]
 }
 
+@test "bbu writes ignored snapshot instead of overwriting Brewfile" {
+  local bin_dir="$BATS_TEST_TMPDIR/bin"
+  mkdir -p "$bin_dir"
+
+  cat > "$bin_dir/brew" <<'EOF'
+#!/usr/bin/env bash
+echo "$*" > "$BREW_ARGS_FILE"
+exit 0
+EOF
+  chmod +x "$bin_dir/brew"
+
+  run env PATH="$bin_dir:/usr/bin:/bin" BREW_ARGS_FILE="$BATS_TEST_TMPDIR/brew.args" zsh -c "DOTFILES_PLATFORM=linux source .zshrc 2>/tmp/zshrc_err; bbu"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Brewfile.snapshot updated; move intentional entries into Brewfile manually."* ]]
+
+  run cat "$BATS_TEST_TMPDIR/brew.args"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"bundle dump --file=$PWD/Brewfile.snapshot --force"* ]]
+  [[ "$output" != *"bundle dump --file=$PWD/Brewfile --force"* ]]
+}
+
 @test "macOS update disables Homebrew auto-update during upgrade" {
   run env DOTFILES_PLATFORM=macos zsh -c '
     source .zshrc 2>/tmp/zshrc_err
@@ -239,6 +260,16 @@ EOF
   run zsh -c "DOTFILES_PLATFORM=linux source .zshrc 2>/tmp/zshrc_err; print -l -- \$plugins"
   [[ "$output" == *"sudo"* ]]
   [[ "$output" != *"macos"* ]]
+}
+
+@test "zshrc keeps Oh My Zsh compfix enabled unless explicitly disabled" {
+  run zsh -c "unset ZSH_DISABLE_COMPFIX DOTFILES_DISABLE_OMZ_COMPFIX; source .zshrc 2>/tmp/zshrc_err; print -r -- \${ZSH_DISABLE_COMPFIX-unset}"
+  [ "$status" -eq 0 ]
+  [ "$output" = "unset" ]
+
+  run zsh -c "DOTFILES_DISABLE_OMZ_COMPFIX=1 source .zshrc 2>/tmp/zshrc_err; print -r -- \$ZSH_DISABLE_COMPFIX"
+  [ "$status" -eq 0 ]
+  [ "$output" = "true" ]
 }
 
 @test "zshrc remains a thin entrypoint" {

@@ -155,6 +155,22 @@ check_default_shell() {
     fi
 }
 
+check_zsh_completion_permissions() {
+    local audit_output
+
+    if ! command -v zsh >/dev/null 2>&1; then
+        warn "Skipping zsh completion audit: zsh is missing"
+        return
+    fi
+
+    audit_output="$(zsh -fc 'autoload -Uz compaudit; compaudit' 2>/dev/null || true)"
+    if [[ -n "$audit_output" ]]; then
+        warn "zsh compaudit found insecure completion paths; run: compaudit | xargs chmod go-w"
+    else
+        pass "zsh completion paths pass compaudit"
+    fi
+}
+
 verify_nvim_contract() {
     if [[ "$run_nvim_verify" -ne 1 ]]; then
         return
@@ -197,6 +213,7 @@ check_min_version composer
 check_min_version tree-sitter
 check_locale
 check_default_shell
+check_zsh_completion_permissions
 verify_nvim_contract
 
 printf 'Doctor summary: %s failure(s), %s warning(s)\n' "$failures" "$warnings"

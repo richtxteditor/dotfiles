@@ -31,9 +31,18 @@ exec "$@"
 EOF
   chmod +x "$TEST_HOME/bin/sudo"
 
-  cat << 'EOF' > "$TEST_HOME/bin/curl"
+cat << 'EOF' > "$TEST_HOME/bin/curl"
 #!/bin/bash
 if [[ "$*" == *"https://starship.rs/install.sh"* ]]; then
+if [ "$1" = "-fsSL" ] && [ "$3" = "-o" ]; then
+cat > "$4" <<'SCRIPT'
+#!/bin/sh
+echo "Mock starship installer $@"
+exit 0
+SCRIPT
+echo "Mock curl $2 -> $4"
+exit 0
+fi
 cat <<'SCRIPT'
 #!/bin/sh
 echo "Mock starship installer $@"
@@ -42,6 +51,15 @@ SCRIPT
 exit 0
 fi
 if [[ "$*" == *"https://sh.rustup.rs"* ]]; then
+if [ "$1" = "-fsSL" ] && [ "$3" = "-o" ]; then
+cat > "$4" <<'SCRIPT'
+#!/bin/sh
+echo "Mock rustup installer $@"
+exit 0
+SCRIPT
+echo "Mock curl $2 -> $4"
+exit 0
+fi
 cat <<'SCRIPT'
 #!/bin/sh
 echo "Mock rustup installer $@"
