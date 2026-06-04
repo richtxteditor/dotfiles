@@ -96,6 +96,7 @@
   grep -q '^  contents: read' .github/workflows/test.yml
   grep -q 'actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd' .github/workflows/test.yml
   grep -q 'gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7' .github/workflows/test.yml
+  grep -q 'FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true' .github/workflows/test.yml
   ! grep -Eq 'uses: .+@(v[0-9]+|main|master|latest)' .github/workflows/test.yml
 
   grep -q '^permissions:' .github/workflows/full-bootstrap.yml
