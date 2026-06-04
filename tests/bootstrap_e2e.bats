@@ -148,7 +148,16 @@ prepare_lazy_stub() {
   cat << 'EOF' > "$XDG_DATA_HOME/nvim/lazy/lazy.nvim/lua/lazy/init.lua"
 local M = {}
 
-function M.setup()
+function M.setup(_, opts)
+  local log_path = vim.env.LAZY_STUB_LOG
+  if log_path and log_path ~= "" then
+    local install_missing = opts and opts.install and opts.install.missing
+    local checker_enabled = opts and opts.checker and opts.checker.enabled
+    local file = assert(io.open(log_path, "a"))
+    file:write("install_missing=", tostring(install_missing), "\n")
+    file:write("checker_enabled=", tostring(checker_enabled), "\n")
+    file:close()
+  end
   return nil
 end
 
@@ -274,4 +283,24 @@ EOF
 
   run env HOME="$HOME" DOTFILES_TEST_UNAME=Linux XDG_CONFIG_HOME="$HOME/.config" XDG_DATA_HOME="$XDG_DATA_HOME" nvim --headless '+quitall'
   [ "$status" -eq 0 ]
+}
+
+@test "installed neovim CI smoke disables lazy network installs" {
+  if ! command -v nvim >/dev/null 2>&1; then
+    skip "nvim is not installed"
+  fi
+
+  run install_for_platform macos Darwin
+  [ "$status" -eq 0 ]
+
+  prepare_lazy_stub
+  local lazy_stub_log="$BATS_TEST_TMPDIR/lazy-stub.log"
+
+  run env HOME="$HOME" DOTFILES_TEST_UNAME=Darwin DOTFILES_CI_SMOKE_NVIM=1 LAZY_STUB_LOG="$lazy_stub_log" XDG_CONFIG_HOME="$HOME/.config" XDG_DATA_HOME="$XDG_DATA_HOME" nvim --headless '+quitall'
+  [ "$status" -eq 0 ]
+
+  run cat "$lazy_stub_log"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"install_missing=false"* ]]
+  [[ "$output" == *"checker_enabled=false"* ]]
 }

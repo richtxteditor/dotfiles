@@ -25,6 +25,7 @@ make_mock_repo() {
 #!/usr/bin/env bash
 set -euo pipefail
 echo "\${*:-<none>}" >> "$repo/install.log"
+echo "DOTFILES_CI_SMOKE_INSTALL=\${DOTFILES_CI_SMOKE_INSTALL:-}" >> "$repo/install-env.log"
 mkdir -p "$HOME/.config"
 ln -snf "$repo/platforms/$platform_dir/.zshrc" "$HOME/.zshrc"
 ln -snf "$repo/platforms/$platform_dir/.bash_profile" "$HOME/.bash_profile"
@@ -113,6 +114,24 @@ EOF
   [[ "$output" == *"DOTFILES_CI_SMOKE_NVIM=1"* ]]
 }
 
+@test "ci smoke install runs Linux skip-deps flow twice in smoke mode" {
+  local repo="$BATS_TEST_TMPDIR/repo-linux-skip"
+  local bin_dir="$BATS_TEST_TMPDIR/bin-linux-skip"
+  make_mock_bin "$bin_dir"
+  make_mock_repo "$repo" "ubuntu" "$bin_dir"
+
+  run env HOME="$HOME" PATH="$bin_dir:$PATH" bash "$repo/scripts/ci-smoke-install.sh" linux skip-deps
+  [ "$status" -eq 0 ]
+
+  run cat "$repo/install.log"
+  [ "$status" -eq 0 ]
+  [ "$output" = $'--skip-deps\n--skip-deps' ]
+
+  run cat "$repo/install-env.log"
+  [ "$status" -eq 0 ]
+  [ "$output" = $'DOTFILES_CI_SMOKE_INSTALL=1\nDOTFILES_CI_SMOKE_INSTALL=1' ]
+}
+
 @test "ci smoke install runs macOS skip-deps flow twice" {
   local repo="$BATS_TEST_TMPDIR/repo-macos-skip"
   local bin_dir="$BATS_TEST_TMPDIR/bin-macos-skip"
@@ -125,6 +144,10 @@ EOF
   run cat "$repo/install.log"
   [ "$status" -eq 0 ]
   [ "$output" = $'--skip-deps\n--skip-deps' ]
+
+  run cat "$repo/install-env.log"
+  [ "$status" -eq 0 ]
+  [ "$output" = $'DOTFILES_CI_SMOKE_INSTALL=1\nDOTFILES_CI_SMOKE_INSTALL=1' ]
 
   [ "$(readlink "$HOME/.zshrc")" = "$repo/platforms/macos/.zshrc" ]
   [ "$(readlink "$HOME/.bash_profile")" = "$repo/platforms/macos/.bash_profile" ]
@@ -143,6 +166,17 @@ EOF
   run cat "$repo/install.log"
   [ "$status" -eq 0 ]
   [ "$output" = $'<none>\n--skip-deps' ]
+}
+
+@test "ci smoke install fails on unknown Linux mode" {
+  local repo="$BATS_TEST_TMPDIR/repo-bad-linux-mode"
+  local bin_dir="$BATS_TEST_TMPDIR/bin-bad-linux-mode"
+  make_mock_bin "$bin_dir"
+  make_mock_repo "$repo" "ubuntu" "$bin_dir"
+
+  run env HOME="$HOME" PATH="$bin_dir:$PATH" bash "$repo/scripts/ci-smoke-install.sh" linux weird
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"Unknown Linux install mode: weird"* ]]
 }
 
 @test "ci smoke install fails on unknown platform argument" {

@@ -45,6 +45,10 @@ jobs:
 
       - name: Install dependencies (macOS)
         if: runner.os == 'macOS'
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: 1
+          HOMEBREW_NO_ENV_HINTS: 1
+          HOMEBREW_NO_INSTALL_CLEANUP: 1
         run: brew install bats-core shellcheck tmux neovim lua
 
       - name: Run test suite
@@ -52,7 +56,7 @@ jobs:
 
       - name: Smoke install (Ubuntu)
         if: runner.os == 'Linux'
-        run: bash ./scripts/ci-smoke-install.sh linux
+        run: bash ./scripts/ci-smoke-install.sh linux skip-deps
 
       - name: Smoke install (macOS)
         if: runner.os == 'macOS'

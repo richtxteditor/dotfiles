@@ -64,6 +64,10 @@ should_manage_dependencies() {
     [[ -z "$SKIP_DEPS" ]]
 }
 
+is_ci_smoke_install() {
+    [[ "${DOTFILES_CI_SMOKE_INSTALL:-}" == "1" ]]
+}
+
 confirm_proceed() {
     local step=1
 
@@ -380,6 +384,11 @@ install_starship() {
         return
     fi
 
+    if is_ci_smoke_install; then
+        echo "Skipping starship install: CI smoke mode."
+        return
+    fi
+
     run_cmd mkdir -p "$HOME/.local/bin"
 
     if command -v starship >/dev/null 2>&1; then
@@ -431,6 +440,11 @@ install_rustup() {
         return
     fi
 
+    if is_ci_smoke_install; then
+        echo "Skipping rustup install: CI smoke mode."
+        return
+    fi
+
     if command -v rustup >/dev/null 2>&1; then
         echo "rustup is already installed."
         return
@@ -472,6 +486,11 @@ install_tree_sitter_cli() {
         return
     fi
 
+    if is_ci_smoke_install; then
+        echo "Skipping tree-sitter-cli install: CI smoke mode."
+        return
+    fi
+
     if command -v tree-sitter >/dev/null 2>&1; then
         echo "tree-sitter-cli is already installed."
         return
@@ -494,6 +513,11 @@ install_tree_sitter_cli() {
 
 ensure_utf8_locale_linux() {
     if ! dotfiles_is_linux; then
+        return
+    fi
+
+    if is_ci_smoke_install; then
+        echo "Skipping locale setup: CI smoke mode."
         return
     fi
 
@@ -537,6 +561,11 @@ install_omz_plugin() {
 }
 
 install_zsh_extras() {
+    if is_ci_smoke_install; then
+        echo "Skipping Oh My Zsh extras install: CI smoke mode."
+        return
+    fi
+
     install_oh_my_zsh
     install_omz_plugin "zsh-autosuggestions" "https://github.com/zsh-users/zsh-autosuggestions"
     install_omz_plugin "zsh-syntax-highlighting" "https://github.com/zsh-users/zsh-syntax-highlighting.git"
@@ -545,6 +574,11 @@ install_zsh_extras() {
 
 install_hunkdiff() {
     local npm_prefix="$HOME/.local"
+
+    if is_ci_smoke_install; then
+        echo "Skipping hunkdiff install: CI smoke mode."
+        return
+    fi
 
     if command -v hunk >/dev/null 2>&1; then
         echo "hunkdiff is already installed."
@@ -569,6 +603,11 @@ install_hunkdiff() {
 install_node_neovim_host() {
     local npm_prefix="$HOME/.local"
 
+    if is_ci_smoke_install; then
+        echo "Skipping Node.js Neovim host install: CI smoke mode."
+        return
+    fi
+
     if ! command -v npm >/dev/null 2>&1; then
         echo "Skipping Node.js Neovim host install: npm not found."
         return
@@ -586,6 +625,11 @@ install_node_neovim_host() {
 
 install_ruby_neovim_host() {
     local gem_bindir
+
+    if is_ci_smoke_install; then
+        echo "Skipping Ruby Neovim host install: CI smoke mode."
+        return
+    fi
 
     if ! command -v ruby >/dev/null 2>&1 || ! command -v gem >/dev/null 2>&1; then
         echo "Skipping Ruby Neovim host install: ruby/gem not found."
@@ -668,6 +712,12 @@ ensure_default_shell_is_zsh() {
 
 install_tpm() {
     local tpm_dir="$HOME/.tmux/plugins/tpm"
+
+    if is_ci_smoke_install; then
+        echo "Skipping Tmux Plugin Manager install: CI smoke mode."
+        return
+    fi
+
     if [[ -d "$tpm_dir" ]]; then
         echo "TPM is already installed."
         return

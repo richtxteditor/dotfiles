@@ -106,6 +106,24 @@ MOCK
   [[ "$output" != *"curl should not run during dry-run"* ]]
 }
 
+@test "install.sh CI smoke mode skips optional network bootstrap" {
+  run env DOTFILES_PLATFORM=linux DOTFILES_CI_SMOKE_INSTALL=1 bash -c 'printf "y\n" | ./install.sh --skip-deps'
+  [ "$status" -eq 0 ]
+
+  [[ "$output" == *"Skipping starship install: CI smoke mode."* ]]
+  [[ "$output" == *"Skipping rustup install: CI smoke mode."* ]]
+  [[ "$output" == *"Skipping tree-sitter-cli install: CI smoke mode."* ]]
+  [[ "$output" == *"Skipping locale setup: CI smoke mode."* ]]
+  [[ "$output" == *"Skipping Oh My Zsh extras install: CI smoke mode."* ]]
+  [[ "$output" == *"Skipping hunkdiff install: CI smoke mode."* ]]
+  [[ "$output" == *"Skipping Node.js Neovim host install: CI smoke mode."* ]]
+  [[ "$output" == *"Skipping Ruby Neovim host install: CI smoke mode."* ]]
+  [[ "$output" == *"Skipping Tmux Plugin Manager install: CI smoke mode."* ]]
+  [[ "$output" != *"Mock git clone"* ]]
+  [[ "$output" != *"Mock npm install"* ]]
+  [[ "$output" != *"Mock gem install"* ]]
+}
+
 @test "install.sh fails before running a mismatched downloaded installer" {
   rm -f "$TEST_HOME/bin/"*
   setup_macos_minimal_path

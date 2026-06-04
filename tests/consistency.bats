@@ -85,7 +85,7 @@
   [ -f ".github/workflows/test.yml" ]
   [ -f ".github/workflows/full-bootstrap.yml" ]
   [ -f "scripts/ci-smoke-install.sh" ]
-  grep -q "bash ./scripts/ci-smoke-install.sh linux" .github/workflows/test.yml
+  grep -q "bash ./scripts/ci-smoke-install.sh linux skip-deps" .github/workflows/test.yml
   grep -q "bash ./scripts/ci-smoke-install.sh macos skip-deps" .github/workflows/test.yml
   grep -q "bash ./scripts/ci-smoke-install.sh linux" .github/workflows/full-bootstrap.yml
   grep -q "bash ./scripts/ci-smoke-install.sh macos full" .github/workflows/full-bootstrap.yml

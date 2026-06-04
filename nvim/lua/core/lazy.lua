@@ -21,7 +21,9 @@ if not uv.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-if vim.env.DOTFILES_CI_SMOKE_NVIM == "1" then
+local ci_smoke_nvim = vim.env.DOTFILES_CI_SMOKE_NVIM == "1"
+
+if ci_smoke_nvim then
 	-- CI smoke validates startup without allowing Lazy to rewrite tracked pins.
 	local ok, lock = pcall(require, "lazy.manage.lock")
 	if ok then
@@ -35,8 +37,9 @@ require("lazy").setup({
 	-- lazy.nvim will automatically load files from the `lua/plugins/` directory.
 	{ import = "plugins" },
 }, {
+	install = { missing = not ci_smoke_nvim },
 	ui = { border = "rounded" },
-	checker = { enabled = true, notify = false },
+	checker = { enabled = not ci_smoke_nvim, notify = false },
 	change_detection = { notify = false },
 	rocks = { enabled = false },
 })
