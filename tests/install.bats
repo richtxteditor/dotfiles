@@ -112,6 +112,7 @@ MOCK
   link_host_cmd mktemp
   link_host_cmd rm
   link_host_cmd awk
+  link_host_cmd cat
 
   cat > "$TEST_HOME/bin/curl" <<'MOCK'
 #!/bin/bash

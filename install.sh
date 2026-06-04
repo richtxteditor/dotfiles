@@ -133,11 +133,10 @@ run_downloaded_script() {
     script_path="$temp_dir/install.sh"
 
     status=0
-    (
-        set -e
-        download_verified_file "$label" "$url" "$script_path" "$expected_sha256"
-        "$interpreter" "$script_path" "$@"
-    ) || status=$?
+    download_verified_file "$label" "$url" "$script_path" "$expected_sha256" || status=$?
+    if [[ "$status" -eq 0 ]]; then
+        "$interpreter" "$script_path" "$@" || status=$?
+    fi
 
     rm -rf "$temp_dir"
     return "$status"
@@ -353,16 +352,22 @@ install_latest_neovim_linux() {
     extracted_dir="$temp_dir/extracted"
 
     status=0
-    (
-        set -e
-        mkdir -p "$extracted_dir" "$HOME/.local/bin" "$(dirname "$install_dir")"
-        download_verified_file "Neovim $version_label" "$archive_url" "$archive_path" "$expected_sha256"
-        tar -xzf "$archive_path" -C "$extracted_dir"
-
-        rm -rf "$install_dir"
-        mv "$extracted_dir/nvim-linux-${arch}" "$install_dir"
-        ln -snf "$install_dir/bin/nvim" "$HOME/.local/bin/nvim"
-    ) || status=$?
+    mkdir -p "$extracted_dir" "$HOME/.local/bin" "$(dirname "$install_dir")" || status=$?
+    if [[ "$status" -eq 0 ]]; then
+        download_verified_file "Neovim $version_label" "$archive_url" "$archive_path" "$expected_sha256" || status=$?
+    fi
+    if [[ "$status" -eq 0 ]]; then
+        tar -xzf "$archive_path" -C "$extracted_dir" || status=$?
+    fi
+    if [[ "$status" -eq 0 ]]; then
+        rm -rf "$install_dir" || status=$?
+    fi
+    if [[ "$status" -eq 0 ]]; then
+        mv "$extracted_dir/nvim-linux-${arch}" "$install_dir" || status=$?
+    fi
+    if [[ "$status" -eq 0 ]]; then
+        ln -snf "$install_dir/bin/nvim" "$HOME/.local/bin/nvim" || status=$?
+    fi
 
     rm -rf "$temp_dir"
     return "$status"
@@ -401,14 +406,19 @@ install_starship() {
     extracted_dir="$temp_dir/extracted"
 
     status=0
-    (
-        set -e
-        mkdir -p "$extracted_dir" "$HOME/.local/bin"
-        download_verified_file "starship $DOTFILES_STARSHIP_VERSION" "$archive_url" "$archive_path" "$expected_sha256"
-        tar -xzf "$archive_path" -C "$extracted_dir"
-        mv "$extracted_dir/starship" "$HOME/.local/bin/starship"
-        chmod 0755 "$HOME/.local/bin/starship"
-    ) || status=$?
+    mkdir -p "$extracted_dir" "$HOME/.local/bin" || status=$?
+    if [[ "$status" -eq 0 ]]; then
+        download_verified_file "starship $DOTFILES_STARSHIP_VERSION" "$archive_url" "$archive_path" "$expected_sha256" || status=$?
+    fi
+    if [[ "$status" -eq 0 ]]; then
+        tar -xzf "$archive_path" -C "$extracted_dir" || status=$?
+    fi
+    if [[ "$status" -eq 0 ]]; then
+        mv "$extracted_dir/starship" "$HOME/.local/bin/starship" || status=$?
+    fi
+    if [[ "$status" -eq 0 ]]; then
+        chmod 0755 "$HOME/.local/bin/starship" || status=$?
+    fi
 
     rm -rf "$temp_dir"
     return "$status"
@@ -443,12 +453,13 @@ install_rustup() {
     rustup_init="$temp_dir/rustup-init"
 
     status=0
-    (
-        set -e
-        download_verified_file "rustup $DOTFILES_RUSTUP_VERSION" "$rustup_url" "$rustup_init" "$expected_sha256"
-        chmod 0755 "$rustup_init"
-        "$rustup_init" -y --profile minimal
-    ) || status=$?
+    download_verified_file "rustup $DOTFILES_RUSTUP_VERSION" "$rustup_url" "$rustup_init" "$expected_sha256" || status=$?
+    if [[ "$status" -eq 0 ]]; then
+        chmod 0755 "$rustup_init" || status=$?
+    fi
+    if [[ "$status" -eq 0 ]]; then
+        "$rustup_init" -y --profile minimal || status=$?
+    fi
 
     rm -rf "$temp_dir"
     return "$status"
