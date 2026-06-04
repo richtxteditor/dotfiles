@@ -54,7 +54,7 @@ print_linux_package_workaround() {
 
     echo "Ubuntu package install command:"
     echo "  sudo apt-get update && sudo apt-get install -y $apt_packages"
-    echo "Latest Neovim stable is installed separately from upstream into ~/.local."
+    echo "Pinned Neovim $DOTFILES_NEOVIM_LINUX_VERSION is installed separately from upstream into ~/.local."
     echo "Rustup is installed separately into ~/.cargo for Rust-based Neovim plugins."
     echo "tree-sitter-cli is installed separately via npm."
     echo "If you are not on Ubuntu or Debian, install equivalent packages manually."
@@ -80,7 +80,7 @@ confirm_proceed() {
             ((step++))
             echo "$step. Install dependencies via Ubuntu apt."
             ((step++))
-            echo "$step. Install latest Neovim stable from upstream."
+            echo "$step. Install pinned Neovim release from upstream."
         else
             echo "$step. Skip dependency installation."
         fi
@@ -119,33 +119,70 @@ confirm_proceed() {
 run_downloaded_script() {
     local label="$1"
     local url="$2"
-    local interpreter="$3"
+    local expected_sha256="$3"
+    local interpreter="$4"
     local temp_dir script_path status
-    shift 3
+    shift 4
 
     if [[ -n "$DRY_RUN" ]]; then
-        echo "DRY RUN: download $url and run $interpreter $* ($label)"
+        echo "DRY RUN: download $url, verify sha256 $expected_sha256, and run $interpreter $* ($label)"
         return
     fi
 
     temp_dir="$(mktemp -d)"
     script_path="$temp_dir/install.sh"
 
-    curl -fsSL "$url" -o "$script_path"
-    status=$?
-    if [[ "$status" -ne 0 ]]; then
-        rm -rf "$temp_dir"
-        return "$status"
-    fi
-
-    "$interpreter" "$script_path" "$@"
-    status=$?
-    if [[ "$status" -ne 0 ]]; then
-        rm -rf "$temp_dir"
-        return "$status"
-    fi
+    status=0
+    (
+        set -e
+        download_verified_file "$label" "$url" "$script_path" "$expected_sha256"
+        "$interpreter" "$script_path" "$@"
+    ) || status=$?
 
     rm -rf "$temp_dir"
+    return "$status"
+}
+
+sha256_file() {
+    local file_path="$1"
+
+    if command -v shasum >/dev/null 2>&1; then
+        shasum -a 256 "$file_path" | awk '{ print $1 }'
+        return
+    fi
+
+    if command -v sha256sum >/dev/null 2>&1; then
+        sha256sum "$file_path" | awk '{ print $1 }'
+        return
+    fi
+
+    echo "No SHA256 tool found. Install shasum or sha256sum." >&2
+    return 1
+}
+
+verify_sha256() {
+    local label="$1"
+    local file_path="$2"
+    local expected_sha256="$3"
+    local actual_sha256
+
+    actual_sha256="$(sha256_file "$file_path")"
+    if [[ "$actual_sha256" != "$expected_sha256" ]]; then
+        echo "SHA256 mismatch for $label." >&2
+        echo "Expected: $expected_sha256" >&2
+        echo "Actual:   $actual_sha256" >&2
+        return 1
+    fi
+}
+
+download_verified_file() {
+    local label="$1"
+    local url="$2"
+    local output_path="$3"
+    local expected_sha256="$4"
+
+    curl -fsSL "$url" -o "$output_path"
+    verify_sha256 "$label" "$output_path" "$expected_sha256"
 }
 
 prepare_backup_dir() {
@@ -199,6 +236,8 @@ configure_brew_shellenv() {
 }
 
 ensure_homebrew() {
+    local install_url
+
     if dotfiles_is_linux; then
         echo "Skipping Homebrew on Linux."
         return
@@ -210,7 +249,8 @@ ensure_homebrew() {
     fi
 
     echo "Homebrew not found. Installing..."
-    run_downloaded_script "Homebrew installer" "https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh" /bin/bash
+    install_url="https://raw.githubusercontent.com/Homebrew/install/${DOTFILES_HOMEBREW_INSTALL_COMMIT}/install.sh"
+    run_downloaded_script "Homebrew installer" "$install_url" "$DOTFILES_HOMEBREW_INSTALL_SHA256" /bin/bash
     configure_brew_shellenv
 }
 
@@ -264,7 +304,7 @@ version_ge() {
 
 install_latest_neovim_linux() {
     local desired_version="${NVIM_LINUX_VERSION:-stable}"
-    local arch archive_name archive_url temp_dir archive_path extracted_dir install_dir current_version
+    local arch archive_name archive_url temp_dir archive_path extracted_dir install_dir current_version expected_sha256 version_label status
 
     if ! dotfiles_is_linux; then
         return
@@ -273,14 +313,26 @@ install_latest_neovim_linux() {
     arch="$(linux_neovim_arch)" || exit 1
     archive_name="nvim-linux-${arch}.tar.gz"
     if [[ "$desired_version" == "stable" ]]; then
-        archive_url="https://github.com/neovim/neovim/releases/latest/download/$archive_name"
+        version_label="$DOTFILES_NEOVIM_LINUX_VERSION"
+        expected_sha256="$(dotfiles_neovim_linux_sha256_for_arch "$arch")"
+        archive_url="https://github.com/neovim/neovim/releases/download/v${version_label}/$archive_name"
         install_dir="$HOME/.local/opt/nvim-stable"
-        echo "Installing latest Neovim stable from upstream release ($archive_name)..."
+        echo "Installing pinned Neovim $version_label from upstream release ($archive_name)..."
     else
         current_version="$(current_nvim_version || true)"
         if [[ -n "$current_version" ]] && version_ge "$current_version" "$desired_version"; then
             echo "Neovim $current_version already satisfies Linux target version $desired_version."
             return
+        fi
+
+        version_label="$desired_version"
+        if [[ "$desired_version" == "$DOTFILES_NEOVIM_LINUX_VERSION" ]]; then
+            expected_sha256="$(dotfiles_neovim_linux_sha256_for_arch "$arch")"
+        elif [[ -n "${NVIM_LINUX_SHA256:-}" ]]; then
+            expected_sha256="$NVIM_LINUX_SHA256"
+        else
+            echo "NVIM_LINUX_VERSION=$desired_version requires NVIM_LINUX_SHA256 for verified install." >&2
+            exit 1
         fi
 
         archive_url="https://github.com/neovim/neovim/releases/download/v${desired_version}/$archive_name"
@@ -290,6 +342,7 @@ install_latest_neovim_linux() {
 
     if [[ -n "$DRY_RUN" ]]; then
         echo "DRY RUN: download $archive_url"
+        echo "DRY RUN: verify sha256 $expected_sha256 for Neovim $version_label"
         echo "DRY RUN: extract archive into $install_dir"
         echo "DRY RUN: symlink $HOME/.local/bin/nvim -> $install_dir/bin/nvim"
         return
@@ -299,17 +352,25 @@ install_latest_neovim_linux() {
     archive_path="$temp_dir/$archive_name"
     extracted_dir="$temp_dir/extracted"
 
-    mkdir -p "$extracted_dir" "$HOME/.local/bin" "$(dirname "$install_dir")"
-    curl -fsSL "$archive_url" -o "$archive_path"
-    tar -xzf "$archive_path" -C "$extracted_dir"
+    status=0
+    (
+        set -e
+        mkdir -p "$extracted_dir" "$HOME/.local/bin" "$(dirname "$install_dir")"
+        download_verified_file "Neovim $version_label" "$archive_url" "$archive_path" "$expected_sha256"
+        tar -xzf "$archive_path" -C "$extracted_dir"
 
-    rm -rf "$install_dir"
-    mv "$extracted_dir/nvim-linux-${arch}" "$install_dir"
-    ln -snf "$install_dir/bin/nvim" "$HOME/.local/bin/nvim"
+        rm -rf "$install_dir"
+        mv "$extracted_dir/nvim-linux-${arch}" "$install_dir"
+        ln -snf "$install_dir/bin/nvim" "$HOME/.local/bin/nvim"
+    ) || status=$?
+
     rm -rf "$temp_dir"
+    return "$status"
 }
 
 install_starship() {
+    local arch target expected_sha256 archive_name archive_url temp_dir archive_path extracted_dir status
+
     if ! dotfiles_is_linux; then
         return
     fi
@@ -321,11 +382,41 @@ install_starship() {
         return
     fi
 
-    echo "Installing starship..."
-    run_downloaded_script "starship installer" "https://starship.rs/install.sh" sh -y -b "$HOME/.local/bin"
+    arch="$(linux_neovim_arch)" || exit 1
+    target="$(dotfiles_starship_target_for_arch "$arch")"
+    expected_sha256="$(dotfiles_starship_sha256_for_target "$target")"
+    archive_name="starship-${target}.tar.gz"
+    archive_url="https://github.com/starship/starship/releases/download/v${DOTFILES_STARSHIP_VERSION}/${archive_name}"
+
+    if [[ -n "$DRY_RUN" ]]; then
+        echo "DRY RUN: download $archive_url"
+        echo "DRY RUN: verify sha256 $expected_sha256 for starship $DOTFILES_STARSHIP_VERSION"
+        echo "DRY RUN: install starship into $HOME/.local/bin/starship"
+        return
+    fi
+
+    echo "Installing starship $DOTFILES_STARSHIP_VERSION..."
+    temp_dir="$(mktemp -d)"
+    archive_path="$temp_dir/$archive_name"
+    extracted_dir="$temp_dir/extracted"
+
+    status=0
+    (
+        set -e
+        mkdir -p "$extracted_dir" "$HOME/.local/bin"
+        download_verified_file "starship $DOTFILES_STARSHIP_VERSION" "$archive_url" "$archive_path" "$expected_sha256"
+        tar -xzf "$archive_path" -C "$extracted_dir"
+        mv "$extracted_dir/starship" "$HOME/.local/bin/starship"
+        chmod 0755 "$HOME/.local/bin/starship"
+    ) || status=$?
+
+    rm -rf "$temp_dir"
+    return "$status"
 }
 
 install_rustup() {
+    local arch target expected_sha256 rustup_url temp_dir rustup_init status
+
     if ! dotfiles_is_linux; then
         return
     fi
@@ -335,8 +426,32 @@ install_rustup() {
         return
     fi
 
-    echo "Installing rustup..."
-    run_downloaded_script "rustup installer" "https://sh.rustup.rs" sh -y --profile minimal
+    arch="$(linux_neovim_arch)" || exit 1
+    target="$(dotfiles_rustup_target_for_arch "$arch")"
+    expected_sha256="$(dotfiles_rustup_sha256_for_target "$target")"
+    rustup_url="https://static.rust-lang.org/rustup/archive/${DOTFILES_RUSTUP_VERSION}/${target}/rustup-init"
+
+    if [[ -n "$DRY_RUN" ]]; then
+        echo "DRY RUN: download $rustup_url"
+        echo "DRY RUN: verify sha256 $expected_sha256 for rustup $DOTFILES_RUSTUP_VERSION"
+        echo "DRY RUN: run rustup-init -y --profile minimal"
+        return
+    fi
+
+    echo "Installing rustup $DOTFILES_RUSTUP_VERSION..."
+    temp_dir="$(mktemp -d)"
+    rustup_init="$temp_dir/rustup-init"
+
+    status=0
+    (
+        set -e
+        download_verified_file "rustup $DOTFILES_RUSTUP_VERSION" "$rustup_url" "$rustup_init" "$expected_sha256"
+        chmod 0755 "$rustup_init"
+        "$rustup_init" -y --profile minimal
+    ) || status=$?
+
+    rm -rf "$temp_dir"
+    return "$status"
 }
 
 install_tree_sitter_cli() {

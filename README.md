@@ -44,7 +44,7 @@ Follow these steps to deploy the environment on a fresh macOS or Linux installat
     ```
 
 2. **Run Installation Script:**
-    This script detects your platform, backs up existing configurations, creates symbolic links, and sets up the terminal/editor environment. On macOS it installs Homebrew dependencies automatically. On Ubuntu/Linux it skips Homebrew, installs core packages with `apt`, and installs the latest Neovim release from upstream into `~/.local`.
+    This script detects your platform, backs up existing configurations, creates symbolic links, and sets up the terminal/editor environment. On macOS it installs Homebrew dependencies automatically. On Ubuntu/Linux it skips Homebrew, installs core packages with `apt`, and installs a pinned Neovim release from upstream into `~/.local`.
     ```bash
     cd ~/dotfiles
     ./install.sh
@@ -78,7 +78,7 @@ Follow these steps to deploy the environment on a fresh macOS or Linux installat
 
 The script handles the following:
 - **macOS:** Homebrew packages, GUI casks, and VS Code extensions from `Brewfile`
-- **Linux:** Ubuntu-first `apt` install for core packages, plus latest upstream Neovim in `~/.local`; no Homebrew install path by default
+- **Linux:** Ubuntu-first `apt` install for core packages, plus pinned upstream Neovim in `~/.local`; no Homebrew install path by default
 - **Symlinks** for Zsh, Bash profile, Tmux, Neovim, Starship, Ghostty, and Claude Code configs
 - **Default shell switch** to `zsh` when `zsh` and `chsh` are available
 - **TPM** (Tmux Plugin Manager)
@@ -209,6 +209,7 @@ The repo includes layered verification:
 - `tests/repo_hygiene.bats`: blocks local runtime artifacts from re-entering the repo
 - CI also runs Gitleaks to catch accidentally committed credentials.
 - CI actions are pinned to immutable commit SHAs; refresh them by resolving the desired tag with `git ls-remote` and updating the inline version comment.
+- Installer downloads for Homebrew, Linux Neovim, Starship, and Rustup are pinned and SHA256-verified.
 
 Run everything locally with:
 
@@ -610,6 +611,7 @@ These lines in your `.zshrc` are what enable the version managers.
 
 - `fzf` keybindings are loaded from `.fzf.zsh` when present (tracked in this repo), otherwise `fzf --zsh` is used.
 - macOS dependencies live in a single `Brewfile`.
+- Bootstrap artifact pins and checksums live in `config/toolchain.sh`; refresh versions by updating the URL/version constant and matching SHA256 together.
 - Neovim plugin versions are pinned in `nvim/lazy-lock.json`.
 - Oh My Zsh compfix stays enabled by default. Set `DOTFILES_DISABLE_OMZ_COMPFIX=1` only when you accept the completion-directory risk; `scripts/doctor.sh` reports insecure completion paths and suggests remediation.
 - Linux instructions are optimized for Ubuntu/Debian. Other distributions should install equivalent packages manually.

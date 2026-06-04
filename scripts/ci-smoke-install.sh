@@ -44,7 +44,7 @@ smoke_tmux_startup() {
 }
 
 smoke_nvim_startup() {
-    nvim --headless '+quitall'
+    DOTFILES_CI_SMOKE_NVIM=1 nvim --headless '+quitall'
 }
 
 case "$platform" in

@@ -64,9 +64,10 @@ exit 0
 EOF
   chmod +x "$bin_dir/tmux"
 
-  cat > "$bin_dir/nvim" <<'EOF'
+  cat > "$bin_dir/nvim" <<EOF
 #!/usr/bin/env bash
-if [ "${1:-}" = "--version" ]; then
+echo "DOTFILES_CI_SMOKE_NVIM=\${DOTFILES_CI_SMOKE_NVIM:-}" >> "$bin_dir/nvim.log"
+if [ "\${1:-}" = "--version" ]; then
   echo "NVIM v0.12.1"
   exit 0
 fi
@@ -106,6 +107,10 @@ EOF
   [ "$status" -eq 0 ]
   [[ "$output" == *"diff --exit-code"* ]]
   [[ "$output" == *"status --short"* ]]
+
+  run cat "$bin_dir/nvim.log"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"DOTFILES_CI_SMOKE_NVIM=1"* ]]
 }
 
 @test "ci smoke install runs macOS skip-deps flow twice" {

@@ -21,6 +21,14 @@ if not uv.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+if vim.env.DOTFILES_CI_SMOKE_NVIM == "1" then
+	-- CI smoke validates startup without allowing Lazy to rewrite tracked pins.
+	local ok, lock = pcall(require, "lazy.manage.lock")
+	if ok then
+		lock.update = function() end
+	end
+end
+
 -- Setup lazy.nvim with your plugins
 require("lazy").setup({
 	-- Define your plugins as a list of specs.

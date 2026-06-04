@@ -101,8 +101,41 @@ MOCK
 
   run env HOME="$HOME" PATH="$TEST_HOME/bin" DOTFILES_PLATFORM=macos /bin/bash ./install.sh --dry-run
   [ "$status" -eq 0 ]
-  [[ "$output" == *"DRY RUN: download https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"* ]]
+  [[ "$output" == *"DRY RUN: download https://raw.githubusercontent.com/Homebrew/install/5753984d1eb214c40e86489416be2d38972f836a/install.sh"* ]]
+  [[ "$output" == *"verify sha256 f3e91784ffeda32bc397de7acc1154724cc47522a459c9ac656cca176eeba457"* ]]
   [[ "$output" != *"curl should not run during dry-run"* ]]
+}
+
+@test "install.sh fails before running a mismatched downloaded installer" {
+  rm -f "$TEST_HOME/bin/"*
+  setup_macos_minimal_path
+  link_host_cmd mktemp
+  link_host_cmd rm
+  link_host_cmd awk
+
+  cat > "$TEST_HOME/bin/curl" <<'MOCK'
+#!/bin/bash
+cat > "$4" <<'SCRIPT'
+#!/bin/bash
+echo "downloaded installer ran"
+exit 0
+SCRIPT
+echo "Mock curl $2 -> $4"
+exit 0
+MOCK
+  chmod +x "$TEST_HOME/bin/curl"
+
+  cat > "$TEST_HOME/bin/shasum" <<'MOCK'
+#!/bin/bash
+echo "0000000000000000000000000000000000000000000000000000000000000000  $3"
+exit 0
+MOCK
+  chmod +x "$TEST_HOME/bin/shasum"
+
+  run env HOME="$HOME" PATH="$TEST_HOME/bin" DOTFILES_PLATFORM=macos /bin/bash -c 'printf "y\n" | ./install.sh'
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"SHA256 mismatch for Homebrew installer."* ]]
+  [[ "$output" != *"downloaded installer ran"* ]]
 }
 
 @test "install.sh rejects unknown options" {
@@ -141,9 +174,15 @@ MOCK
   [[ "$output" == *"Skip Homebrew on Linux"* ]]
   [[ "$output" == *"Ubuntu package install command:"* ]]
   [[ "$output" == *"sudo apt-get update && sudo apt-get install -y git curl zsh tmux fzf ripgrep fd-find bat xclip build-essential zoxide eza zsh-autosuggestions zsh-syntax-highlighting python3 python3-venv python3-pip nodejs npm ruby-full golang-go clangd php-cli php-mbstring php-xml composer default-jdk luarocks locales texlive-latex-base"* ]]
-  [[ "$output" == *"Install latest Neovim stable from upstream."* ]]
-  [[ "$output" == *"Latest Neovim stable is installed separately from upstream into ~/.local."* ]]
+  [[ "$output" == *"Install pinned Neovim release from upstream."* ]]
+  [[ "$output" == *"Pinned Neovim 0.12.2 is installed separately from upstream into ~/.local."* ]]
   [[ "$output" == *"tree-sitter-cli is installed separately via npm."* ]]
+}
+
+@test "install.sh requires checksum for unpinned Linux Neovim override" {
+  run env DOTFILES_PLATFORM=linux NVIM_LINUX_VERSION=99.0.0 bash -c 'printf "y\n" | ./install.sh'
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"NVIM_LINUX_VERSION=99.0.0 requires NVIM_LINUX_SHA256 for verified install."* ]]
 }
 
 @test "install.sh fails clearly when apt-get is unavailable on Linux" {

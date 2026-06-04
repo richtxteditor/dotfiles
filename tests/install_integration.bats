@@ -77,44 +77,27 @@ EOF
   chmod +x "$TEST_HOME/bin/git"
 
   # Mock `curl`
-cat << 'EOF' > "$TEST_HOME/bin/curl"
+  cat << 'EOF' > "$TEST_HOME/bin/curl"
 #!/bin/bash
-if [[ "$*" == *"https://starship.rs/install.sh"* ]]; then
 if [ "$1" = "-fsSL" ] && [ "$3" = "-o" ]; then
-cat > "$4" <<'SCRIPT'
+  case "$2" in
+    *github.com/neovim/neovim/releases/download/v0.12.2/nvim-linux-x86_64.tar.gz)
+      : > "$4"
+      ;;
+    *github.com/starship/starship/releases/download/v1.25.1/starship-x86_64-unknown-linux-musl.tar.gz)
+      : > "$4"
+      ;;
+    *static.rust-lang.org/rustup/archive/1.29.0/x86_64-unknown-linux-gnu/rustup-init)
+      cat > "$4" <<'SCRIPT'
 #!/bin/sh
-echo "Mock starship installer $@"
+echo "Mock rustup-init $@"
 exit 0
 SCRIPT
-echo "Mock curl $2 -> $4"
-exit 0
-fi
-cat <<'SCRIPT'
-#!/bin/sh
-echo "Mock starship installer $@"
-exit 0
-SCRIPT
-exit 0
-fi
-if [[ "$*" == *"https://sh.rustup.rs"* ]]; then
-if [ "$1" = "-fsSL" ] && [ "$3" = "-o" ]; then
-cat > "$4" <<'SCRIPT'
-#!/bin/sh
-echo "Mock rustup installer $@"
-exit 0
-SCRIPT
-echo "Mock curl $2 -> $4"
-exit 0
-fi
-cat <<'SCRIPT'
-#!/bin/sh
-echo "Mock rustup installer $@"
-exit 0
-SCRIPT
-exit 0
-fi
-if [ "$1" = "-fsSL" ] && [[ "$2" == *"github.com/neovim/neovim/releases/latest/download/"* ]] && [ "$3" = "-o" ]; then
-  : > "$4"
+      ;;
+    *)
+      : > "$4"
+      ;;
+  esac
   echo "Mock curl $2 -> $4"
   exit 0
 fi
@@ -123,10 +106,43 @@ exit 0
 EOF
   chmod +x "$TEST_HOME/bin/curl"
 
+  cat << 'EOF' > "$TEST_HOME/bin/shasum"
+#!/bin/bash
+if [ "$1" = "-a" ] && [ "$2" = "256" ]; then
+  case "$(basename "$3")" in
+    install.sh)
+      echo "f3e91784ffeda32bc397de7acc1154724cc47522a459c9ac656cca176eeba457  $3"
+      ;;
+    nvim-linux-x86_64.tar.gz)
+      echo "31cf85945cb600d96cdf69f88bc68bec814acbff50863c5546adef3a1bcef260  $3"
+      ;;
+    starship-x86_64-unknown-linux-musl.tar.gz)
+      echo "c6ddd3ecb9c0071a2ad38d98cee748160066b7c4f197421268058f4a5d6f8504  $3"
+      ;;
+    rustup-init)
+      echo "4acc9acc76d5079515b46346a485974457b5a79893cfb01112423c89aeb5aa10  $3"
+      ;;
+    *)
+      echo "unexpected checksum input: $3" >&2
+      exit 1
+      ;;
+  esac
+  exit 0
+fi
+exit 1
+EOF
+  chmod +x "$TEST_HOME/bin/shasum"
+
   cat << 'EOF' > "$TEST_HOME/bin/tar"
 #!/bin/bash
+archive=""
 dest=""
 while [ "$#" -gt 0 ]; do
+  if [ "$1" = "-xzf" ]; then
+    archive="$2"
+    shift 2
+    continue
+  fi
   if [ "$1" = "-C" ]; then
     dest="$2"
     shift 2
@@ -134,9 +150,27 @@ while [ "$#" -gt 0 ]; do
   fi
   shift
 done
-mkdir -p "$dest/nvim-linux-x86_64/bin"
-touch "$dest/nvim-linux-x86_64/bin/nvim"
-echo "Mock tar extracted to $dest"
+
+case "$(basename "$archive")" in
+  nvim-linux-x86_64.tar.gz)
+    mkdir -p "$dest/nvim-linux-x86_64/bin"
+    touch "$dest/nvim-linux-x86_64/bin/nvim"
+    echo "Mock tar extracted Neovim to $dest"
+    ;;
+  starship-x86_64-unknown-linux-musl.tar.gz)
+    mkdir -p "$dest"
+    cat > "$dest/starship" <<'SCRIPT'
+#!/bin/sh
+echo "Mock starship $@"
+exit 0
+SCRIPT
+    echo "Mock tar extracted starship to $dest"
+    ;;
+  *)
+    echo "Unexpected tar archive: $archive" >&2
+    exit 1
+    ;;
+esac
 exit 0
 EOF
   chmod +x "$TEST_HOME/bin/tar"
@@ -232,12 +266,12 @@ EOF
   [[ "$output" == *"Skipping Homebrew on Linux."* ]]
   [[ "$output" == *"Mock apt-get update"* ]]
   [[ "$output" == *"Mock apt-get install -y git curl zsh tmux fzf ripgrep fd-find bat xclip build-essential zoxide eza zsh-autosuggestions zsh-syntax-highlighting python3 python3-venv python3-pip nodejs npm ruby-full golang-go clangd php-cli php-mbstring php-xml composer default-jdk luarocks locales texlive-latex-base"* ]]
-  [[ "$output" == *"Installing latest Neovim stable from upstream release (nvim-linux-x86_64.tar.gz)"* ]]
-  [[ "$output" == *"Mock curl https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz"* ]]
-  [[ "$output" == *"Mock tar extracted to "* ]]
-  [[ "$output" == *"Installing rustup..."* || "$output" == *"rustup is already installed."* ]]
-  if [[ "$output" == *"Installing rustup..."* ]]; then
-    [[ "$output" == *"Mock rustup installer -y --profile minimal"* ]]
+  [[ "$output" == *"Installing pinned Neovim 0.12.2 from upstream release (nvim-linux-x86_64.tar.gz)"* ]]
+  [[ "$output" == *"Mock curl https://github.com/neovim/neovim/releases/download/v0.12.2/nvim-linux-x86_64.tar.gz"* ]]
+  [[ "$output" == *"Mock tar extracted Neovim to "* ]]
+  [[ "$output" == *"Installing rustup 1.29.0..."* || "$output" == *"rustup is already installed."* ]]
+  if [[ "$output" == *"Installing rustup 1.29.0..."* ]]; then
+    [[ "$output" == *"Mock rustup-init -y --profile minimal"* ]]
   fi
   [[ "$output" == *"Mock locale-gen en_US.UTF-8"* ]]
   [[ "$output" == *"Mock update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8"* ]]
@@ -253,7 +287,7 @@ EOF
   [[ "$output" == *"Mock npm install -g --prefix $HOME/.local neovim"* ]]
   [[ "$output" == *"Installing Ruby Neovim host..."* ]]
   [[ "$output" == *"Mock gem install --user-install neovim"* ]]
-  [[ "$output" == *"Mock starship installer -y -b $HOME/.local/bin"* || "$output" == *"starship is already installed."* ]]
+  [[ "$output" == *"Installing starship 1.25.1..."* || "$output" == *"starship is already installed."* ]]
   [[ "$output" == *"Skipping Neovim bootstrap: non-interactive session."* ]]
   [[ "$output" != *"Mock brew bundle --file="* ]]
 

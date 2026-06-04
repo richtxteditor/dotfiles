@@ -31,6 +31,21 @@ DOTFILES_MIN_VERSION_php="8.2.0"
 DOTFILES_MIN_VERSION_composer="2.0.0"
 DOTFILES_MIN_VERSION_tree_sitter="0.26.0"
 
+DOTFILES_HOMEBREW_INSTALL_COMMIT="5753984d1eb214c40e86489416be2d38972f836a"
+DOTFILES_HOMEBREW_INSTALL_SHA256="f3e91784ffeda32bc397de7acc1154724cc47522a459c9ac656cca176eeba457"
+
+DOTFILES_NEOVIM_LINUX_VERSION="0.12.2"
+DOTFILES_NEOVIM_LINUX_X86_64_SHA256="31cf85945cb600d96cdf69f88bc68bec814acbff50863c5546adef3a1bcef260"
+DOTFILES_NEOVIM_LINUX_ARM64_SHA256="f697d4e4582b6e4b5c3c26e76e06ce26efa08ba1768e03fd2733fcc422bb0490"
+
+DOTFILES_STARSHIP_VERSION="1.25.1"
+DOTFILES_STARSHIP_X86_64_UNKNOWN_LINUX_MUSL_SHA256="c6ddd3ecb9c0071a2ad38d98cee748160066b7c4f197421268058f4a5d6f8504"
+DOTFILES_STARSHIP_AARCH64_UNKNOWN_LINUX_MUSL_SHA256="01517aab398959ea9ea73bdb4f032ea4dbb51dff5c8e5eb05b4a1b9b7ab872b8"
+
+DOTFILES_RUSTUP_VERSION="1.29.0"
+DOTFILES_RUSTUP_X86_64_UNKNOWN_LINUX_GNU_SHA256="4acc9acc76d5079515b46346a485974457b5a79893cfb01112423c89aeb5aa10"
+DOTFILES_RUSTUP_AARCH64_UNKNOWN_LINUX_GNU_SHA256="9732d6c5e2a098d3521fca8145d826ae0aaa067ef2385ead08e6feac88fa5792"
+
 DOTFILES_NVIM_LSP_SERVERS=(
     pyright eslint html cssls tailwindcss jsonls yamlls lua_ls
     bashls clangd ts_ls sqlls djlsp marksman texlab
@@ -131,4 +146,44 @@ dotfiles_min_version_for() {
     local var_name="DOTFILES_MIN_VERSION_${normalized}"
 
     printf '%s\n' "${!var_name:-}"
+}
+
+dotfiles_neovim_linux_sha256_for_arch() {
+    case "$1" in
+        x86_64) printf '%s\n' "$DOTFILES_NEOVIM_LINUX_X86_64_SHA256" ;;
+        arm64) printf '%s\n' "$DOTFILES_NEOVIM_LINUX_ARM64_SHA256" ;;
+        *) return 1 ;;
+    esac
+}
+
+dotfiles_starship_target_for_arch() {
+    case "$1" in
+        x86_64) printf '%s\n' "x86_64-unknown-linux-musl" ;;
+        arm64) printf '%s\n' "aarch64-unknown-linux-musl" ;;
+        *) return 1 ;;
+    esac
+}
+
+dotfiles_starship_sha256_for_target() {
+    case "$1" in
+        x86_64-unknown-linux-musl) printf '%s\n' "$DOTFILES_STARSHIP_X86_64_UNKNOWN_LINUX_MUSL_SHA256" ;;
+        aarch64-unknown-linux-musl) printf '%s\n' "$DOTFILES_STARSHIP_AARCH64_UNKNOWN_LINUX_MUSL_SHA256" ;;
+        *) return 1 ;;
+    esac
+}
+
+dotfiles_rustup_target_for_arch() {
+    case "$1" in
+        x86_64) printf '%s\n' "x86_64-unknown-linux-gnu" ;;
+        arm64) printf '%s\n' "aarch64-unknown-linux-gnu" ;;
+        *) return 1 ;;
+    esac
+}
+
+dotfiles_rustup_sha256_for_target() {
+    case "$1" in
+        x86_64-unknown-linux-gnu) printf '%s\n' "$DOTFILES_RUSTUP_X86_64_UNKNOWN_LINUX_GNU_SHA256" ;;
+        aarch64-unknown-linux-gnu) printf '%s\n' "$DOTFILES_RUSTUP_AARCH64_UNKNOWN_LINUX_GNU_SHA256" ;;
+        *) return 1 ;;
+    esac
 }

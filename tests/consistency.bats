@@ -269,6 +269,24 @@
   ! grep -q 'Brewfile.extras' install.sh
 }
 
+@test "installer pins and verifies remote bootstrap artifacts" {
+  grep -q 'DOTFILES_HOMEBREW_INSTALL_COMMIT="5753984d1eb214c40e86489416be2d38972f836a"' config/toolchain.sh
+  grep -q 'DOTFILES_NEOVIM_LINUX_VERSION="0.12.2"' config/toolchain.sh
+  grep -q 'DOTFILES_STARSHIP_VERSION="1.25.1"' config/toolchain.sh
+  grep -q 'DOTFILES_RUSTUP_VERSION="1.29.0"' config/toolchain.sh
+
+  grep -q 'verify_sha256()' install.sh
+  grep -q 'download_verified_file()' install.sh
+  grep -q 'raw.githubusercontent.com/Homebrew/install/${DOTFILES_HOMEBREW_INSTALL_COMMIT}/install.sh' install.sh
+  grep -q 'github.com/neovim/neovim/releases/download/v${version_label}' install.sh
+  grep -q 'github.com/starship/starship/releases/download/v${DOTFILES_STARSHIP_VERSION}' install.sh
+  grep -q 'static.rust-lang.org/rustup/archive/${DOTFILES_RUSTUP_VERSION}' install.sh
+
+  ! grep -q 'starship.rs/install.sh' install.sh
+  ! grep -q 'sh.rustup.rs' install.sh
+  ! grep -q 'releases/latest/download' install.sh
+}
+
 @test "dotfiles_version_ge compares semantic versions portably" {
   source config/toolchain.sh
 
