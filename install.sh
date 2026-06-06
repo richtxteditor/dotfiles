@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-dir="$(cd "$(dirname "$0")" && pwd)"
+dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck disable=SC1091
 . "$dir/shell/shared/platform.sh"
 # shellcheck disable=SC1091
@@ -13,6 +13,57 @@ SKIP_DEPS=""
 timestamp="$(date +%Y%m%d_%H%M%S)"
 olddir="$HOME/dotfiles_backup_$timestamp"
 link_specs=()
+install_error_labels=()
+install_error_logs=()
+install_error_dir=""
+
+run_deferred_error_step() {
+    local label="$1"
+    local log_file status
+    shift
+
+    if [[ -z "$install_error_dir" ]]; then
+        install_error_dir="$(mktemp -d)"
+    fi
+    log_file="$install_error_dir/step-${#install_error_logs[@]}.log"
+
+    if "$@" >"$log_file" 2>&1; then
+        cat "$log_file"
+        rm -f "$log_file"
+        return
+    else
+        status=$?
+    fi
+
+    install_error_labels+=("$label (exit $status)")
+    install_error_logs+=("$log_file")
+    echo "$label failed; details will be shown in the Errors section."
+}
+
+print_install_error_summary() {
+    local index
+
+    if [[ ${#install_error_logs[@]} -eq 0 ]]; then
+        return 0
+    fi
+
+    printf '\n==================================================\n'
+    printf 'Errors\n'
+    printf '==================================================\n'
+    for index in "${!install_error_logs[@]}"; do
+        printf '\n[%s]\n' "${install_error_labels[$index]}"
+        cat "${install_error_logs[$index]}"
+    done
+    printf '\n==================================================\n'
+    printf '%d step(s) failed.\n' "${#install_error_logs[@]}"
+    return 1
+}
+
+cleanup_install_error_logs() {
+    if [[ -n "$install_error_dir" ]]; then
+        rm -rf "$install_error_dir"
+    fi
+}
 
 run_cmd() {
     if [[ -n "$DRY_RUN" ]]; then
@@ -858,25 +909,30 @@ bootstrap_neovim_environment() {
     fi
 
     echo "Bootstrapping Neovim plugins..."
-    nvim --headless "+Lazy! sync" +qa
+    run_deferred_error_step "Neovim plugin restore" nvim --headless \
+        "+Lazy! restore" \
+        "+lua local config = require('lazy.core.config'); local plugin = require('lazy.core.plugin'); for _, spec in pairs(config.spec.plugins) do if plugin.has_errors(spec) then vim.cmd('cquit 1') end end" \
+        +qa
 
     echo "Bootstrapping Mason tooling..."
-    nvim --headless "+MasonUpdate" "+MasonToolsInstallSync" +qa
+    run_deferred_error_step "Mason tooling bootstrap" nvim --headless "+MasonUpdate" "+MasonToolsInstallSync" +qa
 
     lua_list="$(printf '"%s",' "${treesitter_languages[@]}")"
     lua_list="${lua_list%,}"
 
     echo "Bootstrapping treesitter parsers..."
-    nvim --headless "+lua require('nvim-treesitter').install({${lua_list}}):wait(300000)" "+TSUpdateSync" +qa
+    run_deferred_error_step "Treesitter parser bootstrap" nvim --headless "+lua require('nvim-treesitter').install({${lua_list}}):wait(300000)" "+TSUpdateSync" +qa
 
     devdocs_args="$(printf '%s ' "${devdocs_entries[@]}")"
     devdocs_args="${devdocs_args% }"
 
     echo "Bootstrapping DevDocs offline docs..."
-    nvim --headless "+DevdocsFetch" "+DevdocsInstall ${devdocs_args}" +qa
+    run_deferred_error_step "DevDocs bootstrap" nvim --headless "+DevdocsFetch" "+DevdocsInstall ${devdocs_args}" +qa
 }
 
 main() {
+    local install_status=0
+
     parse_args "$@"
     confirm_proceed
     prepare_backup_dir
@@ -898,8 +954,21 @@ main() {
     install_tpm
     install_pynvim_provider
     bootstrap_neovim_environment
+
+    if ! print_install_error_summary; then
+        install_status=1
+    fi
+    cleanup_install_error_logs
+
+    if [[ "$install_status" -ne 0 ]]; then
+        echo "Dotfiles installation completed with errors."
+        echo "Your original files are safe in $olddir"
+        return "$install_status"
+    fi
+
     echo "Dotfiles installation complete!"
-    echo "If you saw any errors, your original files are safe in $olddir"
 }
 
-main "$@"
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+    main "$@"
+fi

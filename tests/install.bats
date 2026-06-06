@@ -76,6 +76,42 @@ link_host_cmd() {
   ln -sf "$host_path" "$TEST_HOME/bin/$cmd"
 }
 
+@test "installer defers step failures into a final Errors section" {
+  run bash -c '
+    source ./install.sh
+    run_deferred_error_step "First bootstrap" bash -c "echo first-error >&2; exit 7"
+    run_deferred_error_step "Second bootstrap" bash -c "echo second-error >&2; exit 9"
+    echo after-steps
+    status=0
+    print_install_error_summary || status=$?
+    cleanup_install_error_logs
+    exit "$status"
+  '
+
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"First bootstrap failed; details will be shown in the Errors section."* ]]
+  [[ "$output" == *"Second bootstrap failed; details will be shown in the Errors section."* ]]
+  [[ "$output" == *$'after-steps\n\n==================================================\nErrors'* ]]
+  [[ "$output" == *"[First bootstrap (exit 7)]"* ]]
+  [[ "$output" == *"first-error"* ]]
+  [[ "$output" == *"[Second bootstrap (exit 9)]"* ]]
+  [[ "$output" == *"second-error"* ]]
+  [[ "$output" == *"2 step(s) failed."* ]]
+}
+
+@test "installer omits the Errors section when deferred steps succeed" {
+  run bash -c '
+    source ./install.sh
+    run_deferred_error_step "Successful bootstrap" bash -c "echo success-output"
+    print_install_error_summary
+    cleanup_install_error_logs
+  '
+
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"success-output"* ]]
+  [[ "$output" != *$'\nErrors\n'* ]]
+}
+
 @test "install.sh runs in dry-run mode without failing" {
   run ./install.sh --dry-run
   [ "$status" -eq 0 ]

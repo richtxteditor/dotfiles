@@ -288,6 +288,18 @@
   ! grep -q 'releases/latest/download' install.sh
 }
 
+@test "Neovim bootstrap restores locked plugins without updating them" {
+  grep -Fq 'run_deferred_error_step "Neovim plugin restore" nvim --headless' install.sh
+  grep -Fq '"+Lazy! restore"' install.sh
+  grep -Fq "plugin.has_errors(spec) then vim.cmd('cquit 1')" install.sh
+  ! grep -Fq 'nvim --headless "+Lazy! sync" +qa' install.sh
+}
+
+@test "fff.nvim builds only its Neovim crate without the native downloader" {
+  grep -Fq 'build = "cargo build --release -p fff-nvim"' nvim/lua/plugins/fff.lua
+  ! grep -Fq 'download_or_build_binary' nvim/lua/plugins/fff.lua
+}
+
 @test "dotfiles_version_ge compares semantic versions portably" {
   source config/toolchain.sh
 
