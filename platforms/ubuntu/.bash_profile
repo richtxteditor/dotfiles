@@ -3,8 +3,8 @@ while [ -L "$BASH_PROFILE_SOURCE" ]; do
     BASH_PROFILE_DIR="$(cd -P "$(dirname "$BASH_PROFILE_SOURCE")" && pwd)"
     BASH_PROFILE_SOURCE="$(readlink "$BASH_PROFILE_SOURCE")"
     case "$BASH_PROFILE_SOURCE" in
-        /*) ;;
-        *) BASH_PROFILE_SOURCE="$BASH_PROFILE_DIR/$BASH_PROFILE_SOURCE" ;;
+    /*) ;;
+    *) BASH_PROFILE_SOURCE="$BASH_PROFILE_DIR/$BASH_PROFILE_SOURCE" ;;
     esac
 done
 
@@ -15,3 +15,7 @@ export DOTFILES_PLATFORM="linux"
 
 # shellcheck disable=SC1091
 . "$DOTFILES_ROOT/shell/bash/entrypoint.bash"
+
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init - bash)"
